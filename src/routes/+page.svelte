@@ -2,5 +2,5 @@
 	import { Button, LinkButton } from '$lib/components/button';
 </script>
 
-<Button on:click={() => console.log('Hello world')}>Standard button</Button>
-<LinkButton href="#">Link button</LinkButton>
+<Button style="secondary" on:click={() => console.log('Hello world')}>Standard button</Button>
+<LinkButton style="secondary" href="#">Link button</LinkButton>

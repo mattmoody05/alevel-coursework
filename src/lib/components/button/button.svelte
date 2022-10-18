@@ -1,4 +1,8 @@
 <script lang="ts">
+	type buttonStyle = 'primary' | 'secondary';
+
+	export let style: buttonStyle = 'primary';
+
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
@@ -7,9 +11,15 @@
 	}
 </script>
 
-<button
-	on:click={onClickDispatcher}
-	class="bg-gray-900 max-w-max text-white font-bold py-3 px-8 rounded-2xl"
->
-	<slot />
-</button>
+{#if style === 'primary'}
+	<button
+		on:click={onClickDispatcher}
+		class="bg-gray-900 max-w-max text-white font-bold py-3 px-8 rounded-2xl"
+	>
+		<slot />
+	</button>
+{:else}
+	<button on:click={onClickDispatcher} class="max-w-max py-3 px-8 opacity-50 underline">
+		<slot />
+	</button>
+{/if}
