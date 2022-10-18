@@ -1,2 +1,6 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import { Button, LinkButton } from '$lib/components/button';
+</script>
+
+<Button on:click={() => console.log('Hello world')}>Standard button</Button>
+<LinkButton href="#">Link button</LinkButton>
