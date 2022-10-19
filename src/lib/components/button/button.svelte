@@ -19,7 +19,7 @@
 		<slot />
 	</button>
 {:else}
-	<button on:click={onClickDispatcher} class="max-w-max py-3 px-8 opacity-50 underline">
+	<button on:click={onClickDispatcher} class="max-w-max opacity-50 underline">
 		<slot />
 	</button>
 {/if}
