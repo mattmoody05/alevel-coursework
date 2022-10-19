@@ -1,6 +1,12 @@
 <script lang="ts">
-	import { Button, LinkButton } from '$lib/components/button';
+	import { Alert } from '$lib/components/alert';
 </script>
 
-<Button style="secondary" on:click={() => console.log('Hello world')}>Standard button</Button>
-<LinkButton style="secondary" href="#">Link button</LinkButton>
+<div class="w-1/2">
+	<Alert
+		title="❗Incorrect username or password"
+		body="The username or password that you have input is incorrect, if you have forgotten your password, reset it using the link below."
+		buttonText="Acknowledge"
+		secondaryButtonText="Forgot your password?"
+	/>
+</div>
