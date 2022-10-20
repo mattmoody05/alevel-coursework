@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Checkbox, Toggle } from '$lib/components/checkbox';
+	import { Textbox } from '$lib/components/inputs';
 </script>
 
 <div class="m-12">
-	<Toggle rightLabelText="Right" leftLabelText="Left" />
+	<Textbox labelText="First name" placeholderText="John" />
 	<br />
-	<Checkbox labelText="Label text" />
+	<Textbox labelText="Last name" placeholderText="Doe" />
 </div>
