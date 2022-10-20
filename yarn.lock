@@ -71,6 +71,11 @@
   "resolved" "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.21.tgz"
   "version" "1.0.0-next.21"
 
+"@popperjs/core@^2.11.6", "@popperjs/core@^2.9.3":
+  "integrity" "sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw=="
+  "resolved" "https://registry.npmjs.org/@popperjs/core/-/core-2.11.6.tgz"
+  "version" "2.11.6"
+
 "@rollup/pluginutils@^4.2.1":
   "integrity" "sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ=="
   "resolved" "https://registry.npmjs.org/@rollup/pluginutils/-/pluginutils-4.2.1.tgz"
@@ -363,6 +368,11 @@
   "resolved" "https://registry.npmjs.org/chownr/-/chownr-2.0.0.tgz"
   "version" "2.0.0"
 
+"classnames@^2.3.2":
+  "integrity" "sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw=="
+  "resolved" "https://registry.npmjs.org/classnames/-/classnames-2.3.2.tgz"
+  "version" "2.3.2"
+
 "color-name@^1.1.4":
   "integrity" "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA=="
   "resolved" "https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz"
@@ -541,6 +551,23 @@
   "version" "7.0.1"
   dependencies:
     "to-regex-range" "^5.0.1"
+
+"flowbite-svelte@^0.27.9":
+  "integrity" "sha512-0Zc3ZgvN4Ar0fOzM7ZtLVXMIi0MMXAgBrpC4UjdJ9LQTp34Xh/2aYqlp2WezfrkoZQGCvFfyqvXAf9V23DAFwQ=="
+  "resolved" "https://registry.npmjs.org/flowbite-svelte/-/flowbite-svelte-0.27.9.tgz"
+  "version" "0.27.9"
+  dependencies:
+    "@popperjs/core" "^2.11.6"
+    "classnames" "^2.3.2"
+    "flowbite" "^1.5.3"
+
+"flowbite@^1.5.3":
+  "integrity" "sha512-e2OHfndxTHtGMqcPqvqwg3gGLg57hmIDVgE/BazMDccgirQ0JEtirKnbZZ4WSOIEhNDgO9pJZuyC8rRlcMm6pQ=="
+  "resolved" "https://registry.npmjs.org/flowbite/-/flowbite-1.5.3.tgz"
+  "version" "1.5.3"
+  dependencies:
+    "@popperjs/core" "^2.9.3"
+    "mini-svg-data-uri" "^1.4.3"
 
 "fraction.js@^4.2.0":
   "integrity" "sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA=="
@@ -763,7 +790,7 @@
   "resolved" "https://registry.npmjs.org/min-indent/-/min-indent-1.0.1.tgz"
   "version" "1.0.1"
 
-"mini-svg-data-uri@^1.2.3":
+"mini-svg-data-uri@^1.2.3", "mini-svg-data-uri@^1.4.3":
   "integrity" "sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg=="
   "resolved" "https://registry.npmjs.org/mini-svg-data-uri/-/mini-svg-data-uri-1.4.4.tgz"
   "version" "1.4.4"
