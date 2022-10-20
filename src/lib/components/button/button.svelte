@@ -14,7 +14,7 @@
 {#if style === 'primary'}
 	<button
 		on:click={onClickDispatcher}
-		class="bg-gray-900 max-w-max text-white font-bold py-3 px-8 rounded-2xl"
+		class="bg-gray-900 hover:bg-gray-700 max-w-max text-white font-bold py-3 px-8 rounded-2xl"
 	>
 		<slot />
 	</button>
