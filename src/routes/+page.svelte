@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { NumericUpDown } from '$lib/components/inputs';
+	import { LargeTextbox } from '$lib/components/inputs';
 </script>
 
 <div class="m-12">
-	<NumericUpDown labelText="Age" placeholderText="Age" />
+	<LargeTextbox labelText="Reason for absence" placeholderText="Please describe in detail" />
 </div>
