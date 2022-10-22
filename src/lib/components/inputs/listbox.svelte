@@ -5,9 +5,11 @@
 </script>
 
 <div class="flex flex-col gap-1">
-	<label for="countries" class="text-sm">{labelText}</label>
+	{#if labelText !== ''}
+		<label for="componentListbox" class="text-sm">{labelText}</label>
+	{/if}
 	<select
-		id="countries"
+		id="componentListbox"
 		class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
 		bind:value
 	>

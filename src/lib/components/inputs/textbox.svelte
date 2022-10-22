@@ -5,7 +5,10 @@
 	export let isPassword: boolean = false;
 </script>
 
-<div class="flex flex-col-reverse gap-1">
+<div class="flex flex-col gap-1">
+	{#if labelText !== ''}
+		<label for="componentTextbox" class="text-sm">{labelText}</label>
+	{/if}
 	{#if isPassword}
 		<input
 			type="password"
@@ -22,8 +25,5 @@
 			placeholder={placeholderText}
 			bind:value
 		/>
-	{/if}
-	{#if labelText !== ''}
-		<label for="componentTextbox" class="text-sm">{labelText}</label>
 	{/if}
 </div>
