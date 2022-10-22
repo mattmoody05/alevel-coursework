@@ -1,5 +1,5 @@
 <script lang="ts">
-	type buttonStyle = 'primary' | 'secondary';
+	type buttonStyle = 'primary' | 'secondary' | 'danger';
 
 	export let style: buttonStyle = 'primary';
 
@@ -18,8 +18,15 @@
 	>
 		<slot />
 	</button>
-{:else}
+{:else if style === 'secondary'}
 	<button on:click={onClickDispatcher} class="max-w-max opacity-50 underline">
+		<slot />
+	</button>
+{:else if style === 'danger'}
+	<button
+		on:click={onClickDispatcher}
+		class="bg-red-700 hover:bg-red-600 max-w-max text-white font-bold py-3 px-8 rounded-2xl"
+	>
 		<slot />
 	</button>
 {/if}

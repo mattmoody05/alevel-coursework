@@ -1,5 +1,5 @@
 <script lang="ts">
-	type buttonStyle = 'primary' | 'secondary';
+	type buttonStyle = 'primary' | 'secondary' | 'danger';
 
 	export let style: buttonStyle = 'primary';
 	export let href: string;
@@ -11,9 +11,15 @@
 			<slot />
 		</div>
 	</a>
-{:else}
+{:else if style === 'secondary'}
 	<a {href}>
 		<div class="max-w-max opacity-50 underline">
+			<slot />
+		</div>
+	</a>
+{:else if style === 'danger'}
+	<a {href}>
+		<div class="bg-red-700 hover:bg-red-600 max-w-max text-white font-bold py-3 px-8 rounded-2xl">
 			<slot />
 		</div>
 	</a>
