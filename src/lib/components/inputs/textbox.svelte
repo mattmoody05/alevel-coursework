@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let placeholderText: string = '';
 	export let labelText: string = '';
-	export let textboxContent: string = '';
+	export let value: string = '';
 	export let isPassword: boolean = false;
 </script>
 
@@ -12,7 +12,7 @@
 			id="componentTextbox"
 			class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
 			placeholder={placeholderText}
-			bind:value={textboxContent}
+			bind:value
 		/>
 	{:else}
 		<input
@@ -20,7 +20,7 @@
 			id="componentTextbox"
 			class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
 			placeholder={placeholderText}
-			bind:value={textboxContent}
+			bind:value
 		/>
 	{/if}
 	{#if labelText !== ''}
