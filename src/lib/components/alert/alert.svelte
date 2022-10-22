@@ -22,8 +22,8 @@
 	<p class="opacity-50 leading-5">{body}</p>
 	<div class="flex justify-between mt-4">
 		{#if secondaryButtonText !== ''}
-			<Button style="secondary">{secondaryButtonText}</Button>
+			<Button on:click={secondaryButtonDispatcher} style="secondary">{secondaryButtonText}</Button>
 		{/if}
-		<Button style="primary">{buttonText}</Button>
+		<Button on:click={primaryButtonDispatcher} style="primary">{buttonText}</Button>
 	</div>
 </div>
