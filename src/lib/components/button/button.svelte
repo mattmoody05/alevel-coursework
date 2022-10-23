@@ -14,18 +14,18 @@
 {#if style === 'primary'}
 	<button
 		on:click={onClickDispatcher}
-		class="bg-gray-900 hover:bg-gray-700 max-w-max text-white font-bold py-3 px-8 rounded-2xl"
+		class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold py-3 px-8 rounded-2xl w-full"
 	>
 		<slot />
 	</button>
 {:else if style === 'secondary'}
-	<button on:click={onClickDispatcher} class="max-w-max opacity-50 underline">
+	<button on:click={onClickDispatcher} class="min-w-max opacity-50 underline">
 		<slot />
 	</button>
 {:else if style === 'danger'}
 	<button
 		on:click={onClickDispatcher}
-		class="bg-red-700 hover:bg-red-600 max-w-max text-white font-bold py-3 px-8 rounded-2xl"
+		class="bg-red-700 hover:bg-red-600 min-w-max text-white font-bold py-3 px-8 rounded-2xl w-full"
 	>
 		<slot />
 	</button>
