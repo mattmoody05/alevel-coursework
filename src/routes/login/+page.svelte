@@ -1,0 +1,21 @@
+<script lang="ts">
+	import { Textbox } from '$lib/components/input';
+	import { Button, LinkButton } from '$lib/components/button';
+</script>
+
+<main>
+	<div class="grid grid-cols-1 md:grid-cols-2 h-screen">
+		<div class="h-full flex justify-center flex-col">
+			<div class="flex flex-col gap-2 m-8">
+				<h1 class="font-bold text-3xl">Login</h1>
+				<Textbox labelText="Username" placeholderText="jdoe" />
+				<Textbox labelText="Password" isPassword={true} />
+				<Button>Login</Button>
+				<LinkButton href="/register" style="secondary"
+					>Don't have an account? Register here</LinkButton
+				>
+			</div>
+		</div>
+		<div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-200 hidden md:block" />
+	</div>
+</main>
