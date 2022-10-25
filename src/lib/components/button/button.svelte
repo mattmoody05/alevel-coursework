@@ -1,5 +1,5 @@
 <script lang="ts">
-	type buttonStyle = 'primary' | 'secondary' | 'danger';
+	import type { buttonStyle } from '$lib/util/types';
 
 	export let style: buttonStyle = 'primary';
 
