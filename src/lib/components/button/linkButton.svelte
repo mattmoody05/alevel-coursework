@@ -8,7 +8,7 @@
 {#if style === 'primary'}
 	<a {href}>
 		<div
-			class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold py-3 px-8 rounded-2xl w-full"
+			class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold py-3 px-8 rounded-xl w-full"
 		>
 			<slot />
 		</div>
@@ -22,7 +22,7 @@
 {:else if style === 'danger'}
 	<a {href}>
 		<div
-			class="bg-red-700 hover:bg-red-600 min-w-max text-white font-bold py-3 px-8 rounded-2xl w-full"
+			class="bg-red-700 hover:bg-red-600 min-w-max text-white font-bold py-3 px-8 rounded-xl w-full"
 		>
 			<slot />
 		</div>

@@ -13,7 +13,7 @@
 		<input
 			type="password"
 			id="componentTextbox"
-			class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
+			class="bg-gray-100 border border-gray-300 rounded-xl block w-full p-3"
 			placeholder={placeholderText}
 			bind:value
 		/>
@@ -21,7 +21,7 @@
 		<input
 			type="text"
 			id="componentTextbox"
-			class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
+			class="bg-gray-100 border border-gray-300 rounded-xl block w-full p-3"
 			placeholder={placeholderText}
 			bind:value
 		/>

@@ -11,7 +11,7 @@
 	{/if}
 	<textarea
 		id="compnentLargeTextbox"
-		class="bg-gray-100 border border-gray-300 text-sm rounded-lg block w-full h-32 p-2.5 {allowResize
+		class="bg-gray-100 border border-gray-300 rounded-xl block w-full h-32 p-3 {allowResize
 			? ''
 			: 'resize-none'}"
 		placeholder={placeholderText}

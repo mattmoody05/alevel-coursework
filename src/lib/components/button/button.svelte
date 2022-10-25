@@ -14,7 +14,7 @@
 {#if style === 'primary'}
 	<button
 		on:click={onClickDispatcher}
-		class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold py-3 px-8 rounded-2xl w-full"
+		class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full"
 	>
 		<slot />
 	</button>
@@ -25,7 +25,7 @@
 {:else if style === 'danger'}
 	<button
 		on:click={onClickDispatcher}
-		class="bg-red-700 hover:bg-red-600 min-w-max text-white font-bold py-3 px-8 rounded-2xl w-full"
+		class="bg-red-700 hover:bg-red-600 min-w-max text-white font-bold py-3 px-8 rounded-xl w-full"
 	>
 		<slot />
 	</button>
