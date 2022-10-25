@@ -3,6 +3,10 @@
 	import { Button, LinkButton } from '$lib/components/button';
 </script>
 
+<svelte:head>
+	<title>Login</title>
+</svelte:head>
+
 <main>
 	<div class="grid grid-cols-1 md:grid-cols-2 h-screen">
 		<div class="h-full flex justify-center flex-col">
