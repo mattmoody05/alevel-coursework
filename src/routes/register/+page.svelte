@@ -41,4 +41,3 @@
 		</div>
 	</div>
 </main>
-<!-- <LinkButton style="secondary" href="/login">Already have an account? Login</LinkButton> -->
