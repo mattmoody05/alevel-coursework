@@ -1,4 +1,4 @@
-import type { route } from "$lib/util/types"
+import type { route } from "$lib/util/types";
 
 export const routes: route[] = [
     {
