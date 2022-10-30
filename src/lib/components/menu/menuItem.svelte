@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let selected: boolean = false;
-	export let iconClass: string = 'fa-solid fa-gauge';
-	export let itemName: string = 'Dashboard';
+	export let iconClass: string;
+	export let itemName: string;
 
 	import { createEventDispatcher } from 'svelte';
 
