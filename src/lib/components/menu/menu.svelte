@@ -3,11 +3,10 @@
 	import { MenuItem } from '$lib/components/menu';
 	import { routes } from '$lib/util/routes';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
 
 	export let selectedRouteUrl: string = $page.url.pathname;
 	afterNavigate(() => {
-		selectedRouteUrl = $page.url.pathname;
+		selectedRouteUrl = `/${$page.url.pathname.split('/')[1]}`;
 	});
 
 	function logout() {
@@ -17,7 +16,7 @@
 </script>
 
 <div
-	class="flex flex-col h-full justify-between p-4 rounded-xl min-w-max border border-gray-300 bg-gray-100 overflow-y-scroll"
+	class="flex flex-col h-full justify-between p-2 rounded-xl min-w-max border border-gray-300 bg-gray-100 overflow-y-scroll"
 >
 	<div class="flex flex-col gap-1">
 		{#each routes as route}
