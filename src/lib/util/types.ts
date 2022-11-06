@@ -4,3 +4,9 @@ export type route = {
     name: string
     url: string
 }
+
+export type sessionSummary = {
+    name: string;
+    time: string;
+    date: string;
+};
