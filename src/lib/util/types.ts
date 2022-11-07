@@ -1,12 +1,32 @@
 export type buttonStyle = 'primary' | 'secondary' | 'danger';
 export type route = {
-    iconClass: string
-    name: string
-    url: string
-}
+	iconClass: string;
+	name: string;
+	url: string;
+};
 
 export type sessionSummary = {
-    name: string;
-    time: string;
-    date: string;
+	childName: string;
+	time: string;
+	date: string;
+};
+
+export type invoiceSummary = {
+	amountDue: number;
+	dueDate: string;
+};
+export type absentReportSummary = {
+	childName: string;
+	startDate: string;
+	endDate: string;
+};
+
+export type surveySummary = {
+	surveyName: string;
+	dueDate: string;
+};
+
+export type urgentNotificationSummary = {
+	notificationName: string;
+	content: string;
 };
