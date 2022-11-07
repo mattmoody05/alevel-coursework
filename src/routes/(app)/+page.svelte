@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { DashboardHeader } from '$lib/components/dashboard';
 	import {
 		AbsenceCard,
 		InvoiceCard,
@@ -6,29 +7,13 @@
 		ThisWeekCard,
 		UrgentNotificationCard
 	} from '$lib/components/dashboard/cards';
-	import { getCustomDateString } from '$lib/util/date';
-	import { onMount } from 'svelte';
-	let dateString: string = getCustomDateString();
-
-	onMount(() => {
-		const interval = setInterval(() => {
-			dateString = getCustomDateString();
-		}, 1000);
-
-		return () => {
-			clearInterval(interval);
-		};
-	});
 </script>
 
 <svelte:head>
 	<title>Dashboard</title>
 </svelte:head>
 
-<div class="header flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4">
-	<h1 class="font-bold text-3xl">Welcome back, Matthew</h1>
-	<h3 class="opacity-50 text-xl font-medium">{dateString}</h3>
-</div>
+<DashboardHeader headerName="Matthew" />
 <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 mt-2">
 	<ThisWeekCard
 		childrenBooked={10}
