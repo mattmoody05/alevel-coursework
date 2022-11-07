@@ -3,11 +3,9 @@
 	import { stringToColour } from '$lib/util/ui';
 	import { CardWrapper } from '$lib/components/dashboard/cards';
 
-	export let sessions: sessionSummary[] = [];
-	export let sessionsBooked: number = 0;
-	export let childrenBooked: number = 0;
-
-	let test: string[] = ['Matthew', 'Oliver', 'Kabir', 'Jonathan'];
+	export let recentSessions: sessionSummary[];
+	export let sessionsBooked: number;
+	export let childrenBooked: number;
 </script>
 
 <CardWrapper title="This week">
@@ -24,11 +22,15 @@
 	<div class="mt-4">
 		<span>Sessions</span>
 		<div class="flex flex-col gap-2 mt-1">
-			{#each test as tes}
+			{#each recentSessions as session}
 				<div class="grid grid-cols-3 text-sm items-center">
-					<div class="{stringToColour(tes)} text-white rounded-lg px-2 py-1 max-w-max">{tes}</div>
-					<span class="text-center">10/11/12</span>
-					<span class="text-center">11:00</span>
+					<div
+						class="{stringToColour(session.childName)} text-white rounded-lg px-2 py-1 max-w-max"
+					>
+						{session.childName}
+					</div>
+					<span class="opacity-50">{session.date}</span>
+					<span class="opacity-50">{session.time}</span>
 				</div>
 			{/each}
 		</div>
