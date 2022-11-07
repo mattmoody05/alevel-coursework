@@ -24,7 +24,7 @@
 			{#each recentSurveys as survey}
 				<div class="grid grid-cols-2 text-sm items-center">
 					<span>{survey.surveyName}</span>
-					<span class="text-center">Due {survey.dueDate}</span>
+					<span class="">Due {survey.dueDate}</span>
 				</div>
 			{/each}
 		</div>

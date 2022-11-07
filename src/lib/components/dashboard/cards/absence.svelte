@@ -18,7 +18,7 @@
 					<div class="bg-violet-500 text-white rounded-lg px-2 py-1 max-w-max">
 						{absence.childName}
 					</div>
-					<span class="text-center opacity-50">{absence.startDate} - {absence.endDate}</span>
+					<span class="opacity-50">{absence.startDate} - {absence.endDate}</span>
 				</div>
 			{/each}
 		</div>

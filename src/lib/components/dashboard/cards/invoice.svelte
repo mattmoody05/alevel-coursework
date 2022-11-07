@@ -28,7 +28,7 @@
 			{#each recentInvoices as invoice}
 				<div class="grid grid-cols-2 text-sm items-center">
 					<span>{currencyFormatter.format(invoice.amountDue / 100)}</span>
-					<span class="text-center">Due {invoice.dueDate}</span>
+					<span>Due {invoice.dueDate}</span>
 				</div>
 			{/each}
 		</div>
