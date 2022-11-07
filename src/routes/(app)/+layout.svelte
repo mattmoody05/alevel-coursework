@@ -10,13 +10,17 @@
 	});
 </script>
 
-<div class="flex p-4 w-screen h-screen">
-	<Menu />
-	<div class="ml-4 w-full overflow-y-scroll">
+<div class="flex w-screen h-screen">
+	<div class="p-4">
+		<Menu />
+	</div>
+	<div class="w-full h-screen pl-0 p-4 overflow-y-scroll relative">
 		{#if selectedRouteUrl !== '/'}
-			<Header />
-			<div class="mt-4">
-				<slot />
+			<div class="flex flex-col gap-4 h-full">
+				<Header />
+				<div class="h-full overflow-y-scroll">
+					<slot />
+				</div>
 			</div>
 		{:else}
 			<slot />
