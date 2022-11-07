@@ -18,6 +18,7 @@
 			showIncorrectPasswordPopup = true;
 		} else {
 			localStorage.setItem('username', username);
+			goto('/');
 		}
 	}
 
