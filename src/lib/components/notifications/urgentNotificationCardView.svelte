@@ -3,7 +3,7 @@
 	export let content: string = '';
 </script>
 
-<div class="bg-red-300 p-2.5 rounded-xl flex flex-col leading-4 gap-1">
+<div class="bg-red-300 p-2.5 rounded-xl flex flex-col">
 	<span class="font-bold">{title}</span>
-	{content}
+	<span class="text-sm leading-4">{content}</span>
 </div>
