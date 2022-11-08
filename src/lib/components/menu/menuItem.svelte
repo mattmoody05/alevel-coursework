@@ -14,10 +14,10 @@
 
 <button
 	on:click={onClickDispatcher}
-	class="flex gap-2 items-center p-3 hover:cursor-pointer rounded-lg w-64 {selected
+	class="flex gap-2 items-center p-3 hover:cursor-pointer rounded-lg md:w-64 {selected
 		? 'bg-gray-900 hover:bg-gray-700 text-white font-bold'
 		: 'hover:bg-gray-200'}"
 >
 	<div class="w-4 flex items-center justify-center"><i class={iconClass} /></div>
-	<p>{itemName}</p>
+	<p class="md:block hidden">{itemName}</p>
 </button>
