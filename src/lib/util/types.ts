@@ -30,3 +30,9 @@ export type urgentNotificationSummary = {
 	notificationName: string;
 	content: string;
 };
+
+export type messageSummary = {
+	id: string;
+	content: string;
+	fromOwner: boolean;
+};
