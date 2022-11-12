@@ -14,7 +14,7 @@
 
 <button
 	on:click={onClickDispatcher}
-	class="flex gap-2 items-center p-3 hover:cursor-pointer rounded-lg md:w-64 {selected
+	class="flex gap-2 items-center p-3 hover:cursor-pointer rounded-lg md:w-64 h-10 {selected
 		? 'bg-gray-900 hover:bg-gray-700 text-white font-bold'
 		: 'hover:bg-gray-200'}"
 >
