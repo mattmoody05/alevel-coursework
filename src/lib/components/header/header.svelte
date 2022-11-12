@@ -1,12 +1,6 @@
 <script lang="ts">
 	import { getCustomDateString } from '$lib/util/date';
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { afterNavigate } from '$app/navigation';
-
-	function goBack() {
-		history.back();
-	}
 
 	let dateString: string = getCustomDateString();
 
@@ -22,11 +16,11 @@
 </script>
 
 <div
-	class="flex justify-between p-2 rounded-xl border border-gray-300 bg-gray-100 overflow-y-scroll"
+	class="flex justify-between p-2 rounded-xl border border-gray-300 bg-gray-100 overflow-y-scroll min-h-max "
 >
 	<button
 		class="text-sm hover:bg-gray-200 max-w-max p-2 rounded-lg hover:cursor-pointer"
-		on:click={goBack}
+		on:click={() => history.back()}
 	>
 		<i class="fa-solid fa-arrow-left opacity-50" />
 		<span class="opacity-50 ml-1">Back</span>
