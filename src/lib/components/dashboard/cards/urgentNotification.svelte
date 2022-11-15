@@ -29,7 +29,7 @@
 			/>
 		</div>
 		<div class="mt-2 flex justify-center w-full">
-			<LinkButton href="/messaging" style="secondary">See all</LinkButton>
+			<LinkButton href="/messaging/short-notice/view" style="secondary">See all</LinkButton>
 		</div>
 	</div>
 </CardWrapper>
