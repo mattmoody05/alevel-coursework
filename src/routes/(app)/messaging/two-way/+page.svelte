@@ -41,8 +41,10 @@
 	let conversationViewElement: HTMLElement;
 
 	function pushMessage() {
-		messages = [...messages, { id: 'idhere', content: textboxContent, fromOwner: false }];
-		textboxContent = '';
+		if (textboxContent !== '') {
+			messages = [...messages, { id: 'idhere', content: textboxContent, fromOwner: false }];
+			textboxContent = '';
+		}
 	}
 	function scrollToBottom(element: HTMLElement) {
 		element.scroll({ top: element.scrollHeight, behavior: 'smooth' });
@@ -61,6 +63,7 @@
 
 <div class="flex justify-between flex-col h-full">
 	<div id="chatting-with-banner">
+		<h3 class="font-bold text-xl">Two way messaging</h3>
 		<span class="font-bold">Chatting with: </span> <span>{chattingWith}</span>
 	</div>
 	<div
