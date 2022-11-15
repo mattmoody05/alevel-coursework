@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let placeholderText: string = 'Select';
+	export let placeholderText: string = 'Type a message...';
 	export let labelText: string = '';
 	export let value: string = '';
 	export let allowResize: boolean = false;
