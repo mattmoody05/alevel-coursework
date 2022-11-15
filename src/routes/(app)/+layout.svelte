@@ -14,7 +14,7 @@
 	<div class="p-4 pr-0">
 		<Menu />
 	</div>
-	<div class="w-full h-screen p-4 overflow-y-scroll relative">
+	<div class="w-full h-screen p-4 overflow-y-scroll">
 		{#if selectedRouteUrl !== '/'}
 			<div class="flex flex-col gap-4 h-full">
 				<Header />
