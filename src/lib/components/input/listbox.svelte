@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let placeholderOption: string = 'Select';
 	export let labelText: string = '';
-	export let value: string = '';
+	export let value: string = 'default';
 </script>
 
 <div class="flex flex-col gap-1">
@@ -10,10 +10,12 @@
 	{/if}
 	<select
 		id="componentListbox"
-		class="bg-gray-100 border border-gray-300 rounded-xl block w-full p-3"
+		class="bg-gray-100 border border-gray-300 rounded-xl block w-full p-2.5 {value === 'default'
+			? 'text-gray-500'
+			: ''}"
 		bind:value
 	>
-		<option selected value="">{placeholderOption}</option>
+		<option selected value="default">{placeholderOption}</option>
 		<slot />
 	</select>
 </div>
