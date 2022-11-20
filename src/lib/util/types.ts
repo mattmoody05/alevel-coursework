@@ -36,3 +36,8 @@ export type messageSummary = {
 	content: string;
 	fromOwner: boolean;
 };
+
+export type parentSummary = {
+	id: string;
+	name: string;
+};
