@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { LinkButton } from '$lib/components/button';
 </script>
 
