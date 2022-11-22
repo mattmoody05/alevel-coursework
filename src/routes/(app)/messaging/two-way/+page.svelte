@@ -61,6 +61,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Two way messaging: {chattingWith}</title>
+</svelte:head>
+
 <div class="flex justify-between flex-col h-full">
 	<div id="chatting-with-banner">
 		<h3 class="font-bold text-xl">Two way messaging</h3>

@@ -8,6 +8,10 @@
 	const absenceReportId: string = data.absenceReportId;
 </script>
 
+<svelte:head>
+	<title>View absence report</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">View absence report</h3>
 
 <div class="flex flex-col gap-4">

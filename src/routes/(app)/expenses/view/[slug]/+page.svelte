@@ -9,6 +9,10 @@
 	const expenseReportId: string = data.expenseReportId;
 </script>
 
+<svelte:head>
+	<title>View expense report</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">View expense report</h3>
 
 <div class="flex gap-2 flex-col">

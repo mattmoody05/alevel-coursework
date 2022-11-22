@@ -3,6 +3,10 @@
 	import { SessionSummary } from '$lib/components/summaries';
 </script>
 
+<svelte:head>
+	<title>View sessions</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">View sessions</h3>
 <div class="flex gap-2">
 	<FilterButton />

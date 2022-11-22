@@ -22,6 +22,10 @@
 	let showConfirmAlert: boolean = false;
 </script>
 
+<svelte:head>
+	<title>View session</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">View session details</h3>
 <div class="flex flex-col gap-2 mt-2">
 	<div class="flex items-center gap-2">

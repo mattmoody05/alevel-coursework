@@ -3,6 +3,10 @@
 	import { ExpenseSummary } from '$lib/components/summaries';
 </script>
 
+<svelte:head>
+	<title>View expenses</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">View expenses</h3>
 <div class="flex gap-2">
 	<FilterButton />

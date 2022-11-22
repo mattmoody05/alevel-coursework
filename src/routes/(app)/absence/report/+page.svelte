@@ -3,6 +3,10 @@
 	import { LargeTextbox, Listbox, Textbox } from '$lib/components/input';
 </script>
 
+<svelte:head>
+	<title>Report absence</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">Report absence</h3>
 
 <div class="flex mt-2 gap-2 flex-col">

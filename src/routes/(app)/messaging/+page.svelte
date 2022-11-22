@@ -2,6 +2,10 @@
 	import { LinkButton } from '$lib/components/button';
 </script>
 
+<svelte:head>
+	<title>Messaging centre</title>
+</svelte:head>
+
 <div class="flex flex-col gap-4">
 	<LinkButton href="/messaging/two-way" style="secondary">Two way messaging centre</LinkButton>
 	<LinkButton href="/messaging/short-notice/create" style="secondary"

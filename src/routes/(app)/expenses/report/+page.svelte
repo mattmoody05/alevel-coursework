@@ -4,6 +4,10 @@
 	import { Listbox, Textbox } from '$lib/components/input';
 </script>
 
+<svelte:head>
+	<title>Report expense</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">Report expense</h3>
 <div class="flex gap-2 flex-col">
 	<Textbox labelText="Date" placeholderText="DD/MM/YYYY" />

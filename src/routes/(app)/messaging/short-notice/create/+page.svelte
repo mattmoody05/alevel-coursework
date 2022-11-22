@@ -46,6 +46,10 @@
 	let allParentsChecked: boolean = true;
 </script>
 
+<svelte:head>
+	<title>Create short notice notification</title>
+</svelte:head>
+
 <div class="flex flex-col gap-2">
 	<h3 class="font-bold text-xl">Notify parents</h3>
 	<Toggle

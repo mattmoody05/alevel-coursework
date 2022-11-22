@@ -2,6 +2,10 @@
 	import { UrgentNotificationCardView } from '$lib/components/notifications';
 </script>
 
+<svelte:head>
+	<title>View short notice notification</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">View notifications</h3>
 <div class="grid lg:grid-cols-2 gap-2">
 	<div class="flex flex-col gap-1">

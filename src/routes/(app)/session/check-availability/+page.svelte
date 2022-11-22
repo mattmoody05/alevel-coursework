@@ -3,6 +3,10 @@
 	import { Listbox, NumericUpDown, Textbox } from '$lib/components/input';
 </script>
 
+<svelte:head>
+	<title>Check availability</title>
+</svelte:head>
+
 <h3 class="font-bold text-xl">Check availability</h3>
 <div class="flex flex-col gap-2">
 	<Listbox labelText="Select child">
