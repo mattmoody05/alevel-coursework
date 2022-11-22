@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { FilterButton, SortButton } from '$lib/components/filters';
 	import { AbsenceSummary } from '$lib/components/summaries';
 
 	type absenseReportSummary = {
@@ -32,7 +33,10 @@
 </svelte:head>
 
 <h3 class="font-bold text-xl">View absence reports</h3>
-
+<div class="flex gap-2">
+	<FilterButton />
+	<SortButton />
+</div>
 <div class="grid grid-cols-3 lg:grid-cols-5 p-2 rounded-xl text-sm opacity-50">
 	<span>Name</span>
 	<span>Start date</span>
