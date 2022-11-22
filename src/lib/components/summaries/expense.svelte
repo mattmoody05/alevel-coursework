@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { LinkButton } from '../button';
-
 	export let id: string;
 	export let date: string;
 	export let name: string;
