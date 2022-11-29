@@ -16,7 +16,7 @@
 	<title>Dashboard</title>
 </svelte:head>
 
-<DashboardHeader headerName="Matthew" />
+<DashboardHeader headerName={data.parentData.firstName} />
 <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 mt-2">
 	<ThisWeekCard
 		childrenBooked={10}
