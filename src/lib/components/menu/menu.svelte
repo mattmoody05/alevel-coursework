@@ -3,17 +3,11 @@
 	import { MenuItem } from '$lib/components/menu';
 	import { routes } from '$lib/util/routes';
 	import { page } from '$app/stores';
-	import { removeCookie } from '$lib/util/cookies';
 
 	export let selectedRouteUrl: string = $page.url.pathname;
 	afterNavigate(() => {
 		selectedRouteUrl = `/${$page.url.pathname.split('/')[1]}`;
 	});
-
-	function logout() {
-		removeCookie('token');
-		goto('/login');
-	}
 </script>
 
 <div
@@ -37,5 +31,5 @@
 			{/if}
 		{/each}
 	</div>
-	<MenuItem itemName="Logout" iconClass="fa-solid fa-right-from-bracket" on:click={logout} />
+	<MenuItem itemName="Logout" iconClass="fa-solid fa-right-from-bracket" />
 </div>
