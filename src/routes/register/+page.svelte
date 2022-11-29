@@ -1,147 +1,71 @@
 <script lang="ts">
-	import { Textbox, ValidationMessage } from '$lib/components/input';
+	import { Textbox } from '$lib/components/input';
 	import { LinkButton, Button } from '$lib/components/button';
-	import {
-		doubleKeyCheck,
-		presenceCheck,
-		validateDate,
-		validateEmailAddress,
-		validatePhoneNumber,
-		validatePostcode
-	} from '$lib/util/validation';
+	import type { ActionData } from './$types';
 
-	let firstName: string;
-	let lastName: string;
-	let dateOfBirth: string;
-	let email: string;
-	let mobileNumber: string;
-	let username: string;
-	let password: string;
-	let confirmPassword: string;
-	let houseNumber: string;
-	let postcode: string;
-
-	let firstNameValid: boolean = true;
-	let lastNameValid: boolean = true;
-	let dateOfBirthValid: boolean = true;
-	let emailValid: boolean = true;
-	let mobileNumberValid: boolean = true;
-	let usernameValid: boolean = true;
-	let passwordValid: boolean = true;
-	let confirmPasswordValid: boolean = true;
-	let houseNumberValid: boolean = true;
-	let postcodeValid: boolean = true;
-
-	function processDetails() {
-		firstNameValid = presenceCheck(firstName);
-		lastNameValid = presenceCheck(lastName);
-		dateOfBirthValid = validateDate(dateOfBirth);
-		emailValid = validateEmailAddress(email);
-		mobileNumberValid = validatePhoneNumber(mobileNumber);
-		usernameValid = presenceCheck(username);
-		passwordValid = presenceCheck(password);
-		confirmPasswordValid = doubleKeyCheck(password, confirmPassword);
-		houseNumberValid = presenceCheck(houseNumber);
-		postcodeValid = validatePostcode(postcode);
-		let allValid =
-			firstNameValid &&
-			lastNameValid &&
-			dateOfBirthValid &&
-			emailValid &&
-			mobileNumberValid &&
-			usernameValid &&
-			passwordValid &&
-			confirmPasswordValid &&
-			houseNumberValid &&
-			postcodeValid;
-
-		if (allValid) {
-			alert('All details valid');
-		}
-	}
+	export let form: ActionData;
 </script>
 
 <svelte:head>
 	<title>Register</title>
 </svelte:head>
 
-<main class="m-8">
-	<h1 class="font-extrabold text-3xl mb-4">Register</h1>
-	<div class="detail-inputs grid grid-cols-1 md:grid-cols-2 w-full gap-8">
-		<div class="detail-section w-full" id="personal-details">
-			<h3 class="font-bold text-xl">Personal details</h3>
-			<div class="flex flex-col gap-2 mt-2">
-				<Textbox labelText="First name" placeholderText="Jon" bind:value={firstName} />
-				{#if !firstNameValid}
-					<ValidationMessage>This field cannot be left blank</ValidationMessage>
-				{/if}
-
-				<Textbox labelText="Last name" placeholderText="Doe" bind:value={lastName} />
-				{#if !lastNameValid}
-					<ValidationMessage>This field cannot be left blank</ValidationMessage>
-				{/if}
-
-				<Textbox labelText="Date of birth" placeholderText="DD/MM/YYYY" bind:value={dateOfBirth} />
-				{#if !dateOfBirthValid}
-					<ValidationMessage>This field must follow the DD/MM/YYYY format</ValidationMessage>
-				{/if}
-
-				<Textbox labelText="Email" placeholderText="email@domain.com" bind:value={email} />
-				{#if !emailValid}
-					<ValidationMessage>Please enter a valid email address</ValidationMessage>
-				{/if}
-
-				<Textbox
-					labelText="Mobile number"
-					placeholderText="07532165789"
-					bind:value={mobileNumber}
-				/>
-				{#if !mobileNumberValid}
-					<ValidationMessage>Please enter a valid UK phone number</ValidationMessage>
-				{/if}
+{#if form?.success}
+	<main>
+		<div class="grid grid-cols-1 md:grid-cols-2 h-screen">
+			<div class="h-full flex justify-center flex-col">
+				<div class="m-8 flex flex-col gap-2">
+					<h1 class="font-bold text-3xl">Welcome {form.parentData?.firstName}!</h1>
+					<p class="leading-5 opacity-50">
+						Let's get you started by logging into the system. Click below to be taken to the login
+						page.
+					</p>
+					<div class="max-w-max pt-2">
+						<LinkButton href="/login">Login</LinkButton>
+					</div>
+				</div>
 			</div>
+			<div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-200 hidden md:block" />
 		</div>
-		<div class="detail-section w-full" id="address">
-			<h3 class="font-bold text-xl">Address</h3>
-			<div class="flex flex-col gap-2 mt-2">
-				<Textbox labelText="House number" placeholderText="11" bind:value={houseNumber} />
-				{#if !houseNumberValid}
-					<ValidationMessage>This field cannot be left blank</ValidationMessage>
-				{/if}
-
-				<Textbox labelText="Postcode" placeholderText="AB12 3CD" bind:value={postcode} />
-				{#if !postcodeValid}
-					<ValidationMessage>Please enter a valid UK postcode</ValidationMessage>
-				{/if}
+	</main>
+{:else}
+	<main class="m-8">
+		<h1 class="font-extrabold text-3xl mb-4">Register</h1>
+		<form method="POST" class="grid grid-cols-1 md:grid-cols-2 w-full gap-8">
+			<div class="detail-section w-full" id="personal-details">
+				<h3 class="font-bold text-xl">Personal details</h3>
+				<div class="flex flex-col gap-2 mt-2">
+					<Textbox name="firstName" labelText="First name" placeholderText="Jon" />
+					<Textbox name="lastName" labelText="Last name" placeholderText="Doe" />
+					<Textbox name="dateOfBirth" labelText="Date of birth" placeholderText="DD/MM/YYYY" />
+					<Textbox name="email" labelText="Email" placeholderText="email@domain.com" />
+					<Textbox name="mobileNumber" labelText="Mobile number" placeholderText="07532165789" />
+				</div>
 			</div>
-		</div>
-		<div class="detail-section w-full" id="login-details">
-			<h3 class="font-bold text-xl">Login details</h3>
-			<div class="flex flex-col gap-2 mt-2">
-				<Textbox labelText="Username" placeholderText="jdoe" bind:value={username} />
-				{#if !usernameValid}
-					<ValidationMessage>This field cannot be left blank</ValidationMessage>
-				{/if}
-
-				<Textbox labelText="Password" placeholderText="" isPassword={true} bind:value={password} />
-				{#if !passwordValid}
-					<ValidationMessage>This field cannot be left blank</ValidationMessage>
-				{/if}
-
-				<Textbox
-					labelText="Confirm password"
-					placeholderText=""
-					isPassword={true}
-					bind:value={confirmPassword}
-				/>
-				{#if !confirmPasswordValid}
-					<ValidationMessage>Passwords do not match</ValidationMessage>
-				{/if}
+			<div class="detail-section w-full" id="address">
+				<h3 class="font-bold text-xl">Address</h3>
+				<div class="flex flex-col gap-2 mt-2">
+					<Textbox name="houseNumber" labelText="House number" placeholderText="11" />
+					<Textbox name="postcode" labelText="Postcode" placeholderText="AB12 3CD" />
+				</div>
 			</div>
-		</div>
-		<div class="detail-section w-full flex flex-col justify-end gap-2" id="buttons">
-			<LinkButton style="secondary" href="/login">Already have an account? Login here</LinkButton>
-			<Button on:click={processDetails}>Submit</Button>
-		</div>
-	</div>
-</main>
+			<div class="detail-section w-full" id="login-details">
+				<h3 class="font-bold text-xl">Login details</h3>
+				<div class="flex flex-col gap-2 mt-2">
+					<Textbox name="username" labelText="Username" placeholderText="jdoe" />
+					<Textbox name="password" labelText="Password" placeholderText="" isPassword={true} />
+					<Textbox
+						name="confirmPassword"
+						labelText="Confirm password"
+						placeholderText=""
+						isPassword={true}
+					/>
+				</div>
+			</div>
+			<div class="detail-section w-full flex flex-col justify-end gap-2" id="buttons">
+				<LinkButton style="secondary" href="/login">Already have an account? Login here</LinkButton>
+				<Button style="submit">Submit</Button>
+			</div>
+		</form>
+	</main>
+{/if}
