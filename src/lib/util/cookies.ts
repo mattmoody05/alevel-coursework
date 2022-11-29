@@ -2,10 +2,6 @@ export function setCookie(cookieName: string, cookieValue: string) {
 	document.cookie = `${cookieName}=${cookieValue}; path=/`;
 }
 
-export function removeCookie(cookieName: string) {
-	document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-}
-
 function getCookie(cookieName: string): string {
 	const name = `${cookieName}=`;
 	const decodedCookie = decodeURIComponent(document.cookie);
