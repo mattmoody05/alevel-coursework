@@ -17,9 +17,7 @@ export const load: PageServerLoad = async ({ cookies }: PageServerLoadEvent) => 
 };
 
 export const actions: Actions = {
-	login: async ({ request, cookies }: RequestEvent) => {
-		console.log('login function run');
-
+	default: async ({ request, cookies }: RequestEvent) => {
 		const data = await request.formData();
 
 		// @ts-ignore
