@@ -29,4 +29,11 @@
 	>
 		<slot />
 	</button>
+{:else if style === 'submit'}
+	<button
+		class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full"
+		type="submit"
+	>
+		<slot />
+	</button>
 {/if}

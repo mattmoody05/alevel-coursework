@@ -1,4 +1,4 @@
-export type buttonStyle = 'primary' | 'secondary' | 'danger';
+export type buttonStyle = 'primary' | 'secondary' | 'danger' | 'submit';
 export type route = {
 	iconClass: string;
 	name: string;
