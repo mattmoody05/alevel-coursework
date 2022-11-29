@@ -3,6 +3,7 @@
 	export let labelText: string = '';
 	export let value: string = '';
 	export let isPassword: boolean = false;
+	export let name: string = '';
 </script>
 
 <div class="flex flex-col gap-1">
@@ -16,6 +17,7 @@
 			class="bg-gray-100 border border-gray-300 rounded-xl block w-full p-3"
 			placeholder={placeholderText}
 			bind:value
+			{name}
 		/>
 	{:else}
 		<input
@@ -24,6 +26,7 @@
 			class="bg-gray-100 border border-gray-300 rounded-xl block w-full p-3"
 			placeholder={placeholderText}
 			bind:value
+			{name}
 		/>
 	{/if}
 </div>

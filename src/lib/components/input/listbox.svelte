@@ -2,6 +2,7 @@
 	export let placeholderOption: string = 'Select';
 	export let labelText: string = '';
 	export let value: string = 'default';
+	export let name: string = '';
 </script>
 
 <div class="flex flex-col gap-1">
@@ -14,6 +15,7 @@
 			? 'text-gray-500'
 			: ''}"
 		bind:value
+		{name}
 	>
 		<option selected value="default">{placeholderOption}</option>
 		<slot />

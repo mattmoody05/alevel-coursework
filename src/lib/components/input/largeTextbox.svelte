@@ -3,6 +3,7 @@
 	export let labelText: string = '';
 	export let value: string = '';
 	export let allowResize: boolean = false;
+	export let name: string = '';
 </script>
 
 <div class="flex flex-col gap-1">
@@ -16,5 +17,6 @@
 			: 'resize-none'}"
 		placeholder={placeholderText}
 		bind:value
+		{name}
 	/>
 </div>

@@ -2,12 +2,19 @@
 	export let isChecked: boolean = false;
 	export let leftLabelText: string = '';
 	export let rightLabelText: string = '';
+	export let name: string = '';
 </script>
 
 <div class="flex">
 	<span class="mr-2 duration-150 {isChecked ? '' : 'font-bold'}">{leftLabelText}</span>
 	<label for="componentToggle" class="inline-flex relative items-center cursor-pointer">
-		<input bind:checked={isChecked} type="checkbox" id="componentToggle" class="sr-only peer" />
+		<input
+			bind:checked={isChecked}
+			type="checkbox"
+			id="componentToggle"
+			class="sr-only peer"
+			{name}
+		/>
 		<div
 			class="w-11 h-6 bg-gray-200 peer-focus:ring-none rounded-full peer
             peer-checked:after:translate-x-full peer-checked:after:border-white
