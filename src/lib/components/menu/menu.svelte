@@ -3,6 +3,7 @@
 	import { MenuItem } from '$lib/components/menu';
 	import { routes } from '$lib/util/routes';
 	import { page } from '$app/stores';
+	import { removeCookie } from '$lib/util/cookies';
 
 	export let selectedRouteUrl: string = $page.url.pathname;
 	afterNavigate(() => {
@@ -10,7 +11,7 @@
 	});
 
 	function logout() {
-		localStorage.removeItem('username');
+		removeCookie('token');
 		goto('/login');
 	}
 </script>
