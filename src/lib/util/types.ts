@@ -46,7 +46,7 @@ export type account = {
 	accountId: string;
 	username: string;
 	password: string;
-	isAdmins: boolean;
+	isAdmin: boolean;
 	parentId?: string;
 };
 
