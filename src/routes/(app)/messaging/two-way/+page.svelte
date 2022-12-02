@@ -3,48 +3,31 @@
 	import { Textbox } from '$lib/components/input';
 	import { TwoWayMessage } from '$lib/components/messages';
 	import { afterUpdate } from 'svelte';
-	import type { messageSummary } from '$lib/util/types';
+	import type { messageSummary, twoWayMessage } from '$lib/util/types';
+	import type { PageData } from './$types';
 
-	export let messages: messageSummary[] = [
-		{
-			id: 'idhere',
-			content: 'Hi, how can I make a booking with you?',
-			fromOwner: false
-		},
-		{
-			id: 'idhere',
-			content:
-				'Hi there! Just head over to the session booking menu from the dashboard and you can book a session there!',
-			fromOwner: true
-		},
-		{
-			id: 'idhere',
-			content:
-				'That’s great, thank you! Can you let me know once the booking has been made please?',
-			fromOwner: false
-		},
-		{
-			id: 'idhere',
-			content:
-				'Yes, the system will automatically send an email once the session has been confirmed.',
-			fromOwner: true
-		},
-		{
-			id: 'idhere',
-			content: 'That’s amazing - I’ll book now. Thanks.',
-			fromOwner: false
-		}
-	];
-	export let chattingWith: string = 'Tracey';
+	export let data: PageData;
+	export let isOwnerChatting: boolean;
+	let chattingWith: string = 'Tracey';
 
 	let textboxContent: string = '';
 	let conversationViewElement: HTMLElement;
 
-	function pushMessage() {
+	async function pushMessage() {
 		if (textboxContent !== '') {
-			messages = [...messages, { id: 'idhere', content: textboxContent, fromOwner: false }];
-			textboxContent = '';
+			const res = await fetch('/api/two-way-message/send', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					messageContent: textboxContent
+				})
+			});
+			const newMessage: twoWayMessage = await res.json();
+			data.messages = [...data.messages, newMessage];
 		}
+		textboxContent = '';
 	}
 	function scrollToBottom(element: HTMLElement) {
 		element.scroll({ top: element.scrollHeight, behavior: 'smooth' });
@@ -76,9 +59,9 @@
 		bind:this={conversationViewElement}
 	>
 		<div class="h-full" />
-		{#each messages as message}
+		{#each data.messages as message}
 			<TwoWayMessage messageStyle={message.fromOwner ? 'incoming' : 'outgoing'}>
-				{message.content}
+				{message.messageContent}
 			</TwoWayMessage>
 		{/each}
 	</div>
@@ -87,7 +70,11 @@
 	<div id="lower-buttons" class="m-0.5">
 		<div class="flex gap-4 mt-4 h-max">
 			<div class="w-full" on:keypress={handleKeyPress}>
-				<Textbox bind:value={textboxContent} placeholderText="Type a message..." />
+				<Textbox
+					bind:value={textboxContent}
+					name="messageContent"
+					placeholderText="Type a message..."
+				/>
 			</div>
 			<div class="min-w-max w-32">
 				<Button on:click={pushMessage}>Send</Button>
