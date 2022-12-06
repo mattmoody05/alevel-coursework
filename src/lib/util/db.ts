@@ -8,9 +8,6 @@ import type {
 } from './types';
 import { openDb } from '../../db/index';
 import { v4 as uuidv4 } from 'uuid';
-import { validateDate } from './validation';
-import { detach_before_dev, detach_between_dev } from 'svelte/internal';
-import { error } from '@sveltejs/kit';
 
 export async function getParent(
 	id: string,
@@ -147,4 +144,35 @@ export async function issueShortNoticeNotification(
 		);
 	});
 	return notificationIssues;
+}
+
+export async function getShortNoticeNotifications(
+	parentId: string
+): Promise<shortNoticeNotifcation[] | undefined> {
+	const db = await openDb();
+
+	const notificationIssues: shortNoticeNotifcationIssue[] | undefined = await db.all(
+		'SELECT * FROM shortNoticeNotificationIssue WHERE parentId = ?',
+		parentId
+	);
+
+	let notifications: shortNoticeNotifcation[] = [];
+
+	if (notificationIssues !== undefined) {
+		for (let index = 0; index < notificationIssues.length; index++) {
+			const issue = notificationIssues[index];
+			const notification: shortNoticeNotifcation | undefined = await db.get(
+				'SELECT * FROM shortNoticeNotification WHERE notificationId = ?',
+				issue.notificationId
+			);
+			if (notification !== undefined) {
+				notifications = [...notifications, notification];
+			}
+		}
+		if (notifications.length > 0) {
+			return notifications;
+		}
+	}
+
+	return undefined;
 }
