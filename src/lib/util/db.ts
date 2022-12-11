@@ -2,6 +2,7 @@ import type {
 	account,
 	child,
 	parent,
+	session,
 	shortNoticeNotifcation,
 	shortNoticeNotifcationIssue,
 	twoWayMessage
@@ -175,4 +176,55 @@ export async function getShortNoticeNotifications(
 	}
 
 	return undefined;
+}
+
+export async function getChildren(parentId: string): Promise<child[] | undefined> {
+	const db = await openDb();
+
+	const children: child[] | undefined = await db.all(
+		'SELECT * FROM child WHERE parentId = ?',
+		parentId
+	);
+
+	return children;
+}
+
+export async function createSingleSession(
+	childId: string,
+	date: string,
+	startTime: string,
+	length: number
+): Promise<session> {
+	const currentDate = new Date();
+
+	const createdSession: session = {
+		sessionId: uuidv4(),
+		childId: childId,
+		date: date,
+		startTime: startTime,
+		length: length,
+		absenceCharge: false,
+		absent: false,
+		dateBooked: currentDate.toLocaleDateString('en-GB'),
+		isRecurring: false,
+		invoiceId: undefined
+	};
+
+	const db = await openDb();
+
+	await db.run(
+		'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		createdSession.sessionId,
+		createdSession.date,
+		createdSession.startTime,
+		createdSession.length,
+		createdSession.dateBooked,
+		createdSession.absent,
+		createdSession.absenceCharge,
+		createdSession.isRecurring,
+		createdSession.childId,
+		null
+	);
+
+	return createdSession;
 }
