@@ -29,6 +29,8 @@ export const actions: Actions = {
 		const date = data.get('date') as string;
 		const length = Number(data.get('length') as string) * 60;
 
+		// should check that regulations are not broken here
+
 		const createdSession: session = await createSingleSession(childId, date, startTime, length);
 
 		const childData: child | undefined = await getChild(createdSession.childId);
