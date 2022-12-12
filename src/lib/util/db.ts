@@ -228,3 +228,51 @@ export async function createSingleSession(
 
 	return createdSession;
 }
+
+export async function getChildSessions(childId: string): Promise<session[] | undefined> {
+	const db = await openDb();
+
+	const sessions: session[] | undefined = await db.all(
+		'SELECT * FROM session WHERE childId = ?',
+		childId
+	);
+
+	return sessions;
+}
+
+export async function getSession(sessionId: string): Promise<session | undefined> {
+	const db = await openDb();
+
+	const sessionData: session | undefined = await db.get(
+		'SELECT * FROM session WHERE sessionId = ?',
+		sessionId
+	);
+
+	return sessionData;
+}
+
+export async function deleteSession(sessionId: string) {
+	const db = await openDb();
+	db.run('DELETE FROM session WHERE sessionId = ?', sessionId);
+}
+
+export async function updateSession(
+	sessionId: string,
+	startTime: string,
+	date: string,
+	length: number
+) {
+	const db = await openDb();
+
+	await db.run(
+		'UPDATE session SET startTime = ?, date = ?, length = ? WHERE sessionId = ?',
+		startTime,
+		date,
+		length * 60,
+		sessionId
+	);
+
+	const updatedSession: session | undefined = await getSession(sessionId);
+
+	return { updatedSession };
+}

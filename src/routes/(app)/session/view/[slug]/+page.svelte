@@ -1,58 +1,57 @@
 <script lang="ts">
+	import { SmallAlert } from '$lib/components/alert';
 	import { Button } from '$lib/components/button';
 
-	import { Listbox, NumericUpDown, Textbox } from '$lib/components/input';
+	import { NumericUpDown, Textbox } from '$lib/components/input';
 	import { stringToColour } from '$lib/util/ui';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import type { PageData, ActionData } from './$types';
 
-	import { Alert } from '$lib/components/alert';
+	export let data: PageData;
+	export let form: ActionData;
 
-	function cancelSession() {
-		showAlert();
-	}
-
-	function showAlert() {
-		// getParentList()
-		showConfirmAlert = true;
-	}
-
-	function hideAlert() {
-		showConfirmAlert = false;
-	}
-
-	let showConfirmAlert: boolean = false;
+	onMount(() => {
+		if (form?.success) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.success = false;
+			}, 5000);
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>View session</title>
 </svelte:head>
 
-<h3 class="font-bold text-xl">View session details</h3>
-<div class="flex flex-col gap-2 mt-2">
-	<div class="flex items-center gap-2">
-		<div class="font-bold">Selected child:</div>
-		<div class="px-2 py-1 {stringToColour('Matthew')} text-white rounded-lg max-w-max mr-2">
-			Matthew
-		</div>
-	</div>
-	<Textbox labelText="Date" />
-	<Textbox labelText="Start time" />
-	<NumericUpDown labelText="Session length" />
-	<Button>Update session</Button>
-	<Button style="danger" on:click={cancelSession}>Cancel session</Button>
-</div>
-
-{#if showConfirmAlert}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<div
-		class="flex items-center justify-center top-0 left-0 absolute h-screen w-screen bg-black bg-opacity-80"
-		on:click={hideAlert}
-	>
-		<Alert
-			title="Please confirm"
-			body="Are you sure that you want to cancel this session, if somebody books at the same time, you may not be able to rebook"
-			buttonText="Confirm"
-			secondaryButtonText="Do not cancel"
-			on:primary-click={() => console.log('x')}
+{#if form?.success}
+	<div out:fade>
+		<SmallAlert
+			style="success"
+			body="The session has been successfully {form.action === 'cancel' ? 'cancelled' : 'updated'}"
+			title="Success"
 		/>
 	</div>
 {/if}
+
+<h3 class="font-bold text-xl">View session details</h3>
+<form class="flex flex-col gap-2 my-2" method="POST" action="?/updateSession">
+	<div class="flex items-center gap-2">
+		<div class="font-bold">Selected child:</div>
+		<div
+			class="px-2 py-1 {stringToColour(
+				data.childData.firstName
+			)} text-white rounded-lg max-w-max mr-2"
+		>
+			{data.childData.firstName}
+		</div>
+	</div>
+	<Textbox name="date" value={data.sessionData.date} labelText="Date" />
+	<Textbox name="startTime" value={data.sessionData.startTime} labelText="Start time" />
+	<NumericUpDown name="length" value={data.sessionData.length / 60} labelText="Session length" />
+	<Button style="submit">Update session</Button>
+</form>
+<form method="POST" action="?/cancelSession">
+	<Button style="danger">Cancel session</Button>
+</form>
