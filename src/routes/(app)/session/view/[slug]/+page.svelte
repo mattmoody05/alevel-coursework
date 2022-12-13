@@ -1,39 +1,16 @@
 <script lang="ts">
-	import { SmallAlert } from '$lib/components/alert';
 	import { Button } from '$lib/components/button';
 
 	import { NumericUpDown, Textbox } from '$lib/components/input';
 	import { stringToColour } from '$lib/util/ui';
-	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
-	import type { PageData, ActionData } from './$types';
+	import type { PageData } from './$types';
 
 	export let data: PageData;
-	export let form: ActionData;
-
-	onMount(() => {
-		if (form?.success) {
-			setTimeout(() => {
-				// @ts-ignore
-				form.success = false;
-			}, 5000);
-		}
-	});
 </script>
 
 <svelte:head>
 	<title>View session</title>
 </svelte:head>
-
-{#if form?.success}
-	<div out:fade>
-		<SmallAlert
-			style="success"
-			body="The session has been successfully {form.action === 'cancel' ? 'cancelled' : 'updated'}"
-			title="Success"
-		/>
-	</div>
-{/if}
 
 <h3 class="font-bold text-xl">View session details</h3>
 <form class="flex flex-col gap-2 my-2" method="POST" action="?/updateSession">

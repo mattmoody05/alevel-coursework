@@ -1,5 +1,5 @@
 import { deleteSession, getChild, getSession, updateSession } from '$lib/util/db';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import type { child, session } from '$lib/util/types';
 
@@ -31,7 +31,7 @@ export const actions: Actions = {
 
 			const updatedSession = await updateSession(sessionId, startTime, date, Number(length));
 			if (updatedSession !== undefined) {
-				return { success: true, action: 'update' };
+				throw redirect(302, '/session/view?redirect-from=update-session');
 			}
 			throw error(400, 'updated session undefined');
 		}
@@ -41,7 +41,7 @@ export const actions: Actions = {
 		if (params.slug !== '') {
 			const sessionId = params.slug;
 			await deleteSession(sessionId);
-			return { success: true, action: 'cancel' };
+			throw redirect(302, '/session/view?redirect-from=cancel-session');
 		}
 		throw error(400, 'slug null');
 	}

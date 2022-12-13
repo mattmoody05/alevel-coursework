@@ -4,7 +4,7 @@ import type { child, session } from '$lib/util/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
-export const load: PageServerLoad = async ({ cookies, request }: PageServerLoadEvent) => {
+export const load: PageServerLoad = async ({ cookies, url }: PageServerLoadEvent) => {
 	const accountId = getAccountId(cookies);
 	if (accountId !== undefined) {
 		const parentData = await getParent(accountId, 'account');
@@ -24,7 +24,11 @@ export const load: PageServerLoad = async ({ cookies, request }: PageServerLoadE
 						throw error(400, 'currentChildSessions is undefined');
 					}
 				}
-				return { sessions, children };
+				let redirectFrom;
+				if (url.searchParams.has('redirect-from')) {
+					redirectFrom = url.searchParams.get('redirect-from') as string;
+				}
+				return { sessions, children, redirectFrom };
 			}
 			throw error(400, 'children is undefined');
 		}

@@ -1,6 +1,9 @@
 <script lang="ts">
+	import { SmallAlert } from '$lib/components/alert';
 	import { FilterButton, SortButton } from '$lib/components/filters';
 	import { SessionSummary } from '$lib/components/summaries';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -9,11 +12,32 @@
 		const children = data.children.filter((child) => child.childId === childId);
 		return children[0];
 	}
+
+	onMount(() => {
+		if (data.redirectFrom !== undefined) {
+			setTimeout(() => {
+				// @ts-ignore
+				data.redirectFrom = undefined;
+			}, 5000);
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>View sessions</title>
 </svelte:head>
+
+{#if data.redirectFrom}
+	<div out:fade>
+		<SmallAlert
+			style="success"
+			body="The session has been successfully {data.redirectFrom === 'cancel-session'
+				? 'cancelled'
+				: 'updated'}"
+			title="Success"
+		/>
+	</div>
+{/if}
 
 <h3 class="font-bold text-xl">View sessions</h3>
 <div class="flex gap-2">
