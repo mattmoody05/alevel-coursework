@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { getCustomDateString } from '$lib/util/date';
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	let dateString: string = getCustomDateString();
 
@@ -13,6 +15,23 @@
 			clearInterval(interval);
 		};
 	});
+
+	function goBack() {
+		let url = $page.url;
+		let urlParts = url.pathname.split('/');
+		let newUrl = '';
+		if (urlParts.length === 2) {
+			goto('/');
+		} else {
+			for (let index = 0; index + 1 < urlParts.length; index++) {
+				const currentUrlPart = urlParts[index];
+				if (currentUrlPart !== '') {
+					newUrl = `${newUrl}/${currentUrlPart}`;
+				}
+			}
+			goto(newUrl);
+		}
+	}
 </script>
 
 <div
@@ -20,7 +39,7 @@
 >
 	<button
 		class="text-sm hover:bg-gray-200 max-w-max p-2 rounded-lg hover:cursor-pointer flex gap-1 items-center"
-		on:click={() => history.back()}
+		on:click={goBack}
 	>
 		<i class="fa-solid fa-arrow-left opacity-50" />
 		<span class="opacity-50">Back</span>
