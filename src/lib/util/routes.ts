@@ -28,7 +28,7 @@ export const routes: route[] = [
 	},
 	{
 		name: 'Recurring sessions',
-		iconClass: 'fa-solid fa-recycle',
+		iconClass: 'fa-solid fa-arrows-rotate',
 		url: '/recurring-session'
 	},
 	{
