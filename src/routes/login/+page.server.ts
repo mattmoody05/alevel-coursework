@@ -1,12 +1,10 @@
 import type { account } from '$lib/util/types';
 import { error, redirect } from '@sveltejs/kit';
 import { openDb } from '../../db/index';
+import { JWT_SIGNING_SECRET_KEY } from '$env/static/private';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 export const load: PageServerLoad = async ({ cookies }: PageServerLoadEvent) => {
 	const token = cookies.get('token');
@@ -36,10 +34,7 @@ export const actions: Actions = {
 				const passwordsMatch = await bcrypt.compare(password, reqAccount.password);
 
 				if (passwordsMatch) {
-					const token = jwt.sign(
-						{ accountId: reqAccount.accountId },
-						process.env['JWT_SIGNING_SECRET_KEY']
-					);
+					const token = jwt.sign({ accountId: reqAccount.accountId }, JWT_SIGNING_SECRET_KEY);
 
 					cookies.set('token', token);
 					throw redirect(300, '/');

@@ -10,8 +10,7 @@ const config = {
 	},
 
 	plugins: [
-		require("@tailwindcss/forms"),
-		require("flowbite/plugin")	
+		require("@tailwindcss/forms")
 	],
 	darkMode: "class"
 };

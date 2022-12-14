@@ -7,9 +7,3 @@ declare namespace App {
 	// interface Error {}
 	// interface Platform {}
 }
-
-declare namespace NodeJS {
-	export interface ProcessEnv {
-		JWT_SIGNING_SECRET_KEY: string;
-	}
-}
