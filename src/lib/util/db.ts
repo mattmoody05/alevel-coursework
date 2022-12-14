@@ -276,3 +276,25 @@ export async function updateSession(
 
 	return { updatedSession };
 }
+
+export async function getAllParentSessions(parentId: string): Promise<session[] | undefined> {
+	// const parentData = await getParent(parentId, 'parent');
+	const children = await getChildren(parentId);
+	if (children !== undefined) {
+		let sessions: session[] = [];
+		for (let i = 0; i < children.length; i++) {
+			const currentChild: child = children[i];
+			const currentChildSessions = await getChildSessions(currentChild.childId);
+			if (currentChildSessions !== undefined) {
+				for (let j = 0; j < currentChildSessions.length; j++) {
+					const currentChildSession = currentChildSessions[j];
+					sessions = [...sessions, currentChildSession];
+				}
+			} else {
+				return undefined;
+			}
+		}
+		return sessions;
+	}
+	return undefined;
+}

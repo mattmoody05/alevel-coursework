@@ -7,9 +7,29 @@
 		ThisWeekCard,
 		UrgentNotificationCard
 	} from '$lib/components/dashboard/cards';
+	import type { session } from '$lib/util/types';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
+
+	let recentSessions: { childName: string; date: string; time: string }[] = [];
+
+	function getChildName(childId: string) {
+		const children = data.children.filter((child) => child.childId === childId);
+		return children[0].firstName;
+	}
+
+	for (let index = 0; index < data.sessions.length; index++) {
+		const currentSession: session = data.sessions[index];
+		recentSessions = [
+			...recentSessions,
+			{
+				childName: getChildName(currentSession.childId),
+				date: currentSession.date,
+				time: currentSession.startTime
+			}
+		];
+	}
 </script>
 
 <svelte:head>
@@ -19,30 +39,9 @@
 <DashboardHeader headerName={data.parentData.firstName} />
 <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 mt-2">
 	<ThisWeekCard
-		childrenBooked={10}
-		sessionsBooked={3}
-		recentSessions={[
-			{
-				childName: 'Matthew',
-				date: '10/12/22',
-				time: '11:00'
-			},
-			{
-				childName: 'Ella',
-				date: '08/12/22',
-				time: '09:00'
-			},
-			{
-				childName: 'Kabir',
-				date: '05/12/22',
-				time: '11:00'
-			},
-			{
-				childName: 'Dan',
-				date: '05/12/22',
-				time: '09:00'
-			}
-		]}
+		childrenBooked={data.children.length}
+		sessionsBooked={data.sessions.length}
+		{recentSessions}
 	/>
 	<UrgentNotificationCard
 		recentNotification={{

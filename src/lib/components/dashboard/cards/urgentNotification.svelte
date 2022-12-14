@@ -16,12 +16,12 @@
 			<span class="text-4xl font-bold">{String(totalUrgentNotifications)}</span>
 		</div>
 		<div class="flex flex-col">
-			<span class="text-sm opacity-50">Unread</span>
+			<span class="text-sm opacity-50">This week</span>
 			<span class="text-4xl font-bold">{String(unreadUrgentNotifications)}</span>
 		</div>
 	</div>
 	<div class="mt-4">
-		<span>Unread notifications</span>
+		<span>Recent notifications</span>
 		<div class="mt-1">
 			<UrgentNotificationCardView
 				title={recentNotification.notificationName}
