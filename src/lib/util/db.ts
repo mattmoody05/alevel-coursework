@@ -1,6 +1,7 @@
 import type {
 	account,
 	child,
+	expense,
 	parent,
 	session,
 	shortNoticeNotifcation,
@@ -297,4 +298,43 @@ export async function getAllParentSessions(parentId: string): Promise<session[] 
 		return sessions;
 	}
 	return undefined;
+}
+
+export async function createExpense(
+	expenseName: string,
+	date: string,
+	cost: number,
+	type: string,
+	chargeToParents: boolean,
+	supportingDocs: string
+): Promise<expense> {
+	const currentDate = new Date();
+
+	const createdExpense: expense = {
+		expenseId: uuidv4(),
+		chargeToParents: chargeToParents,
+		cost: cost,
+		date: date,
+		dateRecorded: currentDate.toLocaleDateString('en-GB'),
+		name: expenseName,
+		supportingDocs: supportingDocs,
+		type: type
+	};
+
+	const db = await openDb();
+
+	await db.run(
+		'INSERT INTO expense VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		createdExpense.expenseId,
+		createdExpense.name,
+		createdExpense.cost,
+		createdExpense.date,
+		createdExpense.type,
+		createdExpense.supportingDocs,
+		createdExpense.chargeToParents,
+		createdExpense.dateRecorded,
+		null
+	);
+
+	return createdExpense;
 }
