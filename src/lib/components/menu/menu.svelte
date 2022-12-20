@@ -31,5 +31,10 @@
 			{/if}
 		{/each}
 	</div>
-	<MenuItem itemName="Logout" iconClass="fa-solid fa-right-from-bracket" />
+	<!-- Using window.location.href here because the goto function causes issues -->
+	<MenuItem
+		itemName="Logout"
+		iconClass="fa-solid fa-right-from-bracket"
+		on:click={() => (window.location.href = '/logout')}
+	/>
 </div>
