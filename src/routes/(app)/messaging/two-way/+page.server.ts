@@ -1,4 +1,4 @@
-import { getAccount, getMessages, getParent } from '$lib/util/db';
+import { getAccount, getMessages, getParent, sendMessage } from '$lib/util/db';
 import type { parent, twoWayMessage } from '$lib/util/types';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import jwt from 'jsonwebtoken';
@@ -29,11 +29,21 @@ export const load: PageServerLoad = async ({ cookies }: PageServerLoadEvent) => 
 };
 
 export const actions: Actions = {
-	sendMessage: async ({ cookies, request }: RequestEvent) => {
-		const accountId = getAccountId(cookies);
-		if (accountId !== undefined) {
+	sendMessage: async ({ request, locals }: RequestEvent) => {
+		const account = locals.account;
+		if (account !== undefined) {
 			const data = await request.formData();
-			data.get('message');
+			const messageContent = data.get('messageContent') as string;
+			const fromOwner = account.isAdmin;
+			const parentData = await getParent(account.accountId, 'account');
+			if (parentData !== undefined) {
+				const message: twoWayMessage = await sendMessage(
+					messageContent,
+					parentData.parentId,
+					fromOwner
+				);
+				return { message };
+			}
 		}
 		throw error(400, 'Account id is not defined');
 	}

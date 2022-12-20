@@ -5,6 +5,7 @@
 	import { afterUpdate } from 'svelte';
 	import type { messageSummary, twoWayMessage } from '$lib/util/types';
 	import type { PageData } from './$types';
+	import { enhance } from '$app/forms';
 
 	export let data: PageData;
 	export let isOwnerChatting: boolean;
@@ -13,30 +14,8 @@
 	let textboxContent: string = '';
 	let conversationViewElement: HTMLElement;
 
-	async function pushMessage() {
-		if (textboxContent !== '') {
-			const res = await fetch('/api/two-way-message/send', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					messageContent: textboxContent
-				})
-			});
-			const newMessage: twoWayMessage = await res.json();
-			data.messages = [...data.messages, newMessage];
-		}
-		textboxContent = '';
-	}
 	function scrollToBottom(element: HTMLElement) {
 		element.scroll({ top: element.scrollHeight, behavior: 'smooth' });
-	}
-	function handleKeyPress(ev: KeyboardEvent) {
-		// Checks if the pressed key is the enter key
-		if (ev.keyCode === 13) {
-			pushMessage();
-		}
 	}
 
 	afterUpdate(() => {
@@ -68,8 +47,8 @@
 	<!-- Fix weird border cut off issue with below -->
 	<!-- for time being margin has been added -->
 	<div id="lower-buttons" class="m-0.5">
-		<div class="flex gap-4 mt-4 h-max">
-			<div class="w-full" on:keypress={handleKeyPress}>
+		<form use:enhance method="POST" action="?/sendMessage" class="flex gap-4 mt-4 h-max">
+			<div class="w-full">
 				<Textbox
 					bind:value={textboxContent}
 					name="messageContent"
@@ -77,8 +56,8 @@
 				/>
 			</div>
 			<div class="min-w-max w-32">
-				<Button on:click={pushMessage}>Send</Button>
+				<Button style="submit">Send</Button>
 			</div>
-		</div>
+		</form>
 	</div>
 </div>
