@@ -3,6 +3,7 @@ import { getAccount } from '$lib/util/db';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
+	event.locals.isAdmin = false;
 	const accountId = getAccountId(event.cookies);
 	if (accountId !== undefined) {
 		const accountData = await getAccount(accountId);

@@ -7,7 +7,7 @@ declare global {
 	declare namespace App {
 		interface Locals {
 			account?: account;
-			isAdmin?: boolean;
+			isAdmin: boolean;
 		}
 		// interface PageData {}
 		// interface Error {}

@@ -33,10 +33,15 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard</title>
+	<title>{data.isAdmin ? 'Admin' : ''} Dashboard</title>
 </svelte:head>
 
-<DashboardHeader headerName={data.parentData.firstName} />
+{#if data.isAdmin}
+	<DashboardHeader headerName="Admin" />
+{:else}
+	<DashboardHeader headerName={data.parentData.firstName} />
+{/if}
+
 <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 mt-2">
 	<ThisWeekCard
 		childrenBooked={data.children.length}

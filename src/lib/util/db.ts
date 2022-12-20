@@ -384,3 +384,15 @@ export async function deleteExpense(expenseId: string) {
 	const db = await openDb();
 	await db.run('DELETE FROM expense WHERE expenseId = ?', expenseId);
 }
+
+export async function getAllSessions(): Promise<session[] | undefined> {
+	const db = await openDb();
+	const sessions: session[] | undefined = await db.all('SELECT * FROM session');
+	return sessions;
+}
+
+export async function getAllChildren(): Promise<child[] | undefined> {
+	const db = await openDb();
+	const children: child[] | undefined = await db.all('SELECT * FROM child');
+	return children;
+}
