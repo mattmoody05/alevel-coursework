@@ -2,6 +2,7 @@ import type {
 	account,
 	child,
 	expense,
+	invoice,
 	parent,
 	session,
 	shortNoticeNotifcation,
@@ -10,6 +11,7 @@ import type {
 } from './types';
 import { openDb } from '../../db/index';
 import { v4 as uuidv4 } from 'uuid';
+import { HOURLY_RATE } from '$env/static/private';
 
 export async function getParent(
 	id: string,
@@ -395,4 +397,161 @@ export async function getAllChildren(): Promise<child[] | undefined> {
 	const db = await openDb();
 	const children: child[] | undefined = await db.all('SELECT * FROM child');
 	return children;
+}
+
+export async function generateInvoice(invoiceDetails: {
+	childId: string;
+	startDate: string;
+	endDate: string;
+	dateDue: string;
+	includeExpenses: boolean;
+	additionalChargeName?: string;
+	additionalChargeAmount?: number;
+	discountName?: string;
+	discountAmount?: number;
+	message?: string;
+	parentId: string;
+}) {
+	// Fetch all sessions in period
+	const sessionsInPeriod: session[] = await getSessionsInPeriod(
+		invoiceDetails.childId,
+		invoiceDetails.startDate,
+		invoiceDetails.endDate
+	);
+
+	// Fetch all expenses in period if they are being charged
+	let expensesInPeriod: expense[] = [];
+	if (invoiceDetails.includeExpenses) {
+		expensesInPeriod = await getExpensesInPeriod(
+			invoiceDetails.childId,
+			invoiceDetails.startDate,
+			invoiceDetails.endDate
+		);
+	}
+
+	// Calc total
+	let total = 0;
+
+	for (let index = 0; index < sessionsInPeriod.length; index++) {
+		const currentSession: session = sessionsInPeriod[index];
+		if (currentSession.absent) {
+			if (currentSession.absenceCharge) {
+				const sessionCost = currentSession.length * Number(HOURLY_RATE);
+				total = total + sessionCost;
+			}
+		} else {
+			const sessionCost = currentSession.length * Number(HOURLY_RATE);
+			total = total + sessionCost;
+		}
+	}
+
+	for (let index = 0; index < expensesInPeriod.length; index++) {
+		const currentExpense: expense = expensesInPeriod[index];
+		if (currentExpense.chargeToParents) {
+			total = total + currentExpense.cost;
+		}
+	}
+
+	const date = new Date();
+
+	const generatedInvoice: invoice = {
+		childId: invoiceDetails.childId,
+		dateDue: invoiceDetails.dateDue,
+		dateGenerated: date.toLocaleDateString('en-GB'),
+		dateIssued: date.toLocaleDateString('en-GB'),
+		endDate: invoiceDetails.endDate,
+		startDate: invoiceDetails.startDate,
+		includeExpenses: invoiceDetails.includeExpenses,
+		invoiceId: uuidv4(),
+		parentId: invoiceDetails.parentId,
+		total: total,
+		additionalChargeAmount: invoiceDetails.additionalChargeAmount,
+		additionalChargeName: invoiceDetails.additionalChargeName,
+		discountAmount: invoiceDetails.discountAmount,
+		discountName: invoiceDetails.discountName,
+		message: invoiceDetails.message
+	};
+
+	return generatedInvoice;
+}
+
+export async function writeInvoice(generatedInvoice: invoice) {
+	const db = await openDb();
+	await db.run(
+		'INSERT INTO invoice VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		generatedInvoice.invoiceId,
+		generatedInvoice.dateGenerated,
+		generatedInvoice.dateIssued,
+		generatedInvoice.dateDue,
+		generatedInvoice.startDate,
+		generatedInvoice.endDate,
+		generatedInvoice.includeExpenses,
+		generatedInvoice.additionalChargeName,
+		generatedInvoice.additionalChargeAmount,
+		generatedInvoice.discountName,
+		generatedInvoice.discountAmount,
+		generatedInvoice.message,
+		generatedInvoice.total,
+		generatedInvoice.parentId,
+		generatedInvoice.childId
+	);
+}
+
+export async function getSessionsInPeriod(
+	childId: string,
+	startDate: string,
+	endDate: string
+): Promise<session[]> {
+	const db = await openDb();
+	const formattedStartDate = new Date(startDate);
+	const formattedEndDate = new Date(endDate);
+
+	const sessions: session[] | undefined = await db.all(
+		'SELECT * FROM session WHERE childId = ?',
+		childId
+	);
+	let inPeriodSessions: session[] = [];
+
+	if (sessions !== undefined) {
+		for (let index = 0; index < sessions.length; index++) {
+			const currentSession: session = sessions[index];
+			const currentSessionDate = new Date(currentSession.date);
+
+			// checks whether the session is the right date range
+			if (formattedStartDate <= currentSessionDate && currentSessionDate <= formattedEndDate) {
+				inPeriodSessions = [...inPeriodSessions, currentSession];
+			}
+		}
+	}
+	return inPeriodSessions;
+}
+
+export async function getExpensesInPeriod(
+	childId: string,
+	startDate: string,
+	endDate: string
+): Promise<expense[]> {
+	const db = await openDb();
+	const formattedStartDate = new Date(startDate);
+	const formattedEndDate = new Date(endDate);
+
+	const expenses: expense[] | undefined = await db.all(
+		'SELECT * FROM expense WHERE childId = ?',
+		childId
+	);
+	let inPeriodExpenses: expense[] = [];
+
+	if (expenses !== undefined) {
+		for (let index = 0; index < expenses.length; index++) {
+			const currentExpense: expense = expenses[index];
+			const currentExpenseDate = new Date(currentExpense.date);
+
+			// checks whether the expense is the right date range
+			if (formattedStartDate <= currentExpenseDate && currentExpenseDate <= formattedEndDate) {
+				inPeriodExpenses = [...inPeriodExpenses, currentExpense];
+			}
+		}
+	}
+
+	return inPeriodExpenses;
 }
