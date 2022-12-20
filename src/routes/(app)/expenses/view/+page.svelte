@@ -1,11 +1,38 @@
 <script lang="ts">
+	import { SmallAlert } from '$lib/components/alert';
 	import { FilterButton, SortButton } from '$lib/components/filters';
 	import { ExpenseSummary } from '$lib/components/summaries';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
+
+	onMount(() => {
+		if (data.redirectFrom !== undefined) {
+			setTimeout(() => {
+				// @ts-ignore
+				data.redirectFrom = undefined;
+			}, 5000);
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>View expenses</title>
 </svelte:head>
+
+{#if data.redirectFrom}
+	<div out:fade>
+		<SmallAlert
+			style="success"
+			body="The expense has been successfully {data.redirectFrom === 'delete-expense'
+				? 'deleted'
+				: 'updated'}"
+			title="Success"
+		/>
+	</div>
+{/if}
 
 <h3 class="font-bold text-xl">View expenses</h3>
 <div class="flex gap-2">
@@ -21,12 +48,14 @@
 </div>
 
 <div class="flex flex-col gap-2">
-	<ExpenseSummary
-		id="idHere"
-		charge={false}
-		cost={1199}
-		date="10/11/22"
-		name="ASDA shop"
-		type="Food"
-	/>
+	{#each data.expenses as expense}
+		<ExpenseSummary
+			id={expense.expenseId}
+			charge={expense.chargeToParents}
+			cost={expense.cost}
+			date={expense.date}
+			name={expense.name}
+			type={expense.type}
+		/>
+	{/each}
 </div>

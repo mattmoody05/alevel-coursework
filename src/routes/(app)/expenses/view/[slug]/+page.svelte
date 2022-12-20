@@ -5,8 +5,6 @@
 	import { Listbox, Textbox } from '$lib/components/input';
 
 	export let data: PageData;
-
-	const expenseReportId: string = data.expenseReportId;
 </script>
 
 <svelte:head>
@@ -15,17 +13,40 @@
 
 <h3 class="font-bold text-xl">View expense report</h3>
 
-<div class="flex gap-2 flex-col">
-	<Textbox labelText="Date" placeholderText="DD/MM/YYYY" />
-	<Textbox labelText="Name" placeholderText="Fuel" />
-	<Textbox labelText="Cost" placeholderText="£19.99" />
-	<Listbox labelText="Type">
-		<option value="">Fuel</option>
-		<option value="">Food</option>
-		<option value="">Activity</option>
+<form class="flex gap-2 flex-col mt-2" method="POST" action="?/updateExpense">
+	<Textbox
+		value={data.expenseData.date}
+		name="date"
+		labelText="Date"
+		placeholderText="DD/MM/YYYY"
+	/>
+	<Textbox value={data.expenseData.name} name="name" labelText="Name" placeholderText="Fuel" />
+	<Textbox
+		value={String(data.expenseData.cost / 100)}
+		name="cost"
+		labelText="Cost"
+		placeholderText="£19.99"
+	/>
+	<Listbox value={data.expenseData.type} name="type" labelText="Type">
+		<option value="Fuel">Fuel</option>
+		<option value="Food">Food</option>
+		<option value="Activity">Activity</option>
 	</Listbox>
-	<Textbox labelText="Supporting documents" placeholderText="File upload here" />
-	<Checkbox labelText="Charge to parents via invoicing" />
+	<Textbox
+		value={data.expenseData.supportingDocs}
+		name="supportingDocs"
+		labelText="Supporting documents"
+		placeholderText="File upload here"
+	/>
+	<Checkbox
+		isChecked={data.expenseData.chargeToParents}
+		name="chargeToParents"
+		labelText="Charge to parents via invoicing"
+	/>
 	<div />
-	<Button>Submit</Button>
-</div>
+	<Button style="submit">Submit</Button>
+</form>
+
+<form class="mt-2" method="POST" action="?/deleteExpense">
+	<Button style="danger">Delete expense</Button>
+</form>

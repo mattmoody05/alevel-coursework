@@ -338,3 +338,49 @@ export async function createExpense(
 
 	return createdExpense;
 }
+
+export async function getExpense(expenseId: string): Promise<expense | undefined> {
+	const db = await openDb();
+	const expenseData: expense | undefined = await db.get(
+		'SELECT * FROM expense WHERE expenseId = ?',
+		expenseId
+	);
+	return expenseData;
+}
+
+export async function getAllExpenses(): Promise<expense[] | undefined> {
+	const db = await openDb();
+	const expenses: expense[] | undefined = await db.all('SELECT * FROM expense');
+	return expenses;
+}
+
+export async function updateExpense(
+	expenseId: string,
+	expenseName: string,
+	date: string,
+	cost: number,
+	type: string,
+	chargeToParents: boolean,
+	supportingDocs: string
+) {
+	const db = await openDb();
+
+	const currentDate = new Date();
+
+	await db.run(
+		'UPDATE expense SET name = ?, cost = ?, date = ?, type = ?, supportingDocs = ?, chargeToParents = ?, dateRecorded = ? WHERE expenseId = ?',
+		expenseName,
+		cost,
+		date,
+		type,
+		supportingDocs,
+		chargeToParents,
+		currentDate.toLocaleDateString('en-GB'),
+		expenseId
+	);
+}
+
+export async function deleteExpense(expenseId: string) {
+	const db = await openDb();
+	await db.run('DELETE FROM expense WHERE expenseId = ?', expenseId);
+}
