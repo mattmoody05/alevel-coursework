@@ -4,10 +4,10 @@ import type { child, session } from '$lib/util/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
-export const load: PageServerLoad = async ({ cookies, url }: PageServerLoadEvent) => {
-	const accountId = getAccountId(cookies);
-	if (accountId !== undefined) {
-		const parentData = await getParent(accountId, 'account');
+export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent) => {
+	const account = locals.account;
+	if (account !== undefined) {
+		const parentData = await getParent(account.accountId, 'account');
 		if (parentData !== undefined) {
 			const children = await getChildren(parentData.parentId);
 			if (children !== undefined) {
@@ -34,5 +34,5 @@ export const load: PageServerLoad = async ({ cookies, url }: PageServerLoadEvent
 		}
 		throw error(400, 'parent data not defined');
 	}
-	throw error(400, 'account id not defined');
+	throw error(400, 'account not defined');
 };

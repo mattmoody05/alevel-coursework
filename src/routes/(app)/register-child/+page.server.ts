@@ -7,19 +7,11 @@ import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 
 export const actions: Actions = {
-	default: async ({ request, cookies }: RequestEvent) => {
+	default: async ({ request, locals }: RequestEvent) => {
 		const data = await request.formData();
-		const token: string | undefined = cookies.get('token');
-		if (token !== undefined) {
-			// Cannot be sure that the accountId is provided as part of JWT, ts-ignore used for time being, needs to be fixed
-			// @ts-ignore
-			const jwtPayload: { accountId: string } = jwt.decode(token);
-			const accountId = jwtPayload['accountId'];
-
-			const parentData: parent | undefined = await getParent(accountId, 'account');
-			console.log(accountId);
-
-			console.log(parentData);
+		const account = locals.account;
+		if (account !== undefined) {
+			const parentData: parent | undefined = await getParent(account.accountId, 'account');
 
 			if (parentData !== undefined) {
 				const db = await openDb();
@@ -39,8 +31,8 @@ export const actions: Actions = {
 				const childData = await getChild(childId);
 				return { success: true, childData };
 			}
-			throw error(400, 'Parent not associated with that account id');
+			throw error(400, 'Parent not associated with that account');
 		}
-		throw error(400, 'Must be logged in');
+		throw error(400, 'Account undefined');
 	}
 };

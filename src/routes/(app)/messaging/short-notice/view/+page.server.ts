@@ -4,10 +4,10 @@ import type { parent, shortNoticeNotifcation } from '$lib/util/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
-export const load: PageServerLoad = async ({ cookies }: PageServerLoadEvent) => {
-	const accountId = await getAccountId(cookies);
-	if (accountId !== undefined) {
-		const parentData: parent | undefined = await getParent(accountId, 'account');
+export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
+	const account = locals.account;
+	if (account !== undefined) {
+		const parentData: parent | undefined = await getParent(account.accountId, 'account');
 		if (parentData !== undefined) {
 			const notifications: shortNoticeNotifcation[] | undefined = await getShortNoticeNotifications(
 				parentData.parentId
@@ -19,5 +19,5 @@ export const load: PageServerLoad = async ({ cookies }: PageServerLoadEvent) => 
 		}
 		throw error(400, 'parent data undefined');
 	}
-	throw error(400, 'account id undefined');
+	throw error(400, 'account undefined');
 };
