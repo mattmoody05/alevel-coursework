@@ -5,9 +5,7 @@
 	import { page } from '$app/stores';
 
 	export let selectedRouteUrl: string = $page.url.pathname;
-	afterNavigate(() => {
-		selectedRouteUrl = `/${$page.url.pathname.split('/')[1]}`;
-	});
+	export let isAdmin: boolean = false;
 </script>
 
 <div
@@ -15,18 +13,21 @@
 >
 	<div class="flex flex-col gap-1">
 		{#each routes as route}
-			{#if selectedRouteUrl === route.url}
-				<MenuItem
-					itemName={route.name}
-					iconClass={route.iconClass}
-					on:click={() => goto(route.url)}
-					selected={true}
-				/>
+			{#if route.adminOnly}
+				{#if isAdmin}
+					<MenuItem
+						itemName={route.name}
+						iconClass={route.iconClass}
+						on:click={() => goto(route.url)}
+						selected={selectedRouteUrl === route.url}
+					/>
+				{/if}
 			{:else}
 				<MenuItem
 					itemName={route.name}
 					iconClass={route.iconClass}
 					on:click={() => goto(route.url)}
+					selected={selectedRouteUrl === route.url}
 				/>
 			{/if}
 		{/each}

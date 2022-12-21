@@ -3,6 +3,7 @@ export type route = {
 	iconClass: string;
 	name: string;
 	url: string;
+	adminOnly: boolean;
 };
 
 export type sessionSummary = {
