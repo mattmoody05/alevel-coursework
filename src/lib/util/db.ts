@@ -555,3 +555,12 @@ export async function getExpensesInPeriod(
 
 	return inPeriodExpenses;
 }
+
+export async function getLatestTwoWayMessage(parentId: string): Promise<twoWayMessage | undefined> {
+	const messages = await getMessages(parentId);
+	if (messages !== undefined) {
+		const latestMessage = messages[messages.length - 1];
+		return latestMessage;
+	}
+	return undefined;
+}

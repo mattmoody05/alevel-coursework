@@ -1,50 +1,41 @@
-import { getAccount, getMessages, getParent, sendMessage } from '$lib/util/db';
-import type { parent, twoWayMessage } from '$lib/util/types';
-import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
-import jwt from 'jsonwebtoken';
+import { getAllParents, getLatestTwoWayMessage, getParent } from '$lib/util/db';
 import { error } from '@sveltejs/kit';
-import { getAccountId } from '$lib/util/cookies';
+import type { PageServerLoad, PageServerLoadEvent } from './$types';
+import type { twoWayMessage } from '$lib/util/types';
 
-export const load: PageServerLoad = async ({ cookies }: PageServerLoadEvent) => {
-	const accountId = getAccountId(cookies);
-	if (accountId !== undefined) {
-		const account = await getAccount(accountId);
-		if (account !== undefined) {
-			if (!account.isAdmin) {
-				const parentData: parent | undefined = await getParent(accountId, 'account');
-				if (parentData !== undefined) {
-					const messages: twoWayMessage[] | undefined = await getMessages(parentData.parentId);
-					if (messages !== undefined) {
-						return { success: true, messages };
-					}
-					throw error(400, 'No messages found for that parent');
+export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
+	const { account, isAdmin } = locals;
+	if (isAdmin) {
+		const parents = await getAllParents();
+		if (parents !== undefined) {
+			let latestMessages: { parentId: string; message: twoWayMessage }[] = [];
+			for (let index = 0; index < parents.length; index++) {
+				const currentParent = parents[index];
+				const latestMessage = await getLatestTwoWayMessage(currentParent.parentId);
+				if (latestMessage !== undefined) {
+					latestMessages = [
+						...latestMessages,
+						{ parentId: currentParent.parentId, message: latestMessage }
+					];
+				} else {
+					throw error(500, 'latest message undefined');
 				}
-				throw error(400, 'No parent found with the account id');
 			}
-			// do admin stuff here
-			throw error(500, 'Using an admin account - this is not developed yet');
+			return { isAdmin, parents, latestMessages };
 		}
-	}
-	throw error(400, 'Token not provided');
-};
-
-export const actions: Actions = {
-	sendMessage: async ({ request, locals }: RequestEvent) => {
-		const account = locals.account;
+		throw error(500, 'parents undefined');
+	} else {
 		if (account !== undefined) {
-			const data = await request.formData();
-			const messageContent = data.get('messageContent') as string;
-			const fromOwner = account.isAdmin;
-			const parentData = await getParent(account.accountId, 'account');
-			if (parentData !== undefined) {
-				const message: twoWayMessage = await sendMessage(
-					messageContent,
-					parentData.parentId,
-					fromOwner
-				);
-				return { message };
+			const parent = await getParent(account.accountId, 'account');
+			if (parent !== undefined) {
+				const latestMessage = await getLatestTwoWayMessage(parent.parentId);
+				if (latestMessage !== undefined) {
+					return { isAdmin, parent, latestMessage };
+				}
+				throw error(500, 'latest message undefined');
 			}
+			throw error(500, 'parent data not defiend');
 		}
-		throw error(400, 'Account id is not defined');
+		throw error(400, 'account not defined');
 	}
 };
