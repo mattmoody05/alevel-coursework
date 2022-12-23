@@ -5,7 +5,7 @@
 	import type { urgentNotificationSummary } from '$lib/util/types';
 
 	export let totalUrgentNotifications: number;
-	export let unreadUrgentNotifications: number;
+	export let thisWeekNotifications: number;
 	export let recentNotification: urgentNotificationSummary;
 </script>
 
@@ -17,7 +17,7 @@
 		</div>
 		<div class="flex flex-col">
 			<span class="text-sm opacity-50">This week</span>
-			<span class="text-4xl font-bold">{String(unreadUrgentNotifications)}</span>
+			<span class="text-4xl font-bold">{String(thisWeekNotifications)}</span>
 		</div>
 	</div>
 	<div class="mt-4">

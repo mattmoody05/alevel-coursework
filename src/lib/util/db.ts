@@ -564,3 +564,13 @@ export async function getLatestTwoWayMessage(parentId: string): Promise<twoWayMe
 	}
 	return undefined;
 }
+
+export async function getAllShortNoticeNotifications(): Promise<
+	shortNoticeNotifcation[] | undefined
+> {
+	const db = await openDb();
+	const notifications: shortNoticeNotifcation[] | undefined = await db.all(
+		'SELECT * FROM shortNoticeNotification'
+	);
+	return notifications;
+}

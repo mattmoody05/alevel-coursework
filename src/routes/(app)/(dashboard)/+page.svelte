@@ -7,6 +7,7 @@
 		ThisWeekCard,
 		UrgentNotificationCard
 	} from '$lib/components/dashboard/cards';
+	import { getDateFromLocaleString } from '$lib/util/date';
 	import type { session } from '$lib/util/types';
 	import type { PageData } from './$types';
 
@@ -30,6 +31,20 @@
 			}
 		];
 	}
+
+	let thisWeekNotifications = 0;
+	for (let index = 0; index < data.notifications.length; index++) {
+		const currentNotification = data.notifications[index];
+		const notiDate = getDateFromLocaleString(currentNotification.dateCreated);
+		const nowDate = new Date();
+
+		const diffInHrs = (nowDate.getTime() - notiDate.getTime()) / 1000 / 60 / 60;
+
+		// 168 hours in a week (7 24hour days)
+		if (diffInHrs < 168) {
+			thisWeekNotifications = thisWeekNotifications + 1;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -50,12 +65,11 @@
 	/>
 	<UrgentNotificationCard
 		recentNotification={{
-			notificationName: 'Coronavirus regulations',
-			content:
-				'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+			notificationName: data.notifications[data.notifications.length - 1].dateCreated,
+			content: data.notifications[data.notifications.length - 1].message
 		}}
-		totalUrgentNotifications={10}
-		unreadUrgentNotifications={1}
+		totalUrgentNotifications={data.notifications.length}
+		{thisWeekNotifications}
 	/>
 	<AbsenceCard
 		absenceReports={[
