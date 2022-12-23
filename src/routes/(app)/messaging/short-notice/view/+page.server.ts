@@ -1,12 +1,23 @@
-import { getAccountId } from '$lib/util/cookies';
-import { getParent, getShortNoticeNotifications } from '$lib/util/db';
+import {
+	getAllShortNoticeNotifications,
+	getParent,
+	getShortNoticeNotifications
+} from '$lib/util/db';
 import type { parent, shortNoticeNotifcation } from '$lib/util/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
-	const account = locals.account;
+	const { isAdmin, account } = locals;
 	if (account !== undefined) {
+		if (isAdmin) {
+			const notifications = await getAllShortNoticeNotifications();
+			if (notifications !== undefined) {
+				return { notifications };
+			}
+			throw error(500, 'notifications undefined');
+		} else {
+		}
 		const parentData: parent | undefined = await getParent(account.accountId, 'account');
 		if (parentData !== undefined) {
 			const notifications: shortNoticeNotifcation[] | undefined = await getShortNoticeNotifications(
