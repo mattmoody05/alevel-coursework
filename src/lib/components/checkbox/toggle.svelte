@@ -1,8 +1,12 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
 	export let isChecked: boolean = false;
 	export let leftLabelText: string = '';
 	export let rightLabelText: string = '';
 	export let name: string = '';
+
+	const dispatch = createEventDispatcher();
 </script>
 
 <div class="flex">
@@ -14,6 +18,7 @@
 			id="componentToggle"
 			class="sr-only peer"
 			{name}
+			on:change={() => dispatch('change', { isChecked, name, leftLabelText, rightLabelText })}
 		/>
 		<div
 			class="w-11 h-6 bg-gray-200 peer-focus:ring-none rounded-full peer

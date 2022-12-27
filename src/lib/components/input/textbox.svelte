@@ -4,6 +4,7 @@
 	export let value: string = '';
 	export let isPassword: boolean = false;
 	export let name: string = '';
+	export let isDisabled: boolean = false;
 </script>
 
 <div class="flex flex-col gap-1">
@@ -18,6 +19,7 @@
 			placeholder={placeholderText}
 			bind:value
 			{name}
+			disabled={isDisabled}
 		/>
 	{:else}
 		<input
@@ -27,6 +29,7 @@
 			placeholder={placeholderText}
 			bind:value
 			{name}
+			disabled={isDisabled}
 		/>
 	{/if}
 </div>
