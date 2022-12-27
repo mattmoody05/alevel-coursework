@@ -12,6 +12,7 @@
 	}
 </script>
 
+<h3 class="font-bold text-xl mb-2">Two way messaging</h3>
 {#if data.isAdmin}
 	<div class="flex flex-col gap-2">
 		{#each data.parents as parent}
