@@ -12,8 +12,8 @@
 
 <h3 class="font-bold text-xl">View notifications</h3>
 <div class="flex gap-2">
-	<FilterButton />
-	<SortButton />
+	<FilterButton allowedFilterTypes={['Child', 'Date', 'Name']} />
+	<SortButton allowedSortTypes={['None', 'Child', 'Date', 'Name']} />
 </div>
 <div class="grid lg:grid-cols-2 gap-2 mt-2">
 	{#each data.notifications as notification}
