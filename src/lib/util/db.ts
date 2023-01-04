@@ -1,12 +1,14 @@
 import type {
 	account,
 	child,
+	expandedSurvey,
 	expense,
 	invoice,
 	parent,
 	session,
 	shortNoticeNotifcation,
 	shortNoticeNotifcationIssue,
+	survey,
 	twoWayMessage
 } from './types';
 import { openDb } from '../../db/index';
@@ -573,4 +575,36 @@ export async function getAllShortNoticeNotifications(): Promise<
 		'SELECT * FROM shortNoticeNotification'
 	);
 	return notifications;
+}
+
+export async function writeSurvey(survey: expandedSurvey) {
+	const db = await openDb();
+	await db.run(
+		'INSERT INTO survey VALUES (?, ?, ?, ?, ?, ?, ?)',
+		survey.surveyId,
+		survey.title,
+		survey.description,
+		survey.consentForm,
+		survey.anonymous,
+		survey.numberOfQuestions,
+		survey.dateCreated
+	);
+	survey.questions.forEach(async (question) => {
+		await db.run(
+			'INSERT INTO surveyQuestion VALUES (?, ?, ?, ?)',
+			question.surveyQuestionId,
+			question.prompt,
+			question.dateCreated,
+			survey.surveyId
+		);
+		question.options.forEach(async (option) => {
+			await db.run(
+				'INSERT INTO surveyQuestionOption VALUES (?, ?, ?, ?)',
+				option.surveyQuestionOptionId,
+				option.prompt,
+				option.dateCreated,
+				question.surveyQuestionId
+			);
+		});
+	});
 }

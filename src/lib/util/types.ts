@@ -195,3 +195,35 @@ export type invoice = {
 	parentId: string;
 	childId: string;
 };
+
+export type expandedSurvey = {
+	surveyId: string;
+	title: string;
+	description?: string;
+	consentForm: boolean;
+	anonymous: boolean;
+	numberOfQuestions: number;
+	dateCreated: string;
+	questions: {
+		surveyQuestionId: string;
+		prompt: string;
+		dateCreated: string;
+		options: {
+			surveyQuestionOptionId: string;
+			prompt: string;
+			dateCreated: string;
+		}[];
+	}[];
+};
+
+export type expandedSurveyQuestion = {
+	surveyQuestionId: string;
+	prompt: string;
+	dateCreated: string;
+	options: {
+		surveyQuestionOptionId: string;
+		prompt: string;
+		dateCreated: string;
+	}[];
+	surveyId: string;
+};
