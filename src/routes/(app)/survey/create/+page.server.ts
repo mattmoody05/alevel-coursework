@@ -34,7 +34,7 @@ export const actions: Actions = {
 		const date = new Date();
 		const currentDateString = date.toLocaleDateString('en-GB');
 
-		const survey: expandedSurvey = {
+		let survey: expandedSurvey = {
 			surveyId: uuidv4(),
 			title: title,
 			description: description,
@@ -71,6 +71,8 @@ export const actions: Actions = {
 				}
 			}
 		});
+
+		survey.numberOfQuestions = survey.questions.length;
 
 		await writeSurvey(survey);
 
