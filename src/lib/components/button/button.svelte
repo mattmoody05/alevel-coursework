@@ -2,6 +2,7 @@
 	import type { buttonStyle } from '$lib/util/types';
 
 	export let style: buttonStyle = 'primary';
+	export let formaction: string | undefined = undefined;
 
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
@@ -30,10 +31,20 @@
 		<slot />
 	</button>
 {:else if style === 'submit'}
-	<button
-		class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full"
-		type="submit"
-	>
-		<slot />
-	</button>
+	{#if formaction !== undefined}
+		<button
+			class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full"
+			type="submit"
+			{formaction}
+		>
+			<slot />
+		</button>
+	{:else}
+		<button
+			class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full"
+			type="submit"
+		>
+			<slot />
+		</button>
+	{/if}
 {/if}
