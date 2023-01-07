@@ -14,7 +14,7 @@
 				<h1 class="font-bold text-3xl">Login</h1>
 				<p class="opacity-50">Please enter your username and password to login to the system.</p>
 				<form class="flex flex-col gap-2" method="POST" id="loginForm">
-					<Textbox name="username" labelText="Username" placeholderText="jdoe" />
+					<Textbox name="username" labelText="Username" />
 					<Textbox name="password" labelText="Password" isPassword={true} />
 					<Button style="submit">Login</Button>
 				</form>
