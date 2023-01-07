@@ -651,6 +651,28 @@ export async function getSurveys(parentId: string) {
 	return undefined;
 }
 
+export async function getExpandedSurveys(parentId: string): Promise<expandedSurvey[] | undefined> {
+	const db = await openDb();
+	const issues: surveyIssue[] | undefined = await db.all(
+		'SELECT * FROM surveyIssue WHERE parentId = ?',
+		parentId
+	);
+	if (issues !== undefined) {
+		let surveys: expandedSurvey[] = [];
+		for (let index = 0; index < issues.length; index++) {
+			const currentSurveyIssue: surveyIssue = issues[index];
+			const currentSurvey: expandedSurvey | undefined = await getExpandedSurvey(
+				currentSurveyIssue.surveyId
+			);
+			if (currentSurvey !== undefined) {
+				surveys.push(currentSurvey);
+			}
+		}
+		return surveys;
+	}
+	return undefined;
+}
+
 export async function getSurveyQuestionOption(
 	surveyQuestionOptionId: string
 ): Promise<surveyQuestionOption | undefined> {

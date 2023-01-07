@@ -1,15 +1,21 @@
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-import { getAllSurveys } from '$lib/util/db';
+import { getSurveys } from '$lib/util/db';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
-	const { isAdmin } = locals;
+	const { isAdmin, account } = locals;
 	if (!isAdmin) {
-		const surveys = await getAllSurveys();
-		if (surveys !== undefined) {
-			return { surveys };
+		if (account !== undefined) {
+			if (account.parentId !== undefined) {
+				const surveys = await getSurveys(account.parentId);
+				if (surveys !== undefined) {
+					return { surveys };
+				}
+				throw error(500, 'surveys undefined');
+			}
+			throw error(500, 'parent id undefined');
 		}
-		throw error(500, 'surveys undefined');
+		throw error(500, 'account undefined');
 	}
 	throw error(400, 'admin not access this page');
 };
