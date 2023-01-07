@@ -3,6 +3,7 @@ import type {
 	child,
 	expandedSurvey,
 	expandedSurveyQuestion,
+	expandedSurveyWithResponses,
 	expense,
 	invoice,
 	parent,
@@ -90,9 +91,10 @@ export async function sendMessage(
 	return message;
 }
 
-export async function getAllParents(): Promise<parent[]> {
+export async function getAllParents(): Promise<parent[] | undefined> {
 	const db = await openDb();
-	return await db.all('SELECT * FROM parent');
+	const parents: parent[] | undefined = await db.all('SELECT * FROM parent');
+	return parents;
 }
 
 export async function writeShortNoticeNoitification(
@@ -826,4 +828,82 @@ export async function checkSurveyResponseExists(surveyQuestionId: string, parent
 		return false;
 	}
 	return true;
+}
+
+export async function getSurveyQuestionResponses(surveyQuestionId: string) {
+	const db = await openDb();
+	const responses: surveyResponse[] | undefined = await db.all(
+		'SELECT * FROM surveyResponse WHERE surveyQuestionId = ?',
+		surveyQuestionId
+	);
+	return responses;
+}
+
+export async function getExpandedSurveyWithResponses(surveyId: string) {
+	const expandedSurveyData: expandedSurvey | undefined = await getExpandedSurvey(surveyId);
+	if (expandedSurveyData !== undefined) {
+		let expandedSurveyDataWithResponses: expandedSurveyWithResponses = {
+			anonymous: expandedSurveyData.anonymous,
+			consentForm: expandedSurveyData.consentForm,
+			dateCreated: expandedSurveyData.dateCreated,
+			numberOfQuestions: expandedSurveyData.numberOfQuestions,
+			surveyId: expandedSurveyData.surveyId,
+			title: expandedSurveyData.surveyId,
+			description: expandedSurveyData.description,
+			questions: []
+		};
+		for (let i = 0; i < expandedSurveyData.questions.length; i++) {
+			const currentQuestion = expandedSurveyData.questions[i];
+			const currentQuestionResponses = await getSurveyQuestionResponses(
+				currentQuestion.surveyQuestionId
+			);
+			let formattedResponses: {
+				surveyResponseId: string;
+				dateRecorded: string;
+				parentId: string;
+				surveyQuestionOption: {
+					surveyQuestionOptionId: string;
+					prompt: string;
+					dateCreated: string;
+				};
+			}[] = [];
+			if (currentQuestionResponses !== undefined) {
+				for (let j = 0; j < currentQuestionResponses.length; j++) {
+					const currentResponse = currentQuestionResponses[j];
+					const db = await openDb();
+					const optionData: surveyQuestionOption | undefined = await db.get(
+						'SELECT * FROM surveyQuestionOption WHERE surveyQuestionOptionId = ?',
+						currentResponse.surveyQuestionOptionId
+					);
+					if (optionData !== undefined) {
+						formattedResponses = [
+							...formattedResponses,
+							{
+								dateRecorded: currentResponse.dateRecorded,
+								parentId: currentResponse.parentId,
+								surveyResponseId: currentResponse.surveyResponseId,
+								surveyQuestionOption: {
+									dateCreated: optionData.dateCreated,
+									prompt: optionData.prompt,
+									surveyQuestionOptionId: optionData.surveyQuestionOptionId
+								}
+							}
+						];
+					}
+				}
+			}
+			expandedSurveyDataWithResponses.questions = [
+				...expandedSurveyDataWithResponses.questions,
+				{
+					dateCreated: currentQuestion.dateCreated,
+					options: currentQuestion.options,
+					prompt: currentQuestion.prompt,
+					surveyQuestionId: currentQuestion.surveyQuestionId,
+					responses: formattedResponses
+				}
+			];
+		}
+		return expandedSurveyDataWithResponses;
+	}
+	return undefined;
 }

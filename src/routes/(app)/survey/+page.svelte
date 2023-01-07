@@ -10,4 +10,5 @@
 	<LinkButton style="secondary" href="/survey/create">Create survey</LinkButton>
 	<LinkButton style="secondary" href="/survey/issue">Issue survey</LinkButton>
 	<LinkButton style="secondary" href="/survey/answer">Answer survey</LinkButton>
+	<LinkButton style="secondary" href="/survey/view">View survey</LinkButton>
 </div>

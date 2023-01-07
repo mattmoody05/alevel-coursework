@@ -7,10 +7,10 @@
 </script>
 
 <svelte:head>
-	<title>Select survey</title>
+	<title>Answer surveys</title>
 </svelte:head>
 
-<h3 class="font-bold text-xl">Select survey</h3>
+<h3 class="font-bold text-xl">Answer surveys</h3>
 <div class="flex gap-2 my-2">
 	<!-- <FilterButton /> -->
 	<!-- <SortButton /> -->

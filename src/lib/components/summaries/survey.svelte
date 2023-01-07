@@ -4,9 +4,10 @@
 	export let isConsentForm: boolean;
 	export let numberOfQuestions: number;
 	export let status: 'complete' | 'inProgress' | 'incomplete';
+	export let clickRedirectTo: 'answer' | 'view' | 'issue' = 'answer';
 </script>
 
-<a href="/survey/answer/{surveyId}">
+<a href="/survey/{clickRedirectTo}/{surveyId}">
 	<div
 		class="grid grid-cols-3 lg:grid-cols-5 p-2 bg-gray-100 border-gray-300 border rounded-xl items-center"
 	>
@@ -24,7 +25,7 @@
 		<div class="hidden lg:block">{String(numberOfQuestions)}</div>
 
 		<div class="hidden lg:flex justify-end">
-			<a href="/survey/answers/{surveyId}">
+			<a href="/survey/{clickRedirectTo}/{surveyId}">
 				<div
 					class="bg-gray-900 text-white text-sm font-bold rounded-lg hover:bg-gray-700 py-2 px-2 min-w-max w-32 max-w-full flex items-center justify-center h-full"
 				>

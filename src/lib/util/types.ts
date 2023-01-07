@@ -227,3 +227,33 @@ export type expandedSurveyQuestion = {
 	}[];
 	surveyId: string;
 };
+
+export type expandedSurveyWithResponses = {
+	surveyId: string;
+	title: string;
+	description?: string;
+	consentForm: boolean;
+	anonymous: boolean;
+	numberOfQuestions: number;
+	dateCreated: string;
+	questions: {
+		surveyQuestionId: string;
+		prompt: string;
+		dateCreated: string;
+		options: {
+			surveyQuestionOptionId: string;
+			prompt: string;
+			dateCreated: string;
+		}[];
+		responses: {
+			surveyResponseId: string;
+			dateRecorded: string;
+			parentId: string;
+			surveyQuestionOption: {
+				surveyQuestionOptionId: string;
+				prompt: string;
+				dateCreated: string;
+			};
+		}[];
+	}[];
+};
