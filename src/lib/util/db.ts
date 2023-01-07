@@ -907,3 +907,23 @@ export async function getExpandedSurveyWithResponses(surveyId: string) {
 	}
 	return undefined;
 }
+
+export async function issueSurvey(surveyId: string, parentId: string): Promise<surveyIssue> {
+	const db = await openDb();
+	const date = new Date();
+	const generatedSurveyIssue: surveyIssue = {
+		surveyIssueId: uuidv4(),
+		dateIssued: date.toLocaleDateString('en-GB'),
+		surveyId: surveyId,
+		parentId: parentId
+	};
+
+	await db.run(
+		'INSERT INTO surveyIssue VALUES (?, ?, ?, ?)',
+		generatedSurveyIssue.surveyIssueId,
+		generatedSurveyIssue.dateIssued,
+		generatedSurveyIssue.surveyId,
+		generatedSurveyIssue.parentId
+	);
+	return generatedSurveyIssue;
+}
