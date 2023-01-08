@@ -18,10 +18,8 @@ export const actions: Actions = {
 	default: async ({ request, cookies }: RequestEvent) => {
 		const data = await request.formData();
 
-		// @ts-ignore
-		const username: string = data.get('username');
-		// @ts-ignore
-		const password: string = data.get('password');
+		const username: string = data.get('username') as string;
+		const password: string = data.get('password') as string;
 		const db = await openDb();
 
 		if (username !== null && password !== null) {
@@ -37,7 +35,8 @@ export const actions: Actions = {
 					const token = jwt.sign({ accountId: reqAccount.accountId }, JWT_SIGNING_SECRET_KEY);
 
 					cookies.set('token', token);
-					throw redirect(300, '/');
+
+					throw redirect(307, '/');
 				}
 
 				// Password does not matched the one stored in DB

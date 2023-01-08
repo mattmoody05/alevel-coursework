@@ -11,6 +11,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 			event.locals.account = accountData;
 			event.locals.isAdmin = accountData.isAdmin;
 		}
+	} else {
+		event.locals.account = undefined;
 	}
 
 	const response = await resolve(event);
