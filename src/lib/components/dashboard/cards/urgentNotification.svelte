@@ -6,7 +6,7 @@
 
 	export let totalUrgentNotifications: number;
 	export let thisWeekNotifications: number;
-	export let recentNotification: urgentNotificationSummary;
+	export let recentNotification: urgentNotificationSummary | undefined;
 </script>
 
 <CardWrapper title="Urgent notifications">
@@ -23,10 +23,14 @@
 	<div class="mt-4">
 		<span>Recent notifications</span>
 		<div class="mt-1">
-			<UrgentNotificationCardView
-				title={recentNotification.notificationName}
-				content={recentNotification.content}
-			/>
+			{#if recentNotification !== undefined}
+				<UrgentNotificationCardView
+					title={recentNotification.notificationName}
+					content={recentNotification.content}
+				/>
+			{:else}
+				<span class="text-sm opacity-50">No recent notifications</span>
+			{/if}
 		</div>
 		<div class="mt-2 flex justify-center w-full">
 			<LinkButton href="/messaging/short-notice/view" style="secondary">See all</LinkButton>

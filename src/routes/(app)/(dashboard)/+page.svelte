@@ -63,14 +63,22 @@
 		sessionsBooked={data.sessions.length}
 		{recentSessions}
 	/>
-	<UrgentNotificationCard
-		recentNotification={{
-			notificationName: data.notifications[data.notifications.length - 1].dateCreated,
-			content: data.notifications[data.notifications.length - 1].message
-		}}
-		totalUrgentNotifications={data.notifications.length}
-		{thisWeekNotifications}
-	/>
+	{#if data.notifications.length === 0}
+		<UrgentNotificationCard
+			recentNotification={undefined}
+			totalUrgentNotifications={data.notifications.length}
+			{thisWeekNotifications}
+		/>
+	{:else}
+		<UrgentNotificationCard
+			recentNotification={{
+				notificationName: data.notifications[data.notifications.length - 1].dateCreated,
+				content: data.notifications[data.notifications.length - 1].message
+			}}
+			totalUrgentNotifications={data.notifications.length}
+			{thisWeekNotifications}
+		/>
+	{/if}
 	<AbsenceCard
 		absenceReports={[
 			{

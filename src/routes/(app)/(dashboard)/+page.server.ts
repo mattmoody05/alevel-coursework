@@ -14,6 +14,7 @@ import {
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const account = locals.account;
 	const isAdmin = locals.isAdmin;
+
 	if (account !== undefined) {
 		// admin stuff
 		if (isAdmin) {
@@ -62,5 +63,5 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		}
 		throw error(400, 'parentData undefined');
 	}
-	throw redirect(300, '/login');
+	throw redirect(307, '/login');
 };
