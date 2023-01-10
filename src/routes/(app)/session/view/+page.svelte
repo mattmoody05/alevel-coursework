@@ -41,8 +41,8 @@
 
 <h3 class="font-bold text-xl">View sessions</h3>
 <div class="flex gap-2">
-	<FilterButton />
-	<SortButton />
+	<!-- <FilterButton /> -->
+	<!-- <SortButton /> -->
 </div>
 <div class="grid grid-cols-3 lg:grid-cols-5 p-2 rounded-xl text-sm opacity-50">
 	<span>Name</span>

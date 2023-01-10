@@ -31,6 +31,8 @@ CREATE TABLE session(
     dateBooked TEXT NOT NULL,
     absent BOOLEAN NOT NULL DEFAULT 0,
     absenceCharge BOOLEAN NOT NULL DEFAULT 0, 
+    absenceReason TEXT,
+    absenceAdditionalInformation TEXT,
     isRecurring BOOLEAN NOT NULL DEFAULT 0, 
     childId TEXT NOT NULL,
     invoiceId TEXT,

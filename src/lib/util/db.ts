@@ -20,6 +20,7 @@ import type {
 import { openDb } from '../../db/index';
 import { v4 as uuidv4 } from 'uuid';
 import { HOURLY_RATE } from '$env/static/private';
+import { getDateFromLocaleString } from './date';
 
 export async function getParent(
 	id: string,
@@ -225,7 +226,7 @@ export async function createSingleSession(
 	const db = await openDb();
 
 	await db.run(
-		'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 		createdSession.sessionId,
 		createdSession.date,
 		createdSession.startTime,
@@ -233,6 +234,8 @@ export async function createSingleSession(
 		createdSession.dateBooked,
 		createdSession.absent,
 		createdSession.absenceCharge,
+		null,
+		null,
 		createdSession.isRecurring,
 		createdSession.childId,
 		null

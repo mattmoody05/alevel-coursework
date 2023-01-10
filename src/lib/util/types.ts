@@ -71,6 +71,8 @@ export type session = {
 	dateBooked: string;
 	absent: boolean;
 	absenceCharge: boolean;
+	absenceReason?: string;
+	absenceAdditionalInformation?: string;
 	isRecurring: boolean;
 	childId: string;
 	invoiceId?: string;
