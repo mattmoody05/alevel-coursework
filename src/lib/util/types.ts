@@ -16,11 +16,6 @@ export type invoiceSummary = {
 	amountDue: number;
 	dueDate: string;
 };
-export type absentReportSummary = {
-	childName: string;
-	startDate: string;
-	endDate: string;
-};
 
 export type surveySummary = {
 	surveyName: string;
@@ -73,6 +68,7 @@ export type session = {
 	absenceCharge: boolean;
 	absenceReason?: string;
 	absenceAdditionalInformation?: string;
+	absenceKeepSession: boolean;
 	isRecurring: boolean;
 	childId: string;
 	invoiceId?: string;

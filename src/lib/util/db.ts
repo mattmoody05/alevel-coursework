@@ -218,6 +218,7 @@ export async function createSingleSession(
 		length: length,
 		absenceCharge: false,
 		absent: false,
+		absenceKeepSession: true,
 		dateBooked: currentDate.toLocaleDateString('en-GB'),
 		isRecurring: false,
 		invoiceId: undefined
