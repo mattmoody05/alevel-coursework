@@ -227,7 +227,7 @@ export async function createSingleSession(
 	const db = await openDb();
 
 	await db.run(
-		'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 		createdSession.sessionId,
 		createdSession.date,
 		createdSession.startTime,
@@ -237,6 +237,7 @@ export async function createSingleSession(
 		createdSession.absenceCharge,
 		null,
 		null,
+		true,
 		createdSession.isRecurring,
 		createdSession.childId,
 		null
