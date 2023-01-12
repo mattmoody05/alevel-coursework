@@ -977,8 +977,6 @@ export async function createAbsenceReport(
 			currentLoopDate.toLocaleDateString('en-GB')
 		);
 
-		console.log(currentLoopDate.toLocaleDateString('en-GB'));
-
 		if (sessionToMark !== undefined) {
 			// if there is a session, update the session with the absense details
 			await db.run(
@@ -995,7 +993,31 @@ export async function createAbsenceReport(
 		// 86400000 is 1 day in ms
 		// increment day by 1
 		currentLoopDate = new Date(currentLoopDate.getTime() + 86400000);
-
-		return sessionsAffected;
 	} while (currentLoopDate <= formattedEndDate);
+	return sessionsAffected;
+}
+
+export async function getSessionsWithAbsence(childId: string): Promise<session[] | undefined> {
+	const db = await openDb();
+	const sessionsWithAbsence: session[] | undefined = await db.all(
+		'SELECT * FROM session WHERE childId = ? AND absent = ?',
+		childId,
+		true
+	);
+	return sessionsWithAbsence;
+}
+
+export async function updateAbsenceReport(
+	sessionId: string,
+	chargeSession: boolean,
+	keepSession: boolean
+) {
+	const db = await openDb();
+
+	await db.run(
+		'UPDATE session SET absenceCharge = ?, absenceKeepSession = ? WHERE sessionId = ?',
+		chargeSession,
+		keepSession,
+		sessionId
+	);
 }
