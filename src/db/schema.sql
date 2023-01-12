@@ -75,10 +75,8 @@ CREATE TABLE recurringSessionRequest(
     fridaySelected BOOLEAN NOT NULL DEFAULT 0,
     fridayStartTime TEXT,
     fridayEndTime TEXT,    
-    startTime TEXT NOT NULL,
-    finishTime TEXT NOT NULL,
     dateRequestSubmitted TEXT NOT NULL,
-    dateApproved TEXT NOT NULL,
+    dateApproved TEXT,
     childId TEXT NOT NULL,
 
     FOREIGN KEY(childId) REFERENCES child(childId)
