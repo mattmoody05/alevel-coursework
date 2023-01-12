@@ -36,8 +36,8 @@
 
 <h3 class="font-bold text-xl">View expenses</h3>
 <div class="flex gap-2">
-	<FilterButton />
-	<SortButton />
+	<!-- <FilterButton />
+	<SortButton /> -->
 </div>
 <div class="grid grid-cols-3 lg:grid-cols-6 p-2 rounded-xl text-sm opacity-50">
 	<span>Date</span>
