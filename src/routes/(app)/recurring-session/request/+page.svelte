@@ -3,6 +3,10 @@
 	import { Checkbox } from '$lib/components/checkbox';
 
 	import { Listbox, Textbox } from '$lib/components/input';
+	import type { ActionData, PageData } from './$types';
+	import { SmallAlert } from '$lib/components/alert';
+	import { fade } from 'svelte/transition';
+	import { onMount } from 'svelte';
 
 	let recurringBasis: string = 'weekly';
 	let showDaySelection: boolean = true;
@@ -13,36 +17,37 @@
 		showDaySelection = false;
 	}
 
-	let mondaySelected: boolean;
-	let mondayStartTime: string;
-	let mondayFinishTime: string;
-	let tuesdaySelected: boolean;
-	let tuesdayStartTime: string;
-	let tuesdayFinishTime: string;
-	let wednesdaySelected: boolean;
-	let wednesdayStartTime: string;
-	let wednesdayFinishTime: string;
-	let thursdaySelected: boolean;
-	let thursdayStartTime: string;
-	let thursdayFinishTime: string;
-	let fridaySelected: boolean;
-	let fridayStartTime: string;
-	let fridayFinishTime: string;
+	export let data: PageData;
+	export let form: ActionData;
+
+	onMount(() => {
+		if (form?.success) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.success = false;
+			}, 5000);
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>Request recurring session</title>
 </svelte:head>
 
+{#if form?.success}
+	<div out:fade>
+		<SmallAlert style="success" body="Recurring session has been created." title="Success" />
+	</div>
+{/if}
+
 <h3 class="font-bold text-xl">Request recurring session</h3>
-<div class="flex flex-col gap-2 mt-2">
-	<Listbox labelText="Select child">
-		<option value="">Jon</option>
-		<option value="">Matthew </option>
-		<option value="">Kabir</option>
-		<option value="">Ella</option>
+<form class="flex flex-col gap-2 mt-2" method="POST">
+	<Listbox name="childId" labelText="Select child">
+		{#each data.children as child}
+			<option value={child.childId}>{child.firstName} {child.lastName}</option>
+		{/each}
 	</Listbox>
-	<Listbox labelText="Select reecurring basis" bind:value={recurringBasis}>
+	<Listbox name="recurring-basis" labelText="Select reecurring basis" bind:value={recurringBasis}>
 		<option value="weekly">Weekly</option>
 		<option value="daily">Daily (Monday - Friday)</option>
 	</Listbox>
@@ -51,62 +56,71 @@
 			<span class="text-sm">Select days</span>
 			<div class="flex flex-col gap-2 mt-2">
 				<div class="grid grid-cols-2 gap-2 items-center">
-					<Checkbox labelText="Monday" />
+					<Checkbox name="monday-selected" labelText="Monday" />
 					<div class="flex gap-2">
 						<div class="w-full">
-							<Textbox placeholderText="Start time" />
+							<Textbox name="monday-start-time" placeholderText="Start time" />
 						</div>
 						<div class="w-full">
-							<Textbox placeholderText="Finish time" />
+							<Textbox name="monday-end-time" placeholderText="Finish time" />
 						</div>
 					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-2 items-center">
-					<Checkbox labelText="Tuesday" />
+					<Checkbox name="tuesday-selected" labelText="Tuesday" />
 					<div class="flex gap-2">
 						<div class="w-full">
-							<Textbox placeholderText="Start time" />
+							<Textbox name="tuesday-start-time" placeholderText="Start time" />
 						</div>
 						<div class="w-full">
-							<Textbox placeholderText="Finish time" />
+							<Textbox name="tuesday-end-time" placeholderText="Finish time" />
 						</div>
 					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-2 items-center">
-					<Checkbox labelText="Wednesday" />
+					<Checkbox name="wednesday-selected" labelText="Wednesday" />
 					<div class="flex gap-2">
 						<div class="w-full">
-							<Textbox placeholderText="Start time" />
+							<Textbox name="wednesday-start-time" placeholderText="Start time" />
 						</div>
 						<div class="w-full">
-							<Textbox placeholderText="Finish time" />
+							<Textbox name="wednesday-end-time" placeholderText="Finish time" />
 						</div>
 					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-2 items-center">
-					<Checkbox labelText="Thursday" />
+					<Checkbox name="thursday-selected" labelText="Thursday" />
 					<div class="flex gap-2">
 						<div class="w-full">
-							<Textbox placeholderText="Start time" />
+							<Textbox name="thursday-start-time" placeholderText="Start time" />
 						</div>
 						<div class="w-full">
-							<Textbox placeholderText="Finish time" />
+							<Textbox name="thursday-end-time" placeholderText="Finish time" />
 						</div>
 					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-2 items-center">
-					<Checkbox labelText="Friday" />
+					<Checkbox name="friday-selected" labelText="Friday" />
 					<div class="flex gap-2">
 						<div class="w-full">
-							<Textbox placeholderText="Start time" />
+							<Textbox name="friday-start-time" placeholderText="Start time" />
 						</div>
 						<div class="w-full">
-							<Textbox placeholderText="Finish time" />
+							<Textbox name="friday-end-time" placeholderText="Finish time" />
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	{:else}
+		<div class="flex gap-2">
+			<div class="w-full">
+				<Textbox name="week-start-time" placeholderText="Start time" />
+			</div>
+			<div class="w-full">
+				<Textbox name="week-end-time" placeholderText="Finish time" />
+			</div>
+		</div>
 	{/if}
 	<Button>Submit request</Button>
-</div>
+</form>

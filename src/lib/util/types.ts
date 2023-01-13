@@ -263,3 +263,21 @@ export type expandedSurveyWithResponses = {
 		}[];
 	}[];
 };
+
+export type recurringSessionDayDetails = {
+	mondaySelected: boolean;
+	mondayStartTime?: string;
+	mondayEndTime?: string;
+	tuesdaySelected: boolean;
+	tuesdayStartTime?: string;
+	tuesdayEndTime?: string;
+	wednesdaySelected: boolean;
+	wednesdayStartTime?: string;
+	wednesdayEndTime?: string;
+	thursdaySelected: boolean;
+	thursdayStartTime?: string;
+	thursdayEndTime?: string;
+	fridaySelected: boolean;
+	fridayStartTime?: string;
+	fridayEndTime?: string;
+};

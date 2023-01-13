@@ -7,6 +7,7 @@ import type {
 	expense,
 	invoice,
 	parent,
+	recurringSessionDayDetails,
 	session,
 	shortNoticeNotifcation,
 	shortNoticeNotifcationIssue,
@@ -1019,5 +1020,48 @@ export async function updateAbsenceReport(
 		chargeSession,
 		keepSession,
 		sessionId
+	);
+}
+
+export async function createRecurringSessionRequest(
+	recurringBasis: string,
+	dayDetails: recurringSessionDayDetails,
+	childId: string
+) {
+	const db = await openDb();
+
+	const date = new Date();
+
+	await db.run(
+		'INSERT INTO recurringSessionRequest VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		uuidv4(),
+		false,
+		recurringBasis,
+		dayDetails.mondaySelected,
+		dayDetails.mondayStartTime,
+		dayDetails.mondayEndTime,
+		dayDetails.tuesdaySelected,
+		dayDetails.tuesdayStartTime,
+		dayDetails.tuesdayEndTime,
+		dayDetails.wednesdaySelected,
+		dayDetails.wednesdayStartTime,
+		dayDetails.wednesdayEndTime,
+		dayDetails.thursdaySelected,
+		dayDetails.thursdayStartTime,
+		dayDetails.thursdayEndTime,
+		dayDetails.fridaySelected,
+		dayDetails.fridayStartTime,
+		dayDetails.fridayEndTime,
+		date.toLocaleDateString('en-GB'),
+		null,
+		childId
+	);
+}
+
+export async function deleteRecurringSessionRequest(recurringSessionRequestId: string) {
+	const db = await openDb();
+	await db.run(
+		'DELETE * FROM recurringSessionRequest WHERE recurringSessionId = ?',
+		recurringSessionRequestId
 	);
 }
