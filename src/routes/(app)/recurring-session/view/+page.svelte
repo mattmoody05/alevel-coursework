@@ -1,6 +1,22 @@
 <script lang="ts">
 	import { Button } from '$lib/components/button';
-	import { stringToColour } from '$lib/util/ui';
+	import { Listbox } from '$lib/components/input';
+	import { capitaliseFirst } from '$lib/util/ui';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
+
+	type days = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
+	const dayList: days[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+
+	let selectedChildId = data.children[0].childId;
+
+	function getSelectedRecurringSession(childId: string) {
+		const requests = data.recurringSessionRequests.filter((req) => req.childId === childId);
+		if (requests.length !== 0) {
+			return requests[0];
+		}
+	}
 </script>
 
 <svelte:head>
@@ -8,38 +24,51 @@
 </svelte:head>
 
 <h3 class="font-bold text-xl">View recurring session</h3>
-<div class="flex flex-col gap-2 mt-2">
-	<div class="flex items-center gap-2">
-		<div class="font-bold">Selected child:</div>
-		<div class="px-2 py-1 {stringToColour('Matthew')} text-white rounded-lg max-w-max mr-2">
-			Matthew
-		</div>
-	</div>
-	<div>
-		<span class="font-bold">Selected basis: </span>
-		<span>Weekly</span>
-	</div>
-	<span class="font-bold">Days in recurring session booking:</span>
-	<div class="bg-gray-100 border border-gray-300 rounded-xl p-2 grid grid-cols-2">
-		<div><span class="font-bold">Day: </span> Monday</div>
-		<div class="flex flex-col">
-			<div><span class="font-bold">Start time: </span><span>11:00</span></div>
-			<div><span class="font-bold">End time: </span><span>17:00</span></div>
-		</div>
-	</div>
-	<div class="bg-gray-100 border border-gray-300 rounded-xl p-2 grid grid-cols-2">
-		<div><span class="font-bold">Day: </span> Tuesday</div>
-		<div class="flex flex-col">
-			<div><span class="font-bold">Start time: </span><span>11:00</span></div>
-			<div><span class="font-bold">End time: </span><span>17:00</span></div>
-		</div>
-	</div>
-	<div class="bg-gray-100 border border-gray-300 rounded-xl p-2 grid grid-cols-2">
-		<div><span class="font-bold">Day: </span> Friday</div>
-		<div class="flex flex-col">
-			<div><span class="font-bold">Start time: </span><span>11:00</span></div>
-			<div><span class="font-bold">End time: </span><span>17:00</span></div>
-		</div>
-	</div>
-	<Button style="danger">Cancel recurring session</Button>
-</div>
+<form method="POST" class="flex flex-col gap-2 mt-2">
+	<Listbox bind:value={selectedChildId} name="childId" labelText="Select child">
+		{#each data.children as child}
+			<option value={child.childId}>{child.firstName} {child.lastName}</option>
+		{/each}
+	</Listbox>
+	{#key selectedChildId}
+		<!-- lots of potential undefined errors here - cannot be undefined because there is a check with the if statement above - fix later  -->
+
+		{#if getSelectedRecurringSession(selectedChildId) !== undefined}
+			{@const currentRequest = getSelectedRecurringSession(selectedChildId)}
+			<div>
+				<span class="font-bold">Selected basis: </span>
+				{#if currentRequest.recurringBasis === 'weekly'}
+					<span>Weekly</span>
+				{:else if currentRequest.recurringBasis === 'daily'}
+					<span>Daily (Monday - Friday)</span>
+				{/if}
+			</div>
+			<span class="font-bold">Days in recurring session booking:</span>
+			{#each dayList as currentDayName}
+				{@const daySelected = currentRequest[`${currentDayName}Selected`]}
+				<!-- day selected coming from db as 1 or 0 instead of true / false, convert to strict equality later -->
+				{#if daySelected == true}
+					<div class="bg-gray-100 border border-gray-300 rounded-xl p-2 grid grid-cols-2">
+						<div><span class="font-bold">Day: </span> {capitaliseFirst(currentDayName)}</div>
+						<div class="flex flex-col">
+							<div>
+								<span class="font-bold">Start time: </span><span
+									>{currentRequest[`${currentDayName}StartTime`]}</span
+								>
+							</div>
+							<div>
+								<span class="font-bold">End time: </span><span
+									>{currentRequest[`${currentDayName}EndTime`]}</span
+								>
+							</div>
+						</div>
+					</div>
+				{/if}
+			{/each}
+			<Button style="danger">Cancel recurring session</Button>
+		{:else}
+			<h3 class="font-bold text-xl">No session request found</h3>
+			There is no recurring sessio request found for the selected child, or a child has not been selected.
+		{/if}
+	{/key}
+</form>

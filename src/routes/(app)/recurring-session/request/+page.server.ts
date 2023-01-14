@@ -1,4 +1,8 @@
-import { createRecurringSessionRequest, getChildren } from '$lib/util/db';
+import {
+	childHasRecurringSessionRequest,
+	createRecurringSessionRequest,
+	getChildren
+} from '$lib/util/db';
 import type { recurringSessionDayDetails } from '$lib/util/types';
 import { error } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
@@ -22,9 +26,16 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 export const actions: Actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
+		const childId = data.get('childId') as string;
+
+		const existingRequest = await childHasRecurringSessionRequest(childId);
+		console.log(existingRequest);
+
+		if (existingRequest === true) {
+			throw error(400, 'selected child already has a recurring session request');
+		}
 
 		const recurringBasis = data.get('recurring-basis') as string;
-		const childId = data.get('childId') as string;
 
 		let dayDetails: recurringSessionDayDetails = {
 			mondaySelected: false,

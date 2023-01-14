@@ -8,6 +8,7 @@ import type {
 	invoice,
 	parent,
 	recurringSessionDayDetails,
+	recurringSessionRequest,
 	session,
 	shortNoticeNotifcation,
 	shortNoticeNotifcationIssue,
@@ -1064,4 +1065,25 @@ export async function deleteRecurringSessionRequest(recurringSessionRequestId: s
 		'DELETE * FROM recurringSessionRequest WHERE recurringSessionId = ?',
 		recurringSessionRequestId
 	);
+}
+
+export async function getRecurringSessionRequest(childId: string) {
+	const db = await openDb();
+
+	const requests: recurringSessionRequest | undefined = await db.get(
+		'SELECT * FROM recurringSessionRequest WHERE childId = ?',
+		childId
+	);
+
+	return requests;
+}
+
+export async function childHasRecurringSessionRequest(childId: string): Promise<boolean> {
+	const recurringSessionRequest = await getRecurringSessionRequest(childId);
+
+	if (recurringSessionRequest === undefined) {
+		return false;
+	} else {
+		return true;
+	}
 }
