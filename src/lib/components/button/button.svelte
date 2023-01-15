@@ -12,24 +12,52 @@
 	}
 </script>
 
+<!-- Must be a better way than all these if statements?? -->
+
 {#if style === 'primary'}
-	<button
-		on:click={onClickDispatcher}
-		class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full"
-	>
-		<slot />
-	</button>
+	{#if formaction !== undefined}
+		<button
+			on:click={onClickDispatcher}
+			class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full"
+			{formaction}
+		>
+			<slot />
+		</button>
+	{:else}
+		<button
+			on:click={onClickDispatcher}
+			class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full"
+		>
+			<slot />
+		</button>
+	{/if}
 {:else if style === 'secondary'}
-	<button on:click={onClickDispatcher} class="min-w-max opacity-50 underline">
-		<slot />
-	</button>
+	{#if formaction !== undefined}
+		<button on:click={onClickDispatcher} class="min-w-max opacity-50 underline" {formaction}>
+			<slot />
+		</button>
+	{:else}
+		<button on:click={onClickDispatcher} class="min-w-max opacity-50 underline">
+			<slot />
+		</button>
+	{/if}
 {:else if style === 'danger'}
-	<button
-		on:click={onClickDispatcher}
-		class="bg-red-700 hover:bg-red-600 min-w-max text-white font-bold py-3 px-8 rounded-xl w-full"
-	>
-		<slot />
-	</button>
+	{#if formaction !== undefined}
+		<button
+			on:click={onClickDispatcher}
+			class="bg-red-700 hover:bg-red-600 min-w-max text-white font-bold py-3 px-8 rounded-xl w-full"
+			{formaction}
+		>
+			<slot />
+		</button>
+	{:else}
+		<button
+			on:click={onClickDispatcher}
+			class="bg-red-700 hover:bg-red-600 min-w-max text-white font-bold py-3 px-8 rounded-xl w-full"
+		>
+			<slot />
+		</button>
+	{/if}
 {:else if style === 'submit'}
 	{#if formaction !== undefined}
 		<button

@@ -21,7 +21,7 @@ import type {
 } from './types';
 import { openDb } from '../../db/index';
 import { v4 as uuidv4 } from 'uuid';
-import { HOURLY_RATE } from '$env/static/private';
+import { HOURLY_RATE, RECURRING_BOOKING_EXPIRY } from '$env/static/private';
 import { getDateFromLocaleString } from './date';
 
 export async function getParent(
@@ -1059,12 +1059,9 @@ export async function createRecurringSessionRequest(
 	);
 }
 
-export async function deleteRecurringSessionRequest(recurringSessionRequestId: string) {
+export async function deleteRecurringSessionRequest(childId: string) {
 	const db = await openDb();
-	await db.run(
-		'DELETE * FROM recurringSessionRequest WHERE recurringSessionId = ?',
-		recurringSessionRequestId
-	);
+	await db.run('DELETE FROM recurringSessionRequest WHERE childId = ?', childId);
 }
 
 export async function getRecurringSessionRequest(childId: string) {
@@ -1085,5 +1082,83 @@ export async function childHasRecurringSessionRequest(childId: string): Promise<
 		return false;
 	} else {
 		return true;
+	}
+}
+
+export async function setRecurringSessionRequestStatus(childId: string, approvalStatus: boolean) {
+	const db = await openDb();
+	await db.run('UPDATE recurringSessionRequest SET approved = ? WHERE childId = ?', approvalStatus);
+}
+
+function differenceBetweenTimes(startTime: string, endTime: string) {
+	let minsDifference: number = 0;
+
+	let startTimeHours: number = Number(startTime.split(':')[0]);
+	const startTimeMins: number = Number(startTime.split(':')[1]);
+	const endTimeHours: number = Number(endTime.split(':')[0]);
+	const endTimeMins: number = Number(endTime.split(':')[1]);
+
+	minsDifference = minsDifference + endTimeMins;
+	minsDifference = minsDifference + 60 - startTimeMins;
+	startTimeHours = startTimeHours + 1;
+	minsDifference = minsDifference + (endTimeHours - startTimeHours) * 60;
+
+	return minsDifference;
+}
+
+export async function createRecurringSession(childId: string) {
+	const db = await openDb();
+
+	const request = await getRecurringSessionRequest(childId);
+	if (request !== undefined) {
+		type days = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday';
+		const weekday: days[] = [
+			'sunday',
+			'monday',
+			'tuesday',
+			'wednesday',
+			'thursday',
+			'friday',
+			'saturday'
+		];
+		const startDate = new Date();
+		const endDate = getDateFromLocaleString(RECURRING_BOOKING_EXPIRY);
+		let currentDate = startDate;
+		do {
+			const currentDay = weekday[currentDate.getDay()];
+			console.log(currentDate);
+			console.log(currentDay);
+
+			if (currentDay !== 'saturday' && currentDay !== 'sunday') {
+				console.log(request[`${currentDay}Selected`]);
+
+				// coming up as 1 or 0 instead of true or false, use strict equality when fixed
+				if (request[`${currentDay}Selected`] == true) {
+					const startTime = request[`${currentDay}StartTime`] as string;
+					const endTime = request[`${currentDay}EndTime`] as string;
+					const length = differenceBetweenTimes(startTime, endTime);
+					console.log(length);
+
+					await db.run(
+						'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+						uuidv4(),
+						currentDate.toLocaleDateString('en-GB'),
+						startTime,
+						length,
+						new Date().toLocaleDateString('en-GB'),
+						false,
+						false,
+						null,
+						null,
+						false,
+						true,
+						childId,
+						null
+					);
+				}
+			}
+			// Increment day by 1
+			currentDate = new Date(currentDate.getTime() + 86400000);
+		} while (currentDate <= endDate);
 	}
 }

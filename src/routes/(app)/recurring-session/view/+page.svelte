@@ -17,6 +17,13 @@
 			return requests[0];
 		}
 	}
+
+	function getChildParent(parentId: string) {
+		// parents is only provided when isAdmin is true, but this function will only be called then so should not be an issue
+		// @ts-ignore
+		const parents = data.parents.filter((parentData) => parentId === parentData.parentId);
+		return parents[0];
+	}
 </script>
 
 <svelte:head>
@@ -27,7 +34,18 @@
 <form method="POST" class="flex flex-col gap-2 mt-2">
 	<Listbox bind:value={selectedChildId} name="childId" labelText="Select child">
 		{#each data.children as child}
-			<option value={child.childId}>{child.firstName} {child.lastName}</option>
+			{#if data.isAdmin}
+				<option value={child.childId}
+					>{child.firstName}
+					{child.lastName} ({getChildParent(child.parentId).firstName}
+					{getChildParent(child.parentId).lastName})</option
+				>
+			{:else}
+				<option value={child.childId}
+					>{child.firstName}
+					{child.lastName}</option
+				>
+			{/if}
 		{/each}
 	</Listbox>
 	{#key selectedChildId}
@@ -65,7 +83,14 @@
 					</div>
 				{/if}
 			{/each}
-			<Button style="danger">Cancel recurring session</Button>
+			{#if data.isAdmin}
+				<div class="flex flex-row gap-2">
+					<Button formaction="?/adminDecline" style="danger">Decline request</Button>
+					<Button formaction="?/adminApprove" style="submit">Approve request</Button>
+				</div>
+			{:else}
+				<Button formaction="?/parentCancel" style="danger">Cancel recurring session</Button>
+			{/if}
 		{:else}
 			<h3 class="font-bold text-xl">No session request found</h3>
 			There is no recurring sessio request found for the selected child, or a child has not been selected.
