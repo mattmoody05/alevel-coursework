@@ -195,3 +195,11 @@ CREATE TABLE invoice(
     FOREIGN KEY(parentId) REFERENCES parent(parentId),
     FOREIGN KEY(childId) REFERENCES child(childId)
 )
+
+CREATE TABLE timeOffPeriod (
+    timeOffPeriodId TEXT NOT NULL PRIMARY KEY,
+    dateRecorded TEXT NOT NULL,
+    startDate TEXT NOT NULL,
+    endDate TEXT NOT NULL,
+    cancelSessions BOOLEAN NOT NULL DEFAULT 1
+)

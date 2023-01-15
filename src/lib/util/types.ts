@@ -281,3 +281,11 @@ export type recurringSessionDayDetails = {
 	fridayStartTime?: string;
 	fridayEndTime?: string;
 };
+
+export type timeOffPeriod = {
+	timeOffPeriodId: string;
+	dateRecorded: string;
+	startDate: string;
+	endDate: string;
+	cancelSessions: boolean;
+};
