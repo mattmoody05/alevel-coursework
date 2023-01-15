@@ -17,6 +17,7 @@ import type {
 	surveyQuestion,
 	surveyQuestionOption,
 	surveyResponse,
+	timeOffPeriod,
 	twoWayMessage
 } from './types';
 import { openDb } from '../../db/index';
@@ -1133,7 +1134,6 @@ export async function createRecurringSession(childId: string) {
 					const startTime = request[`${currentDay}StartTime`] as string;
 					const endTime = request[`${currentDay}EndTime`] as string;
 					const length = differenceBetweenTimes(startTime, endTime);
-					console.log(length);
 
 					await db.run(
 						'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -1157,4 +1157,73 @@ export async function createRecurringSession(childId: string) {
 			currentDate = new Date(currentDate.getTime() + 86400000);
 		} while (currentDate <= endDate);
 	}
+}
+
+export async function createTimeOffPeriod(
+	startDate: string,
+	endDate: string,
+	cancelSessions: boolean
+) {
+	const db = await openDb();
+	const date = new Date();
+	const timeOffPeriodData: timeOffPeriod = {
+		timeOffPeriodId: uuidv4(),
+		cancelSessions: cancelSessions,
+		startDate: startDate,
+		endDate: endDate,
+		dateRecorded: date.toLocaleDateString('en-GB')
+	};
+	await db.run(
+		'INSERT INTO timeOffPeriod VALUES (?, ?, ?, ?, ?)',
+		timeOffPeriodData.timeOffPeriodId,
+		timeOffPeriodData.dateRecorded,
+		timeOffPeriodData.startDate,
+		timeOffPeriodData.endDate,
+		timeOffPeriodData.cancelSessions
+	);
+
+	if (cancelSessions === true) {
+		const formattedStartDate = getDateFromLocaleString(startDate);
+		const formattedEndDate = getDateFromLocaleString(endDate);
+		let currentDate = formattedStartDate;
+		do {
+			const sessions = await getSessionsOnDate(currentDate.toLocaleDateString('en-GB'));
+
+			for (let i = 0; i < sessions.length; i++) {
+				const currentSession = sessions[i];
+				await deleteSession(currentSession.sessionId);
+			}
+
+			// Increment day by 1
+			currentDate = new Date(currentDate.getTime() + 86400000);
+		} while (currentDate <= formattedEndDate);
+	}
+
+	return timeOffPeriodData;
+}
+
+export async function getSessionsOnDate(date: string) {
+	const db = await openDb();
+	const sessions: session[] = await db.all('SELECT * FROM session WHERE date = ?', date);
+	return sessions;
+}
+
+export async function getTimeOffPeriods() {
+	const db = await openDb();
+	const periods: timeOffPeriod[] = await db.all('SELECT * FROM timeOffPeriod');
+	return periods;
+}
+
+export async function getTimeOffPeriod(timeOffPeriodId: string) {
+	const db = await openDb();
+	const period: timeOffPeriod | undefined = await db.get(
+		'SELECT * FROM timeOffPeriod WHERE timeOffPeriodId = ?',
+		timeOffPeriodId
+	);
+	return period;
+}
+
+export async function deleteTimeOffPeriod(timeOffPeriodId: string) {
+	const db = await openDb();
+	await db.run('DELETE FROM timeOffPeriod WHERE timeOffPeriodId = ?', timeOffPeriodId);
 }
