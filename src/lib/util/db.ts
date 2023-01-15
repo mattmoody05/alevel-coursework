@@ -1062,6 +1062,7 @@ export async function createRecurringSessionRequest(
 export async function deleteRecurringSessionRequest(childId: string) {
 	const db = await openDb();
 	await db.run('DELETE FROM recurringSessionRequest WHERE childId = ?', childId);
+	await db.run('DELETE FROM session WHERE childId = ? and isRecurring = ?', childId, true);
 }
 
 export async function getRecurringSessionRequest(childId: string) {
@@ -1126,12 +1127,7 @@ export async function createRecurringSession(childId: string) {
 		let currentDate = startDate;
 		do {
 			const currentDay = weekday[currentDate.getDay()];
-			console.log(currentDate);
-			console.log(currentDay);
-
 			if (currentDay !== 'saturday' && currentDay !== 'sunday') {
-				console.log(request[`${currentDay}Selected`]);
-
 				// coming up as 1 or 0 instead of true or false, use strict equality when fixed
 				if (request[`${currentDay}Selected`] == true) {
 					const startTime = request[`${currentDay}StartTime`] as string;
