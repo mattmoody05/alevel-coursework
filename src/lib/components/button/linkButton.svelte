@@ -7,7 +7,9 @@
 
 {#if style === 'primary'}
 	<a {href}>
-		<div class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full">
+		<div
+			class="bg-gray-900 hover:bg-gray-700 min-w-max text-white font-bold p-3 rounded-xl w-full text-center"
+		>
 			<slot />
 		</div>
 	</a>
