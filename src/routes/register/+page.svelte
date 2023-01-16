@@ -20,7 +20,7 @@
 						Let's get you started by logging into the system. Click below to be taken to the login
 						page.
 					</p>
-					<div class="max-w-max pt-2">
+					<div class="min-w-max w-32 pt-2">
 						<LinkButton href="/login">Login</LinkButton>
 					</div>
 				</div>
