@@ -17,8 +17,6 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 						...latestMessages,
 						{ parentId: currentParent.parentId, message: latestMessage }
 					];
-				} else {
-					throw error(500, 'latest message undefined');
 				}
 			}
 			return { isAdmin, parents, latestMessages };
