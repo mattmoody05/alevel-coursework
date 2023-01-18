@@ -14,8 +14,8 @@
 		<option value="">Tracey</option>
 		<option value="">Matthew</option>
 	</Listbox>
-	<Textbox labelText="Date" />
-	<Textbox labelText="Start time" />
+	<Textbox placeholderText="DD/MM/YYYY" labelText="Date" />
+	<Textbox placeholderText="HH:MM" labelText="Start time" />
 	<NumericUpDown labelText="Session length" />
 	<Button>Check</Button>
 </div>

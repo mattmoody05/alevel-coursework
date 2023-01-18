@@ -41,8 +41,8 @@
 			<option value={child.childId}>{child.firstName} {child.lastName}</option>
 		{/each}
 	</Listbox>
-	<Textbox name="startDate" labelText="Start date" placeholderText="Start date" />
-	<Textbox name="endDate" labelText="Start date" placeholderText="End date" />
+	<Textbox name="startDate" labelText="Start date" placeholderText="DD/MM/YYYY" />
+	<Textbox name="endDate" labelText="Start date" placeholderText="DD/MM/YYYY" />
 	<Listbox name="reason" labelText="Select reason">
 		<option value="Covid isolation">COVID isolation</option>
 		<option value="48 hour sickness waiting period">48 hour sickness waiting period</option>
