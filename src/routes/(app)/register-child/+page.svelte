@@ -15,16 +15,18 @@
 	<div class="h-full flex justify-center flex-col">
 		<div class="m-8 flex flex-col gap-2">
 			<h1 class="font-bold text-3xl">Child added!</h1>
-			<p class="opacity-50">
+			<p>
 				<span class="py-1 px-2 {stringToColour(form.childData?.firstName)} rounded-lg text-white">
 					{form.childData?.firstName}
 				</span>
-				has been added to your profile! Their name will always pop up in this colour so that you can
-				always easily identify them!
-				<br />
-				Click the button below to be taken to the dashboard.
+				<span class="opacity-50">
+					has been added to your profile! Their name will always pop up in this colour so that you
+					can always easily identify them!
+					<br />
+					Click the button below to be taken to the dashboard.
+				</span>
 			</p>
-			<div class="max-w-max pt-2">
+			<div class="min-w-max w-32 pt-2">
 				<LinkButton style="primary" href="/">Dashboard</LinkButton>
 			</div>
 		</div>
