@@ -75,7 +75,7 @@ export const actions: Actions = {
 		const parentId = data.get('parent') as string;
 		const message = data.get('message') as string;
 		const dateDue = data.get('dateDue') as string;
-		const generatedInvoice = generateInvoice({
+		const generatedInvoice = await generateInvoice({
 			childId,
 			startDate,
 			endDate,
@@ -88,5 +88,7 @@ export const actions: Actions = {
 			message,
 			dateDue
 		});
+
+		return { success: true, generatedInvoice };
 	}
 };

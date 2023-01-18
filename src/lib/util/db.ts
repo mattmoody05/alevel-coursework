@@ -552,10 +552,8 @@ export async function getExpensesInPeriod(
 	const formattedStartDate = new Date(startDate);
 	const formattedEndDate = new Date(endDate);
 
-	const expenses: expense[] | undefined = await db.all(
-		'SELECT * FROM expense WHERE childId = ?',
-		childId
-	);
+	const expenses: expense[] | undefined = await db.all('SELECT * FROM expense');
+
 	let inPeriodExpenses: expense[] = [];
 
 	if (expenses !== undefined) {

@@ -1,16 +1,39 @@
 <script lang="ts">
+	import { SmallAlert } from '$lib/components/alert';
 	import { Button } from '$lib/components/button';
 	import { Checkbox } from '$lib/components/checkbox';
 	import { LargeTextbox, Listbox, NumericUpDown } from '$lib/components/input';
 	import { Textbox } from '$lib/components/input';
-	import type { PageData } from './$types';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import type { ActionData, PageData } from './$types';
 
 	export let data: PageData;
+	export let form: ActionData;
+
+	onMount(() => {
+		if (form?.success) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.success = false;
+			}, 5000);
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>Create invoice</title>
 </svelte:head>
+
+{#if form?.success}
+	<div out:fade>
+		<SmallAlert
+			style="success"
+			body="Invoice has successfully been created and issued."
+			title="Success"
+		/>
+	</div>
+{/if}
 
 <h3 class="font-bold text-xl">Create invoice</h3>
 <form method="POST" class="flex flex-col gap-2 mt-2">
