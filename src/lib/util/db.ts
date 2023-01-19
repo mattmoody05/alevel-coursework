@@ -439,11 +439,7 @@ export async function generateInvoice(invoiceDetails: {
 	// Fetch all expenses in period if they are being charged
 	let expensesInPeriod: expense[] = [];
 	if (invoiceDetails.includeExpenses) {
-		expensesInPeriod = await getExpensesInPeriod(
-			invoiceDetails.childId,
-			invoiceDetails.startDate,
-			invoiceDetails.endDate
-		);
+		expensesInPeriod = await getExpensesInPeriod(invoiceDetails.startDate, invoiceDetails.endDate);
 	}
 
 	// Calc total
@@ -453,11 +449,11 @@ export async function generateInvoice(invoiceDetails: {
 		const currentSession: session = sessionsInPeriod[index];
 		if (currentSession.absent) {
 			if (currentSession.absenceCharge) {
-				const sessionCost = currentSession.length * Number(HOURLY_RATE);
+				const sessionCost = (currentSession.length / 60) * Number(HOURLY_RATE);
 				total = total + sessionCost;
 			}
 		} else {
-			const sessionCost = currentSession.length * Number(HOURLY_RATE);
+			const sessionCost = (currentSession.length / 60) * Number(HOURLY_RATE);
 			total = total + sessionCost;
 		}
 	}
@@ -467,6 +463,14 @@ export async function generateInvoice(invoiceDetails: {
 		if (currentExpense.chargeToParents) {
 			total = total + currentExpense.cost;
 		}
+	}
+
+	if (invoiceDetails.additionalChargeAmount !== undefined) {
+		total = total + invoiceDetails.additionalChargeAmount;
+	}
+
+	if (invoiceDetails.discountAmount !== undefined) {
+		total = total * ((100 - invoiceDetails.discountAmount) / 100);
 	}
 
 	const date = new Date();
@@ -520,19 +524,20 @@ export async function getSessionsInPeriod(
 	endDate: string
 ): Promise<session[]> {
 	const db = await openDb();
-	const formattedStartDate = new Date(startDate);
-	const formattedEndDate = new Date(endDate);
+	const formattedStartDate = getDateFromLocaleString(startDate);
+	const formattedEndDate = getDateFromLocaleString(endDate);
 
 	const sessions: session[] | undefined = await db.all(
 		'SELECT * FROM session WHERE childId = ?',
 		childId
 	);
+
 	let inPeriodSessions: session[] = [];
 
 	if (sessions !== undefined) {
 		for (let index = 0; index < sessions.length; index++) {
 			const currentSession: session = sessions[index];
-			const currentSessionDate = new Date(currentSession.date);
+			const currentSessionDate = getDateFromLocaleString(currentSession.date);
 
 			// checks whether the session is the right date range
 			if (formattedStartDate <= currentSessionDate && currentSessionDate <= formattedEndDate) {
@@ -543,14 +548,10 @@ export async function getSessionsInPeriod(
 	return inPeriodSessions;
 }
 
-export async function getExpensesInPeriod(
-	childId: string,
-	startDate: string,
-	endDate: string
-): Promise<expense[]> {
+export async function getExpensesInPeriod(startDate: string, endDate: string): Promise<expense[]> {
 	const db = await openDb();
-	const formattedStartDate = new Date(startDate);
-	const formattedEndDate = new Date(endDate);
+	const formattedStartDate = getDateFromLocaleString(startDate);
+	const formattedEndDate = getDateFromLocaleString(endDate);
 
 	const expenses: expense[] | undefined = await db.all('SELECT * FROM expense');
 
@@ -559,7 +560,7 @@ export async function getExpensesInPeriod(
 	if (expenses !== undefined) {
 		for (let index = 0; index < expenses.length; index++) {
 			const currentExpense: expense = expenses[index];
-			const currentExpenseDate = new Date(currentExpense.date);
+			const currentExpenseDate = getDateFromLocaleString(currentExpense.date);
 
 			// checks whether the expense is the right date range
 			if (formattedStartDate <= currentExpenseDate && currentExpenseDate <= formattedEndDate) {

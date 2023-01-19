@@ -64,16 +64,16 @@ export const actions: Actions = {
 	default: async ({ cookies, request }: RequestEvent) => {
 		const data = await request.formData();
 
-		const childId = data.get('child') as string;
+		const childId = data.get('childId') as string;
 		const startDate = data.get('startDate') as string;
 		const endDate = data.get('endDate') as string;
 		const additionalChargeName = data.get('additionalChargeName') as string;
-		const additionalChargeAmount = Number(data.get('additionalChargeAmount') as string);
+		const additionalChargeAmount = Number(data.get('additionalChargeAmount') as string) * 100;
 		const discountName = data.get('discountName') as string;
 		const discountAmount = Number(data.get('discountAmount') as string);
 		const includeExpenses = data.get('includeExpenses') === 'on' ? true : false;
-		const parentId = data.get('parent') as string;
-		const message = data.get('message') as string;
+		const parentId = data.get('parentId') as string;
+		const message = data.get('invoiceMessage') as string;
 		const dateDue = data.get('dateDue') as string;
 		const generatedInvoice = await generateInvoice({
 			childId,
