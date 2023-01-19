@@ -29,7 +29,8 @@
 	<div out:fade>
 		<SmallAlert
 			style="success"
-			body="Invoice has successfully been created and issued."
+			body="Invoice has successfully been created and issued. Invoice total was £{form
+				.generatedInvoice.total / 100}"
 			title="Success"
 		/>
 	</div>

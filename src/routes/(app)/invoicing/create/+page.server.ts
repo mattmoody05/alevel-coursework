@@ -4,7 +4,8 @@ import {
 	getAccount,
 	getAllChildren,
 	getAllParents,
-	getParent
+	getParent,
+	writeInvoice
 } from '$lib/util/db';
 import { error } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
@@ -88,6 +89,8 @@ export const actions: Actions = {
 			message,
 			dateDue
 		});
+
+		await writeInvoice(generatedInvoice);
 
 		return { success: true, generatedInvoice };
 	}

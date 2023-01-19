@@ -194,14 +194,9 @@ export async function getShortNoticeNotifications(
 	return undefined;
 }
 
-export async function getChildren(parentId: string): Promise<child[] | undefined> {
+export async function getChildren(parentId: string): Promise<child[]> {
 	const db = await openDb();
-
-	const children: child[] | undefined = await db.all(
-		'SELECT * FROM child WHERE parentId = ?',
-		parentId
-	);
-
+	const children: child[] = await db.all('SELECT * FROM child WHERE parentId = ?', parentId);
 	return children;
 }
 
@@ -490,7 +485,8 @@ export async function generateInvoice(invoiceDetails: {
 		additionalChargeName: invoiceDetails.additionalChargeName,
 		discountAmount: invoiceDetails.discountAmount,
 		discountName: invoiceDetails.discountName,
-		message: invoiceDetails.message
+		message: invoiceDetails.message,
+		paymentStatus: 'Unpaid'
 	};
 
 	return generatedInvoice;
@@ -513,6 +509,7 @@ export async function writeInvoice(generatedInvoice: invoice) {
 		generatedInvoice.discountAmount,
 		generatedInvoice.message,
 		generatedInvoice.total,
+		generatedInvoice.paymentStatus,
 		generatedInvoice.parentId,
 		generatedInvoice.childId
 	);
@@ -1225,4 +1222,28 @@ export async function getTimeOffPeriod(timeOffPeriodId: string) {
 export async function deleteTimeOffPeriod(timeOffPeriodId: string) {
 	const db = await openDb();
 	await db.run('DELETE FROM timeOffPeriod WHERE timeOffPeriodId = ?', timeOffPeriodId);
+}
+
+export async function getInvoices(parentId: string): Promise<invoice[]> {
+	const db = await openDb();
+	const invoices: invoice[] = await db.all('SELECT * FROM invoice WHERE parentId = ?', parentId);
+	return invoices;
+}
+
+export async function getInvoice(invoiceId: string): Promise<invoice | undefined> {
+	const db = await openDb();
+	const invoiceData: invoice | undefined = await db.get(
+		'SELECT * FROM invoice WHERE invoiceId = ?',
+		invoiceId
+	);
+	return invoiceData;
+}
+
+export async function updateInvoicePaymentStatus(invoiceId: string, newPaymentStatus: string) {
+	const db = await openDb();
+	await db.run(
+		'UPDATE invoice SET paymentStatus = ? WHERE invoiceId = ?',
+		newPaymentStatus,
+		invoiceId
+	);
 }

@@ -189,6 +189,7 @@ CREATE TABLE invoice(
     discountAmount INTEGER,
     message TEXT,
     total INTEGER NOT NULL,
+    paymentStatus TEXT NOT NULL,
     parentId TEXT NOT NULL,
     childId TEXT NOT NULL,
 

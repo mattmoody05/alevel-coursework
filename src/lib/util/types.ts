@@ -198,6 +198,7 @@ export type invoice = {
 	discountAmount?: number;
 	message?: string;
 	total: number;
+	paymentStatus: string;
 	parentId: string;
 	childId: string;
 };
