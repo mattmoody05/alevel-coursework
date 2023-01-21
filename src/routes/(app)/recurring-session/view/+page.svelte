@@ -55,11 +55,15 @@
 			{@const currentRequest = getSelectedRecurringSession(selectedChildId)}
 			<div>
 				<span class="font-bold">Selected basis: </span>
-				{#if currentRequest.recurringBasis === 'weekly'}
+				{#if currentRequest?.recurringBasis === 'weekly'}
 					<span>Weekly</span>
-				{:else if currentRequest.recurringBasis === 'daily'}
+				{:else if currentRequest?.recurringBasis === 'daily'}
 					<span>Daily (Monday - Friday)</span>
 				{/if}
+			</div>
+			<div class="">
+				<span class="font-bold">Approved: </span>
+				{currentRequest?.approved ? 'yes' : 'no'}
 			</div>
 			<span class="font-bold">Days in recurring session booking:</span>
 			{#each dayList as currentDayName}
@@ -85,8 +89,12 @@
 			{/each}
 			{#if data.isAdmin}
 				<div class="flex flex-row gap-2">
-					<Button formaction="?/adminDecline" style="danger">Decline request</Button>
-					<Button formaction="?/adminApprove" style="submit">Approve request</Button>
+					{#if currentRequest?.approved == true}
+						<Button formaction="?/adminDecline" style="danger">Cancel recurring session</Button>
+					{:else}
+						<Button formaction="?/adminDecline" style="danger">Decline request</Button>
+						<Button formaction="?/adminApprove" style="submit">Approve request</Button>
+					{/if}
 				</div>
 			{:else}
 				<Button formaction="?/parentCancel" style="danger">Cancel recurring session</Button>

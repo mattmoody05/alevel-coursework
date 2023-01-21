@@ -76,6 +76,7 @@ export const actions: Actions = {
 			const data = await request.formData();
 			const childId = data.get('childId') as string;
 			await setRecurringSessionRequestStatus(childId, false);
+			await deleteRecurringSessionRequest(childId);
 			return { success: true };
 		}
 		throw error(400, 'must be admin');

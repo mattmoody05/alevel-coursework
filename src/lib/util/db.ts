@@ -1085,7 +1085,11 @@ export async function childHasRecurringSessionRequest(childId: string): Promise<
 
 export async function setRecurringSessionRequestStatus(childId: string, approvalStatus: boolean) {
 	const db = await openDb();
-	await db.run('UPDATE recurringSessionRequest SET approved = ? WHERE childId = ?', approvalStatus);
+	await db.run(
+		'UPDATE recurringSessionRequest SET approved = ? WHERE childId = ?',
+		approvalStatus,
+		childId
+	);
 }
 
 function differenceBetweenTimes(startTime: string, endTime: string) {
