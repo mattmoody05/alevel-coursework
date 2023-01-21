@@ -1247,3 +1247,9 @@ export async function updateInvoicePaymentStatus(invoiceId: string, newPaymentSt
 		invoiceId
 	);
 }
+
+export async function getAllInvoices(): Promise<invoice[]> {
+	const db = await openDb();
+	const invoices: invoice[] = await db.all('SELECT * FROM invoice');
+	return invoices;
+}
