@@ -56,10 +56,10 @@ export async function getChild(childId: string): Promise<child | undefined> {
 	return childData;
 }
 
-export async function getMessages(parentId: string): Promise<twoWayMessage[] | undefined> {
+export async function getMessages(parentId: string): Promise<twoWayMessage[]> {
 	const db = await openDb();
 
-	const messages: twoWayMessage[] | undefined = await db.all(
+	const messages: twoWayMessage[] = await db.all(
 		'SELECT * FROM twoWayMessage WHERE parentId = ?',
 		parentId
 	);
@@ -95,9 +95,9 @@ export async function sendMessage(
 	return message;
 }
 
-export async function getAllParents(): Promise<parent[] | undefined> {
+export async function getAllParents(): Promise<parent[]> {
 	const db = await openDb();
-	const parents: parent[] | undefined = await db.all('SELECT * FROM parent');
+	const parents: parent[] = await db.all('SELECT * FROM parent');
 	return parents;
 }
 
@@ -131,7 +131,7 @@ export async function issueShortNoticeNotification(
 	const db = await openDb();
 
 	if (allParents) {
-		const dbParents: parent[] | undefined = await db.all('SELECT * FROM parent');
+		const dbParents: parent[] = await db.all('SELECT * FROM parent');
 		if (dbParents !== undefined) {
 			parents = dbParents;
 		}
@@ -165,33 +165,27 @@ export async function issueShortNoticeNotification(
 
 export async function getShortNoticeNotifications(
 	parentId: string
-): Promise<shortNoticeNotifcation[] | undefined> {
+): Promise<shortNoticeNotifcation[]> {
 	const db = await openDb();
 
-	const notificationIssues: shortNoticeNotifcationIssue[] | undefined = await db.all(
+	const notificationIssues: shortNoticeNotifcationIssue[] = await db.all(
 		'SELECT * FROM shortNoticeNotificationIssue WHERE parentId = ?',
 		parentId
 	);
 
 	let notifications: shortNoticeNotifcation[] = [];
 
-	if (notificationIssues !== undefined) {
-		for (let index = 0; index < notificationIssues.length; index++) {
-			const issue = notificationIssues[index];
-			const notification: shortNoticeNotifcation | undefined = await db.get(
-				'SELECT * FROM shortNoticeNotification WHERE notificationId = ?',
-				issue.notificationId
-			);
-			if (notification !== undefined) {
-				notifications = [...notifications, notification];
-			}
-		}
-		if (notifications.length > 0) {
-			return notifications;
+	for (let index = 0; index < notificationIssues.length; index++) {
+		const issue = notificationIssues[index];
+		const notification: shortNoticeNotifcation | undefined = await db.get(
+			'SELECT * FROM shortNoticeNotification WHERE notificationId = ?',
+			issue.notificationId
+		);
+		if (notification !== undefined) {
+			notifications = [...notifications, notification];
 		}
 	}
-
-	return undefined;
+	return notifications;
 }
 
 export async function getChildren(parentId: string): Promise<child[]> {
@@ -244,13 +238,10 @@ export async function createSingleSession(
 	return createdSession;
 }
 
-export async function getChildSessions(childId: string): Promise<session[] | undefined> {
+export async function getChildSessions(childId: string): Promise<session[]> {
 	const db = await openDb();
 
-	const sessions: session[] | undefined = await db.all(
-		'SELECT * FROM session WHERE childId = ?',
-		childId
-	);
+	const sessions: session[] = await db.all('SELECT * FROM session WHERE childId = ?', childId);
 
 	return sessions;
 }
@@ -292,26 +283,19 @@ export async function updateSession(
 	return { updatedSession };
 }
 
-export async function getAllParentSessions(parentId: string): Promise<session[] | undefined> {
-	// const parentData = await getParent(parentId, 'parent');
+export async function getAllParentSessions(parentId: string): Promise<session[]> {
 	const children = await getChildren(parentId);
-	if (children !== undefined) {
-		let sessions: session[] = [];
-		for (let i = 0; i < children.length; i++) {
-			const currentChild: child = children[i];
-			const currentChildSessions = await getChildSessions(currentChild.childId);
-			if (currentChildSessions !== undefined) {
-				for (let j = 0; j < currentChildSessions.length; j++) {
-					const currentChildSession = currentChildSessions[j];
-					sessions = [...sessions, currentChildSession];
-				}
-			} else {
-				return undefined;
-			}
+	let sessions: session[] = [];
+	for (let i = 0; i < children.length; i++) {
+		const currentChild: child = children[i];
+		const currentChildSessions = await getChildSessions(currentChild.childId);
+
+		for (let j = 0; j < currentChildSessions.length; j++) {
+			const currentChildSession = currentChildSessions[j];
+			sessions = [...sessions, currentChildSession];
 		}
-		return sessions;
 	}
-	return undefined;
+	return sessions;
 }
 
 export async function createExpense(
@@ -362,9 +346,9 @@ export async function getExpense(expenseId: string): Promise<expense | undefined
 	return expenseData;
 }
 
-export async function getAllExpenses(): Promise<expense[] | undefined> {
+export async function getAllExpenses(): Promise<expense[]> {
 	const db = await openDb();
-	const expenses: expense[] | undefined = await db.all('SELECT * FROM expense');
+	const expenses: expense[] = await db.all('SELECT * FROM expense');
 	return expenses;
 }
 
@@ -399,15 +383,15 @@ export async function deleteExpense(expenseId: string) {
 	await db.run('DELETE FROM expense WHERE expenseId = ?', expenseId);
 }
 
-export async function getAllSessions(): Promise<session[] | undefined> {
+export async function getAllSessions(): Promise<session[]> {
 	const db = await openDb();
-	const sessions: session[] | undefined = await db.all('SELECT * FROM session');
+	const sessions: session[] = await db.all('SELECT * FROM session');
 	return sessions;
 }
 
-export async function getAllChildren(): Promise<child[] | undefined> {
+export async function getAllChildren(): Promise<child[]> {
 	const db = await openDb();
-	const children: child[] | undefined = await db.all('SELECT * FROM child');
+	const children: child[] = await db.all('SELECT * FROM child');
 	return children;
 }
 
@@ -524,10 +508,7 @@ export async function getSessionsInPeriod(
 	const formattedStartDate = getDateFromLocaleString(startDate);
 	const formattedEndDate = getDateFromLocaleString(endDate);
 
-	const sessions: session[] | undefined = await db.all(
-		'SELECT * FROM session WHERE childId = ?',
-		childId
-	);
+	const sessions: session[] = await db.all('SELECT * FROM session WHERE childId = ?', childId);
 
 	let inPeriodSessions: session[] = [];
 
@@ -550,7 +531,7 @@ export async function getExpensesInPeriod(startDate: string, endDate: string): P
 	const formattedStartDate = getDateFromLocaleString(startDate);
 	const formattedEndDate = getDateFromLocaleString(endDate);
 
-	const expenses: expense[] | undefined = await db.all('SELECT * FROM expense');
+	const expenses: expense[] = await db.all('SELECT * FROM expense');
 
 	let inPeriodExpenses: expense[] = [];
 
@@ -578,11 +559,9 @@ export async function getLatestTwoWayMessage(parentId: string): Promise<twoWayMe
 	return undefined;
 }
 
-export async function getAllShortNoticeNotifications(): Promise<
-	shortNoticeNotifcation[] | undefined
-> {
+export async function getAllShortNoticeNotifications(): Promise<shortNoticeNotifcation[]> {
 	const db = await openDb();
-	const notifications: shortNoticeNotifcation[] | undefined = await db.all(
+	const notifications: shortNoticeNotifcation[] = await db.all(
 		'SELECT * FROM shortNoticeNotification'
 	);
 	return notifications;
@@ -620,9 +599,9 @@ export async function writeSurvey(survey: expandedSurvey) {
 	});
 }
 
-export async function getAllSurveys(): Promise<survey[] | undefined> {
+export async function getAllSurveys(): Promise<survey[]> {
 	const db = await openDb();
-	const surveys: survey[] | undefined = await db.all('SELECT * FROM survey');
+	const surveys: survey[] = await db.all('SELECT * FROM survey');
 	return surveys;
 }
 
@@ -637,7 +616,7 @@ export async function getSurvey(surveyId: string): Promise<survey | undefined> {
 
 export async function getSurveys(parentId: string) {
 	const db = await openDb();
-	const issues: surveyIssue[] | undefined = await db.all(
+	const issues: surveyIssue[] = await db.all(
 		'SELECT * FROM surveyIssue WHERE parentId = ?',
 		parentId
 	);
@@ -655,26 +634,23 @@ export async function getSurveys(parentId: string) {
 	return undefined;
 }
 
-export async function getExpandedSurveys(parentId: string): Promise<expandedSurvey[] | undefined> {
+export async function getExpandedSurveys(parentId: string): Promise<expandedSurvey[]> {
 	const db = await openDb();
-	const issues: surveyIssue[] | undefined = await db.all(
+	const issues: surveyIssue[] = await db.all(
 		'SELECT * FROM surveyIssue WHERE parentId = ?',
 		parentId
 	);
-	if (issues !== undefined) {
-		let surveys: expandedSurvey[] = [];
-		for (let index = 0; index < issues.length; index++) {
-			const currentSurveyIssue: surveyIssue = issues[index];
-			const currentSurvey: expandedSurvey | undefined = await getExpandedSurvey(
-				currentSurveyIssue.surveyId
-			);
-			if (currentSurvey !== undefined) {
-				surveys.push(currentSurvey);
-			}
+	let surveys: expandedSurvey[] = [];
+	for (let index = 0; index < issues.length; index++) {
+		const currentSurveyIssue: surveyIssue = issues[index];
+		const currentSurvey: expandedSurvey | undefined = await getExpandedSurvey(
+			currentSurveyIssue.surveyId
+		);
+		if (currentSurvey !== undefined) {
+			surveys.push(currentSurvey);
 		}
-		return surveys;
 	}
-	return undefined;
+	return surveys;
 }
 
 export async function getSurveyQuestionOption(
@@ -690,9 +666,9 @@ export async function getSurveyQuestionOption(
 
 export async function getSurveyQuestionOptions(
 	surveyQuestionId: string
-): Promise<surveyQuestionOption[] | undefined> {
+): Promise<surveyQuestionOption[]> {
 	const db = await openDb();
-	const surveyQuestionOptionData: surveyQuestionOption[] | undefined = await db.all(
+	const surveyQuestionOptionData: surveyQuestionOption[] = await db.all(
 		'SELECT * FROM surveyQuestionOption WHERE surveyQuestionId = ?',
 		surveyQuestionId
 	);
@@ -740,9 +716,9 @@ export async function getExpandedSurveyQuestion(
 	return undefined;
 }
 
-export async function getSurveyQuestions(surveyId: string): Promise<surveyQuestion[] | undefined> {
+export async function getSurveyQuestions(surveyId: string): Promise<surveyQuestion[]> {
 	const db = await openDb();
-	const questions: surveyQuestion[] | undefined = await db.all(
+	const questions: surveyQuestion[] = await db.all(
 		'SELECT * FROM surveyQuestion WHERE surveyId = ?',
 		surveyId
 	);
@@ -762,7 +738,7 @@ export async function getExpandedSurvey(surveyId: string): Promise<expandedSurve
 			title: surveyData.title,
 			description: surveyData.description
 		};
-		const surveyQuestions: surveyQuestion[] | undefined = await getSurveyQuestions(surveyId);
+		const surveyQuestions: surveyQuestion[] = await getSurveyQuestions(surveyId);
 		if (surveyQuestions !== undefined) {
 			for (let index = 0; index < surveyQuestions.length; index++) {
 				const question = surveyQuestions[index];
@@ -858,7 +834,7 @@ export async function checkSurveyResponseExists(surveyQuestionId: string, parent
 
 export async function getSurveyQuestionResponses(surveyQuestionId: string) {
 	const db = await openDb();
-	const responses: surveyResponse[] | undefined = await db.all(
+	const responses: surveyResponse[] = await db.all(
 		'SELECT * FROM surveyResponse WHERE surveyQuestionId = ?',
 		surveyQuestionId
 	);
@@ -996,9 +972,9 @@ export async function createAbsenceReport(
 	return sessionsAffected;
 }
 
-export async function getSessionsWithAbsence(childId: string): Promise<session[] | undefined> {
+export async function getSessionsWithAbsence(childId: string): Promise<session[]> {
 	const db = await openDb();
-	const sessionsWithAbsence: session[] | undefined = await db.all(
+	const sessionsWithAbsence: session[] = await db.all(
 		'SELECT * FROM session WHERE childId = ? AND absent = ?',
 		childId,
 		true
