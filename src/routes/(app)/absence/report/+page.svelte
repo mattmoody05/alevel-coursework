@@ -10,11 +10,13 @@
 	export let form: ActionData;
 
 	onMount(() => {
-		if (form?.success) {
-			setTimeout(() => {
-				// @ts-ignore
-				form.success = false;
-			}, 5000);
+		if (form !== undefined) {
+			if (form.success) {
+				setTimeout(() => {
+					// @ts-ignore
+					form.success = false;
+				}, 5000);
+			}
 		}
 	});
 </script>
@@ -35,7 +37,7 @@
 
 <h3 class="font-bold text-xl">Report absence</h3>
 
-<form method="POST" class="flex mt-2 gap-2 flex-col">
+<form action="?/createReport" method="POST" class="flex mt-2 gap-2 flex-col">
 	<Listbox name="childId" labelText="Select child">
 		{#each data.children as child}
 			<option value={child.childId}>{child.firstName} {child.lastName}</option>
