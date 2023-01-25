@@ -9,7 +9,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		const accountData = await getAccount(accountId);
 		if (accountData !== undefined) {
 			event.locals.account = accountData;
-			event.locals.isAdmin = accountData.isAdmin;
+			event.locals.isAdmin = accountData.isAdmin ? true : false;
 		}
 	} else {
 		event.locals.account = undefined;
