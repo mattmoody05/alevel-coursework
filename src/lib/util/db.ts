@@ -1233,3 +1233,27 @@ export async function getAllInvoices(): Promise<invoice[]> {
 	const invoices: invoice[] = await db.all('SELECT * FROM invoice');
 	return invoices;
 }
+
+export async function parentHasAccessToSession(parentId: string, sessionId: string) {
+	const db = await openDb();
+	const sessionChildId: { childId: string } | undefined = await db.get(
+		'SELECT childId FROM session WHERE sessionId = ?',
+		sessionId
+	);
+
+	if (sessionChildId !== undefined) {
+		const parentChildrenId: { childId: string }[] = await db.all(
+			'SELECT childId FROM child WHERE parentId = ?',
+			parentId
+		);
+
+		for (let i = 0; i < parentChildrenId.length; i++) {
+			const currentChildId = parentChildrenId[i];
+			if (currentChildId.childId === sessionChildId.childId) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}

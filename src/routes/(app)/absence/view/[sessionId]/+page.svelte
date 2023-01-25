@@ -58,7 +58,7 @@
 		</div>
 	</div>
 	{#if data.isAdmin}
-		<form method="POST">
+		<form action="?/updateReport" method="POST">
 			<div class="flex flex-col gap-2 bg-gray-100 border-gray-300 border p-4 rounded-xl mb-4">
 				<Checkbox
 					bind:isChecked={data.sessionData.absenceCharge}
