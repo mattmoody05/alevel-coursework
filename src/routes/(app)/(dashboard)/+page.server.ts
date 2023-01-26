@@ -1,14 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-import {
-	getChildren,
-	getParent,
-	getAllParentSessions,
-	getAllSessions,
-	getAllChildren,
-	getShortNoticeNotifications,
-	getAllShortNoticeNotifications
-} from '$lib/util/db';
+import { getAdmin, getParent } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account, isAdmin } = locals;
@@ -18,36 +10,40 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 			// An admin is the currently logged in user
 			// Data in realation to all parents is fetched from the database
 
+			// getAdmin returns an instance of the admin class
+			const admin = getAdmin(account.accountId);
+
 			// Session, child, notification data is fetched from the database
-			const sessions = await getAllSessions();
-			const children = await getAllChildren();
-			const notifications = await getAllShortNoticeNotifications();
+			const sessions = await admin.getSessions();
+			const children = await admin.getChildren();
+			const notifications = await admin.getNotifications();
 
 			// Data is returned so that it can be used as part of the HTML template
 			return {
-				sessions,
-				children,
-				notifications,
+				sessions: sessions.map((session) => session.getData()),
+				children: children.map((child) => child.getData()),
+				notifications: notifications.map((notification) => notification.getData()),
 				isAdmin
 			};
 		} else {
 			// A parent is the currently logged in user
 			// Data in realation to the current parent only is fetched from the database
 
-			// Parent data is fetched from the database using the current user's accountId
-			const parentData = await getParent(account.accountId, 'account');
-			if (parentData !== undefined) {
-				// Session, child, notification data is fetched from the database using the current parentId
-				const sessions = await getAllParentSessions(parentData.parentId);
-				const children = await getChildren(parentData.parentId);
-				const notifications = await getShortNoticeNotifications(parentData.parentId);
+			// getParent should return an instance of the parent class
+			// If no parent is found with the specified accountId, undefined is returned
+			const parent = await getParent(account.accountId);
+			if (parent !== undefined) {
+				// Session, child, notification data is fetched from the database using the parent object
+				const sessions = await parent.getSessions();
+				const children = await parent.getChildren();
+				const notifications = await parent.getNotifications();
 
 				// Data is returned so that it can be used as part of the HTML template
 				return {
-					parentData,
-					sessions,
-					children,
-					notifications,
+					parentData: parent.getData(),
+					sessions: sessions.map((session) => session.getData()),
+					children: children.map((child) => child.getData()),
+					notifications: notifications.map((notification) => notification.getData()),
 					isAdmin
 				};
 			} else {
