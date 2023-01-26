@@ -1,50 +1,87 @@
 import { deleteExpense, getExpense, updateExpense } from '$lib/util/db';
-import type { expense } from '$lib/util/types';
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 
-export const load: PageServerLoad = async ({ params }: PageServerLoadEvent) => {
-	if (params.expenseId !== '') {
-		const expenseData: expense | undefined = await getExpense(params.expenseId);
-		if (expenseData !== undefined) {
-			return { expenseData };
+export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEvent) => {
+	const { isAdmin } = locals;
+	if (isAdmin === true) {
+		if (params.expenseId !== '') {
+			// Fetches the expence with the expenseId specified in the page's URL from the database
+			const expenseData = await getExpense(params.expenseId);
+			if (expenseData !== undefined) {
+				// Data is returned so that it can be part of the HTML template
+				return { expenseData };
+			} else {
+				// No expense matching the provided expenseId was returned from the databse
+				// 404: Not found code
+				throw error(404, 'An expense report with that expenseId could not be found');
+			}
+		} else {
+			// The user did not provide an expenseId to view
+			// 400: Bad request code
+			throw error(400, 'No expenseId has been provided in the page URL. Please ensure that a ');
 		}
-		throw error(400, 'expenseData undefined');
+	} else {
+		// The current user is not an admin, they do not have the rights to view the data
+		// 401: Forbidden code
+		throw error(401, 'You must be an admin to view expense reports');
 	}
-
-	throw error(400, 'slug undefined');
 };
 
 export const actions: Actions = {
-	updateExpense: async ({ request, params }: RequestEvent) => {
-		const data = await request.formData();
-		const expenseId = params.expenseId;
-		const expenseName = data.get('name') as string;
-		const date = data.get('date') as string;
-		const cost = Number(data.get('cost') as string) * 100;
-		const type = data.get('type') as string;
-		const supportingDocsPath = data.get('supportingDocsPath') as string;
-		const chargeToParents = (data.get('chargeToParents') as string) === 'on' ? true : false;
+	// Handles the user submitting the form to update an expense report
+	updateExpense: async ({ request, params, locals }: RequestEvent) => {
+		const { isAdmin } = locals;
 
-		await updateExpense(
-			expenseId,
-			expenseName,
-			date,
-			cost,
-			type,
-			chargeToParents,
-			supportingDocsPath
-		);
+		if (isAdmin === true) {
+			// Accessing the formdata that has been submitted by the user
+			const data = await request.formData();
+			const expenseId = params.expenseId;
+			const expenseName = data.get('name') as string;
+			const date = data.get('date') as string;
+			const cost = Number(data.get('cost') as string) * 100;
+			const type = data.get('type') as string;
+			const supportingDocsPath = data.get('supportingDocsPath') as string;
 
-		const updatedExpense: expense | undefined = await getExpense(expenseId);
-		if (updateExpense !== undefined) {
-			throw redirect(300, '/expenses/view?redirect-from=update-session');
+			// By default, checkboxes return a string of "on" if they are in the checked state
+			// Casts the string state to a boolean value
+			const chargeToParents = (data.get('chargeToParents') as string) === 'on' ? true : false;
+
+			// Updates the expense report in the database
+			await updateExpense(
+				expenseId,
+				expenseName,
+				date,
+				cost,
+				type,
+				chargeToParents,
+				supportingDocsPath
+			);
+
+			// Redirects the user to the page to view all expenses
+			// The redirect-from query parameter tells the new page what action has occured so the interface can reflect that
+			throw redirect(308, '/expenses/view?redirect-from=update-session');
+		} else {
+			// The current user is not an admin, they do not have the rights to modify absence reports
+			// 401: Forbidden code
+			throw error(401, 'You must be an admin to update expense reports');
 		}
-		throw error(500, 'updatedExpense undefined');
 	},
-	deleteExpense: async ({ request, params }: RequestEvent) => {
-		const expenseId = params.expenseId;
-		await deleteExpense(expenseId);
-		throw redirect(300, '/expenses/view?redirect-from=delete-session');
+
+	// Handles the user submitting the form to delete an expense report
+	deleteExpense: async ({ params, locals }: RequestEvent) => {
+		const { isAdmin } = locals;
+		if (isAdmin === true) {
+			// Deletes the expense report in the database
+			await deleteExpense(params.expenseId);
+
+			// Redirects the user to the page to view all expenses
+			// The redirect-from query parameter tells the new page what action has occured so the interface can reflect that
+			throw redirect(300, '/expenses/view?redirect-from=delete-session');
+		} else {
+			// The current user is not an admin, they do not have the rights to delete absence reports
+			// 401: Forbidden code
+			throw error(401, 'You must be an admin to delete expense reports');
+		}
 	}
 };

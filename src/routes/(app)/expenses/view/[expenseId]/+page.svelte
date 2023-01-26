@@ -44,9 +44,6 @@
 		labelText="Charge to parents via invoicing"
 	/>
 	<div />
-	<Button style="submit">Submit</Button>
-</form>
-
-<form class="mt-2" method="POST" action="?/deleteExpense">
-	<Button style="danger">Delete expense</Button>
+	<Button formaction="?/updateExpense" style="submit">Submit</Button>
+	<Button formaction="?/deleteExpense" style="danger">Delete expense</Button>
 </form>

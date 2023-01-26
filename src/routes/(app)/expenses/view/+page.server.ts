@@ -1,19 +1,25 @@
 import { getAllExpenses } from '$lib/util/db';
-import type { expense } from '$lib/util/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent) => {
-	if (locals.isAdmin) {
-		const expenses: expense[] | undefined = await getAllExpenses();
-		if (expenses !== undefined) {
-			let redirectFrom;
-			if (url.searchParams.has('redirect-from')) {
-				redirectFrom = url.searchParams.get('redirect-from') as string;
-			}
-			return { expenses, redirectFrom };
+	const { isAdmin } = locals;
+	if (isAdmin === true) {
+		// Fetches all expenses from the database
+		const expenses = await getAllExpenses();
+
+		// Checks to see if the page has been redirected to from somewhere else in the system
+		let redirectFrom;
+		if (url.searchParams.has('redirect-from')) {
+			// Gets the contents of the redirect-from query parameter
+			redirectFrom = url.searchParams.get('redirect-from') as string;
 		}
-		throw error(400, 'expenses undefined');
+
+		// Data is returned so that it can be part of the HTML template
+		return { expenses, redirectFrom };
+	} else {
+		// The current user is not an admin, they do not have the rights to view the data
+		// 401: Forbidden code
+		throw error(401, 'You must be an admin to view expense reports');
 	}
-	throw error(400, 'must be admin to view');
 };
