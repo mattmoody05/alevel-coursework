@@ -19,6 +19,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 			const notifications = await admin.getNotifications();
 
 			// Data is returned so that it can be used as part of the HTML template
+			// Classes cannot be passed to the HTML template, so the getData method is called to return JSON data
 			return {
 				sessions: sessions.map((session) => session.getData()),
 				children: children.map((child) => child.getData()),
@@ -39,6 +40,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 				const notifications = await parent.getNotifications();
 
 				// Data is returned so that it can be used as part of the HTML template
+				// Classes cannot be passed to the HTML template, so the getData method is called to return JSON data
 				return {
 					parentData: parent.getData(),
 					sessions: sessions.map((session) => session.getData()),
