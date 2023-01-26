@@ -1,4 +1,4 @@
-import type { ChildTable } from './newDb';
+import type { ChildTable, ParentTable } from './newDb';
 
 export function stringToColour(str: string): string {
 	const colours = [
@@ -32,6 +32,26 @@ export function getChildName(childId: string, children: ChildTable[]) {
 				firstName: currentChild.firstName,
 				lastName: currentChild.lastName,
 				fullName: `${currentChild.firstName} ${currentChild.lastName}`,
+				childFound: true
+			};
+		}
+	}
+	return {
+		firstName: '',
+		lastName: '',
+		fullName: '',
+		childFound: false
+	};
+}
+
+export function getParentName(parentId: string, parents: ParentTable[]) {
+	for (let i = 0; i < parents.length; i++) {
+		const currentParent = parents[i];
+		if (currentParent.parentId === parentId) {
+			return {
+				firstName: currentParent.firstName,
+				lastName: currentParent.lastName,
+				fullName: `${currentParent.firstName} ${currentParent.lastName}`,
 				childFound: true
 			};
 		}

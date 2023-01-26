@@ -37,7 +37,7 @@
 {/if}
 
 <h3 class="font-bold text-xl">Create invoice</h3>
-<form method="POST" class="flex flex-col gap-2 mt-2">
+<form action="?/createInvoice" method="POST" class="flex flex-col gap-2 mt-2">
 	<Listbox name="childId" labelText="Select child">
 		{#each data.childrenSummary as child}
 			<option value={child.childId}

@@ -2,18 +2,9 @@
 	import { FilterButton, SortButton } from '$lib/components/filters';
 	import { InvoiceSummary } from '$lib/components/summaries';
 	import type { PageData } from './$types';
+	import { getChildName } from '$lib/util/ui';
 
 	export let data: PageData;
-
-	function getChildName(childId: string) {
-		for (let i = 0; i < data.children.length; i++) {
-			const currentChild = data.children[i];
-			if (currentChild.childId === childId) {
-				return currentChild.firstName;
-			}
-		}
-		return '';
-	}
 </script>
 
 <svelte:head>
@@ -35,7 +26,7 @@
 {#each data.invoices as invoice}
 	<InvoiceSummary
 		invoiceId={invoice.invoiceId}
-		childName={getChildName(invoice.childId)}
+		childName={getChildName(invoice.childId, data.children).firstName}
 		dateDue={invoice.dateDue}
 		dateIssued={invoice.dateIssued}
 		payable={invoice.total}

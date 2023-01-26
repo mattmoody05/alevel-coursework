@@ -30,7 +30,7 @@
 {/if}
 
 <h3 class="font-bold text-xl">Report expense</h3>
-<form method="POST" class="flex gap-2 flex-col">
+<form action="?/createReport" method="POST" class="flex gap-2 flex-col">
 	<Textbox name="date" labelText="Date" placeholderText="DD/MM/YYYY" />
 	<Textbox name="expenseName" labelText="Name" placeholderText="Fuel" />
 	<Textbox name="cost" labelText="Cost" placeholderText="£19.99" />

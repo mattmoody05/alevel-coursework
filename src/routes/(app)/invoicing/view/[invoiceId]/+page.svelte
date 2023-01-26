@@ -6,19 +6,10 @@
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import type { ActionData, PageData } from './$types';
+	import { getChildName } from '$lib/util/ui';
 
 	export let data: PageData;
 	export let form: ActionData;
-
-	function getChildName(childId: string) {
-		for (let i = 0; i < data.children.length; i++) {
-			const currentChild = data.children[i];
-			if (currentChild.childId === childId) {
-				return currentChild.firstName;
-			}
-		}
-		return '';
-	}
 
 	onMount(() => {
 		if (form?.success) {
@@ -50,10 +41,10 @@
 		<span class="font-bold">Child name: </span>
 		<div
 			class="py-1 px-2 {stringToColour(
-				getChildName(data.invoiceData.childId)
+				getChildName(data.invoiceData.childId, data.children).firstName
 			)} rounded-lg text-white"
 		>
-			{getChildName(data.invoiceData.childId)}
+			{getChildName(data.invoiceData.childId, data.children).firstName}
 		</div>
 	</div>
 	<div><span class="font-bold">Invoice ID: </span>{data.invoiceData.invoiceId}</div>
@@ -69,7 +60,7 @@
 		<span class="font-bold">Invoice message: </span>{data.invoiceData.message}
 	</div>
 	<div />
-	<form class="flex flex-col gap-2" method="POST">
+	<form action="?/updatePaymentStatus" class="flex flex-col gap-2" method="POST">
 		<Listbox
 			name="paymentStatus"
 			labelText="Payment status"
