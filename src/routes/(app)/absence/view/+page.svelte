@@ -2,39 +2,9 @@
 	import { FilterButton, SortButton } from '$lib/components/filters';
 	import { AbsenceSummary } from '$lib/components/summaries';
 	import type { PageData } from './$types';
+	import { getChildName } from '$lib/util/ui';
 
 	export let data: PageData;
-
-	type absentSessionSummary = {
-		sessionId: string;
-		childName: string;
-		date: string;
-		absenceCharge: boolean;
-		reason?: string;
-	};
-
-	let absentSessions: absentSessionSummary[] = [];
-
-	function getChildName(childId: string) {
-		const children = data.children.filter((child) => child.childId === childId);
-		return children[0];
-	}
-
-	for (let i = 0; i < data.absentSessions.length; i++) {
-		const currentAbsentSession = data.absentSessions[i];
-		absentSessions = [
-			...absentSessions,
-			{
-				absenceCharge: currentAbsentSession.absenceCharge,
-				childName: `${getChildName(currentAbsentSession.childId).firstName} ${
-					getChildName(currentAbsentSession.childId).lastName
-				}`,
-				date: currentAbsentSession.date,
-				sessionId: currentAbsentSession.sessionId,
-				reason: currentAbsentSession.absenceReason
-			}
-		];
-	}
 </script>
 
 <svelte:head>
@@ -54,11 +24,11 @@
 </div>
 
 <div class="flex flex-col gap-2">
-	{#each absentSessions as absentSession}
+	{#each data.absentSessions as absentSession}
 		<AbsenceSummary
-			childName={absentSession.childName}
-			reason={absentSession.reason}
 			sessionId={absentSession.sessionId}
+			childName={getChildName(absentSession.childId, data.children).fullName}
+			reason={absentSession.absenceReason}
 			date={absentSession.date}
 			absenceCharge={absentSession.absenceCharge}
 		/>

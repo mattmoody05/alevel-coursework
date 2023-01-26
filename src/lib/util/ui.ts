@@ -1,3 +1,5 @@
+import type { ChildTable } from './newDb';
+
 export function stringToColour(str: string): string {
 	const colours = [
 		'bg-indigo-500',
@@ -20,4 +22,24 @@ export function stringToColour(str: string): string {
 
 export function capitaliseFirst(text: string): string {
 	return `${text[0].toUpperCase()}${text.substring(1, text.length)}`;
+}
+
+export function getChildName(childId: string, children: ChildTable[]) {
+	for (let i = 0; i < children.length; i++) {
+		const currentChild = children[i];
+		if (currentChild.childId === childId) {
+			return {
+				firstName: currentChild.firstName,
+				lastName: currentChild.lastName,
+				fullName: `${currentChild.firstName} ${currentChild.lastName}`,
+				childFound: true
+			};
+		}
+	}
+	return {
+		firstName: '',
+		lastName: '',
+		fullName: '',
+		childFound: false
+	};
 }

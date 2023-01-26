@@ -10,13 +10,11 @@
 	export let form: ActionData;
 
 	onMount(() => {
-		if (form !== undefined) {
-			if (form.success) {
-				setTimeout(() => {
-					// @ts-ignore
-					form.success = false;
-				}, 5000);
-			}
+		if (form?.success) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.success = false;
+			}, 5000);
 		}
 	});
 </script>

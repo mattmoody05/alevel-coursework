@@ -411,10 +411,10 @@ export class Parent {
 			this.accountId
 		);
 		if (databaseData !== undefined) {
-			const account: Account = new Account(databaseData);
-			return account;
+			return new Account(databaseData);
+		} else {
+			return undefined;
 		}
-		return undefined;
 	}
 	async getChildren(): Promise<Child[]> {
 		const db = await openDb();
