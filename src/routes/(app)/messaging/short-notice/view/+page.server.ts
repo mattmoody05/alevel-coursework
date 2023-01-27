@@ -1,34 +1,43 @@
-import {
-	getAllShortNoticeNotifications,
-	getParent,
-	getShortNoticeNotifications
-} from '$lib/util/db';
-import type { parent, shortNoticeNotifcation } from '$lib/util/types';
-import { error } from '@sveltejs/kit';
+import { getAdmin, ShortNoticeNotification } from '$lib/util/newDb';
+import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
+import { getParent } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin, account } = locals;
-	if (account !== undefined) {
-		if (isAdmin) {
-			const notifications = await getAllShortNoticeNotifications();
-			if (notifications !== undefined) {
-				return { notifications };
+
+	let notifications: ShortNoticeNotification[] = [];
+
+	if (isAdmin === true) {
+		// Returns an instance of the Admin class
+		const admin = getAdmin();
+
+		// Fetches all notifications from the database
+		notifications = await admin.getNotifications();
+	} else {
+		if (account !== undefined) {
+			// Returns an instance of the parent class
+			const parent = await getParent(account.accountId);
+			if (parent !== undefined) {
+				// Fetches all the notifications that have been issued to the current parent
+				notifications = await parent.getNotifications();
+			} else {
+				// No parent was returned from the database with the specified accountId
+				// 404: Not found code
+				throw error(
+					404,
+					'We could not find a parent associated with that account. Please make sure that you are not using an admin account. '
+				);
 			}
-			throw error(500, 'notifications undefined');
 		} else {
+			// No user is currently logged in
+			// User is redirected to the login page
+			// 308: Permanent redirect code
+			throw redirect(308, '/login');
 		}
-		const parentData: parent | undefined = await getParent(account.accountId, 'account');
-		if (parentData !== undefined) {
-			const notifications: shortNoticeNotifcation[] | undefined = await getShortNoticeNotifications(
-				parentData.parentId
-			);
-			if (notifications !== undefined) {
-				return { notifications };
-			}
-			throw error(400, 'notifications undefined');
-		}
-		throw error(400, 'parent data undefined');
 	}
-	throw error(400, 'account undefined');
+
+	return {
+		notifications: notifications.map((notification) => notification.getData())
+	};
 };

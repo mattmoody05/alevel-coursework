@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 			// Data in realation to all parents is fetched from the database
 
 			// getAdmin returns an instance of the admin class
-			const admin = getAdmin(account.accountId);
+			const admin = getAdmin();
 
 			// Session, child, notification data is fetched from the database
 			const sessions = await admin.getSessions();

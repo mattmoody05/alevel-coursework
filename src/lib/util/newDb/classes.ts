@@ -19,12 +19,6 @@ import type {
 } from '$lib/util/newDb/tables';
 
 export class Admin {
-	accountId: string;
-
-	constructor(accountId: string) {
-		this.accountId = accountId;
-	}
-
 	async getChildren(): Promise<Child[]> {
 		const db = await openDb();
 		const children: ChildTable[] = await db.all('SELECT * FROM child');
@@ -43,6 +37,11 @@ export class Admin {
 			'SELECT * FROM shortNoticeNotification'
 		);
 		return notifications.map((notification) => new ShortNoticeNotification(notification));
+	}
+	async getParents(): Promise<Parent[]> {
+		const db = await openDb();
+		const parents: ParentTable[] = await db.all('SELECT * FROM parent');
+		return parents.map((parent) => new Parent(parent));
 	}
 }
 

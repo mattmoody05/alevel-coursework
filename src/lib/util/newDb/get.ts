@@ -54,8 +54,8 @@ export async function getAccount(accountId: string): Promise<Account | undefined
 	}
 }
 
-export function getAdmin(accountId: string): Admin {
-	const admin = new Admin(accountId);
+export function getAdmin(): Admin {
+	const admin = new Admin();
 	return admin;
 }
 

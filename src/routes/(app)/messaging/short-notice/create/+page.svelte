@@ -3,18 +3,18 @@
 	import { Button } from '$lib/components/button';
 	import { Toggle } from '$lib/components/checkbox';
 	import { LargeTextbox } from '$lib/components/input';
-	import type { parent } from '$lib/util/types';
 	import { stringToColour } from '$lib/util/ui';
 	import type { ActionData, PageData } from './$types';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import type { ParentTable } from '$lib/util/newDb';
 
 	export let data: PageData;
 	export let form: ActionData;
 
 	let showParentSelectPopup: boolean = false;
 
-	let addedParentList: parent[] = [];
+	let addedParentList: ParentTable[] = [];
 
 	function showParentPopup() {
 		showParentSelectPopup = true;
@@ -28,7 +28,7 @@
 		addedParentList = addedParentList.filter((item) => item.parentId !== parentId);
 	}
 
-	function addParent(parent: parent) {
+	function addParent(parent: ParentTable) {
 		addedParentList = [...addedParentList, parent];
 	}
 
@@ -62,7 +62,7 @@
 
 <div class="flex flex-col gap-2">
 	<h3 class="font-bold text-xl">Notify parents</h3>
-	<form method="POST" class="flex flex-col gap-2">
+	<form action="?/createNotification" method="POST" class="flex flex-col gap-2">
 		<Toggle
 			name="allParents"
 			leftLabelText="Some parents"
