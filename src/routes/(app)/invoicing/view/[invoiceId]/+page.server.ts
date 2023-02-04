@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEve
 				}
 			} else {
 				// The parentId field of the account record is undefined - therefore the account is not linked to a parent
-				// 500: Bad request code
+				// 400: Bad request code
 				throw error(
 					400,
 					'There is no parent associated with the current account. If an admin account is being used, please switch to a parent account.'
