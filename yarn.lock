@@ -213,6 +213,13 @@
   "resolved" "https://registry.npmjs.org/@types/node/-/node-18.11.0.tgz"
   "version" "18.11.0"
 
+"@types/nodemailer@^6.4.7":
+  "integrity" "sha512-f5qCBGAn/f0qtRcd4SEn88c8Fp3Swct1731X4ryPKqS61/A3LmmzN8zaEz7hneJvpjFbUUgY7lru/B/7ODTazg=="
+  "resolved" "https://registry.npmjs.org/@types/nodemailer/-/nodemailer-6.4.7.tgz"
+  "version" "6.4.7"
+  dependencies:
+    "@types/node" "*"
+
 "@types/pug@^2.0.4":
   "integrity" "sha512-SnHmG9wN1UVmagJOnyo/qkk0Z7gejYxOYYmaAwr5u2yFYfsupN3sg10kyzN8Hep/2zbHxCnsumxOoRIRMBwKCg=="
   "resolved" "https://registry.npmjs.org/@types/pug/-/pug-2.0.6.tgz"
