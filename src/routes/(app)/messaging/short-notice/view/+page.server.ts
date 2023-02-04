@@ -1,7 +1,6 @@
-import { getAdmin, ShortNoticeNotification } from '$lib/util/newDb';
+import { getAdmin, ShortNoticeNotification, getParent } from '$lib/util/newDb';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-import { getParent } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin, account } = locals;
@@ -37,6 +36,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		}
 	}
 
+	// Data is returned so that it can be used in the HTML template
 	return {
 		notifications: notifications.map((notification) => notification.getData())
 	};

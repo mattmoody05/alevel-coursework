@@ -1,39 +1,66 @@
-import { getAllParents, getLatestTwoWayMessage, getParent } from '$lib/util/db';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-import type { twoWayMessage } from '$lib/util/types';
+import { getAdmin, type ParentTable, type TwoWayMessageTable } from '$lib/util/newDb';
+import { getParent } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account, isAdmin } = locals;
-	if (isAdmin) {
-		const parents = await getAllParents();
-		if (parents !== undefined) {
-			let latestMessages: { parentId: string; message: twoWayMessage }[] = [];
-			for (let index = 0; index < parents.length; index++) {
-				const currentParent = parents[index];
-				const latestMessage = await getLatestTwoWayMessage(currentParent.parentId);
-				if (latestMessage !== undefined) {
-					latestMessages = [
-						...latestMessages,
-						{ parentId: currentParent.parentId, message: latestMessage }
-					];
-				}
+	if (isAdmin === true) {
+		let latestMessages: { parent: ParentTable; latestMessage: TwoWayMessageTable | undefined }[] =
+			[];
+
+		// Returns an instance of the admin class
+		const admin = getAdmin();
+
+		// Fetches all parents from the database
+		const parents = await admin.getParents();
+
+		for (let i = 0; i < parents.length; i++) {
+			const currentParent = parents[i];
+
+			// Gets the latest message for each parent
+			const messageConversation = currentParent.getMessageConversation();
+			const latestMessage = await messageConversation.getLatestMessage();
+
+			if (latestMessage !== undefined) {
+				latestMessages = [
+					...latestMessages,
+					{ parent: currentParent.getData(), latestMessage: latestMessage.getData() }
+				];
+			} else {
+				latestMessages = [
+					...latestMessages,
+					{ parent: currentParent.getData(), latestMessage: undefined }
+				];
 			}
-			return { isAdmin, parents, latestMessages };
 		}
-		throw error(500, 'parents undefined');
+
+		// Returns data so that it can be used in the HTML template
+		return { isAdmin, latestMessages };
 	} else {
 		if (account !== undefined) {
-			const parent = await getParent(account.accountId, 'account');
+			// Returns an instance of the parent class
+			const parent = await getParent(account.accountId);
 			if (parent !== undefined) {
-				const latestMessage = await getLatestTwoWayMessage(parent.parentId);
-				if (latestMessage !== undefined) {
-					return { isAdmin, parent, latestMessage };
-				}
-				throw error(500, 'latest message undefined');
+				// Gets the latest message for the current parent
+				const messageConversation = parent.getMessageConversation();
+				const latestMessage = await messageConversation.getLatestMessage();
+
+				// Returns data so that it can be used in the HTML template
+				return { isAdmin, latestMessage: latestMessage?.getData() };
+			} else {
+				// No parent was returned from the database with the specified accountId
+				// 404: Not found code
+				throw error(
+					404,
+					'We could not find a parent associated with that account. Please make sure that you are not using an admin account. '
+				);
 			}
-			throw error(500, 'parent data not defiend');
+		} else {
+			// No user is currently logged in
+			// User is redirected to the login page
+			// 308: Permanent redirect code
+			throw redirect(308, '/login');
 		}
-		throw error(400, 'account not defined');
 	}
 };
