@@ -63,3 +63,7 @@ export function getParentName(parentId: string, parents: ParentTable[]) {
 		childFound: false
 	};
 }
+
+export function scrollToBottom(element: HTMLElement) {
+	element.scroll({ top: element.scrollHeight, behavior: 'smooth' });
+}

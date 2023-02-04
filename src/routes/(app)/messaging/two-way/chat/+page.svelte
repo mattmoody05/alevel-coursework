@@ -5,16 +5,13 @@
 	import { afterUpdate, onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
-	import type { twoWayMessage } from '$lib/util/types';
+	import type { TwoWayMessageTable } from '$lib/util/newDb';
+	import { scrollToBottom } from '$lib/util/ui';
 
 	export let data: PageData;
 
 	let textboxContent: string = '';
 	let conversationViewElement: HTMLElement;
-
-	function scrollToBottom(element: HTMLElement) {
-		element.scroll({ top: element.scrollHeight, behavior: 'smooth' });
-	}
 
 	afterUpdate(() => {
 		scrollToBottom(conversationViewElement);
@@ -27,14 +24,14 @@
 		const getMessagesInterval = setInterval(async () => {
 			if (data.isAdmin) {
 				const request = await fetch(`/api/two-way-message/get?admin-parent-id=${data.parentId}`);
-				const messages: twoWayMessage[] = await request.json();
+				const messages: TwoWayMessageTable[] = await request.json();
 				data.messages = messages;
 			} else {
 				const request = await fetch(`/api/two-way-message/get`);
-				const messages: twoWayMessage[] = await request.json();
+				const messages: TwoWayMessageTable[] = await request.json();
 				data.messages = messages;
 			}
-		}, 10000);
+		}, 10 * 1000);
 		return () => {
 			clearInterval(getMessagesInterval);
 		};
@@ -68,9 +65,7 @@
 			{/if}
 		{/each}
 	</div>
-	<!-- Fix weird border cut off issue with below -->
-	<!-- for time being margin has been added -->
-	<div id="lower-buttons" class="m-0.5">
+	<div id="lower-buttons">
 		<form use:enhance method="POST" class="flex gap-4 mt-4 h-max">
 			<div class="w-full">
 				<Textbox
