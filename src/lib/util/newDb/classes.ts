@@ -17,6 +17,12 @@ import type {
 	TimeOffPeriodTable,
 	TwoWayMessageTable
 } from '$lib/util/newDb/tables';
+import { v4 as uuidv4 } from 'uuid';
+import { getDateFromLocaleString } from '../date';
+import { Mailer } from '../email';
+import type { RecurringSessionDayDetails } from '../types';
+import { RECURRING_BOOKING_EXPIRY } from '$env/static/private';
+import { differenceBetweenTimes } from '$lib/util/date';
 
 export class Admin {
 	async getChildren(): Promise<Child[]> {
@@ -94,6 +100,39 @@ export class Session {
 
 	getData(): SessionTable {
 		return { ...this };
+	}
+
+	async getChild(): Promise<Child | undefined> {
+		const db = await openDb();
+		const childData: ChildTable | undefined = await db.get(
+			'SELECT * FROM child WHERE childId = ?',
+			this.childId
+		);
+		if (childData !== undefined) {
+			return new Child(childData);
+		} else {
+			return undefined;
+		}
+	}
+
+	getFinishTime(): string {
+		const startTimeSplit: string[] = this.startTime.split(':');
+
+		let startTimeHours = Number(startTimeSplit[0]);
+		let startTimeMins = Number(startTimeSplit[1]);
+
+		const lengthHours = Math.floor(this.length / 60);
+		const lengthMins = this.length % 60;
+
+		startTimeHours = startTimeHours + lengthHours;
+		startTimeMins = startTimeMins + lengthMins;
+
+		if (startTimeMins >= 60) {
+			startTimeMins = startTimeMins - 60;
+			startTimeHours = startTimeHours + 1;
+		}
+
+		return `${String(startTimeHours)}:${String(startTimeMins)}`;
 	}
 }
 
@@ -235,6 +274,167 @@ export class Child {
 			sessions = [...sessions, currentSession];
 		}
 		return sessions;
+	}
+
+	getAge(): number {
+		const date = new Date();
+		const formattedDateOfBirth = getDateFromLocaleString(this.dateOfBirth);
+
+		let age: number = date.getFullYear() - formattedDateOfBirth.getFullYear();
+		if (date.getMonth() < formattedDateOfBirth.getMonth()) {
+			age = age - 1;
+		} else if (date.getMonth() === formattedDateOfBirth.getMonth()) {
+			if (date.getDay() < formattedDateOfBirth.getDay()) {
+				age = age - 1;
+			}
+		}
+
+		return age;
+	}
+
+	getAgeMonths(): number {
+		const date = new Date();
+		const formattedDateOfBirth = getDateFromLocaleString(this.dateOfBirth);
+		let months = 0;
+		do {
+			months = months + 1;
+			if (formattedDateOfBirth.getMonth() !== 12) {
+				formattedDateOfBirth.setMonth(formattedDateOfBirth.getMonth() + 1);
+			} else {
+				formattedDateOfBirth.setFullYear(formattedDateOfBirth.getFullYear() + 1);
+				formattedDateOfBirth.setMonth(1);
+			}
+		} while (formattedDateOfBirth < date);
+		return months - 1;
+	}
+
+	async getRecurringSessionRequest(): Promise<RecurringSessionRequest | undefined> {
+		const db = await openDb();
+		const request: RecurringSessionRequestTable | undefined = await db.get(
+			'SELECT * FROM recurringSessionRequest WHERE childId = ?',
+			this.childId
+		);
+		if (request !== undefined) {
+			return new RecurringSessionRequest(request);
+		} else {
+			return undefined;
+		}
+	}
+
+	async hasRecurringSessionRequest(): Promise<boolean> {
+		const recurringSessionRequest = await this.getRecurringSessionRequest();
+		if (recurringSessionRequest === undefined) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	async createRecurringSessionRequest(
+		recurringBasis: string,
+		dayDetails: RecurringSessionDayDetails
+	) {
+		const db = await openDb();
+
+		const date = new Date();
+
+		await db.run(
+			'INSERT INTO recurringSessionRequest VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+			uuidv4(),
+			false,
+			recurringBasis,
+			dayDetails.mondaySelected,
+			dayDetails.mondayStartTime,
+			dayDetails.mondayEndTime,
+			dayDetails.tuesdaySelected,
+			dayDetails.tuesdayStartTime,
+			dayDetails.tuesdayEndTime,
+			dayDetails.wednesdaySelected,
+			dayDetails.wednesdayStartTime,
+			dayDetails.wednesdayEndTime,
+			dayDetails.thursdaySelected,
+			dayDetails.thursdayStartTime,
+			dayDetails.thursdayEndTime,
+			dayDetails.fridaySelected,
+			dayDetails.fridayStartTime,
+			dayDetails.fridayEndTime,
+			date.toLocaleDateString('en-GB'),
+			null,
+			this.childId
+		);
+	}
+
+	async setRecurringSessionRequestStatus(approvalStatus: boolean) {
+		const db = await openDb();
+		await db.run(
+			'UPDATE recurringSessionRequest SET approved = ? WHERE childId = ?',
+			approvalStatus,
+			this.childId
+		);
+	}
+
+	async deleteRecurringSessionRequest() {
+		const db = await openDb();
+		await db.run('DELETE FROM recurringSessionRequest WHERE childId = ?', this.childId);
+		await db.run('DELETE FROM session WHERE childId = ? and isRecurring = ?', this.childId, true);
+	}
+
+	async createRecurringSession() {
+		const db = await openDb();
+
+		const request = await this.getRecurringSessionRequest();
+		if (request !== undefined) {
+			type days =
+				| 'sunday'
+				| 'monday'
+				| 'tuesday'
+				| 'wednesday'
+				| 'thursday'
+				| 'friday'
+				| 'saturday';
+			const weekday: days[] = [
+				'sunday',
+				'monday',
+				'tuesday',
+				'wednesday',
+				'thursday',
+				'friday',
+				'saturday'
+			];
+			const startDate = new Date();
+			const endDate = getDateFromLocaleString(RECURRING_BOOKING_EXPIRY);
+			let currentDate = startDate;
+			do {
+				const currentDay = weekday[currentDate.getDay()];
+				if (currentDay !== 'saturday' && currentDay !== 'sunday') {
+					// coming up as 1 or 0 instead of true or false, use strict equality when fixed
+					if (request[`${currentDay}Selected`] == true) {
+						const startTime = request[`${currentDay}StartTime`] as string;
+						const endTime = request[`${currentDay}EndTime`] as string;
+						const length = differenceBetweenTimes(startTime, endTime);
+
+						await db.run(
+							'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+							uuidv4(),
+							currentDate.toLocaleDateString('en-GB'),
+							startTime,
+							length,
+							new Date().toLocaleDateString('en-GB'),
+							false,
+							false,
+							null,
+							null,
+							false,
+							true,
+							this.childId,
+							null
+						);
+					}
+				}
+				// Increment day by 1
+				currentDate = new Date(currentDate.getTime() + 86400000);
+			} while (currentDate <= endDate);
+		}
 	}
 
 	getData(): ChildTable {
@@ -458,7 +658,88 @@ export class Parent {
 		return notifications;
 	}
 
+	getMessageConversation(): MessageConversation {
+		return new MessageConversation(this.parentId, false);
+	}
+
+	getMailer(): Mailer {
+		return new Mailer(this.emailAddress);
+	}
+
+	sendEmail(options: { subject: string; body: string }) {
+		const mailer = this.getMailer();
+		mailer.sendEmail(options);
+	}
+
 	getData(): ParentTable {
 		return { ...this };
+	}
+}
+
+export class MessageConversation {
+	parentId: string;
+	isAdmin: boolean;
+
+	constructor(parentId: string, isAdmin: boolean) {
+		this.parentId = parentId;
+		this.isAdmin = isAdmin;
+	}
+
+	async sendMessage(messageContent: string): Promise<TwoWayMessage> {
+		const db = await openDb();
+		const date = new Date();
+
+		const message: TwoWayMessageTable = {
+			messageId: uuidv4(),
+			parentId: this.parentId,
+			dateSent: date.toLocaleDateString('en-GB'),
+			fromOwner: this.isAdmin,
+			messageContent: messageContent
+		};
+
+		await db.run(
+			'INSERT INTO twoWayMessage VALUES (?, ?, ?, ?, ?)',
+			message.messageId,
+			message.messageContent,
+			message.fromOwner,
+			message.dateSent,
+			message.parentId
+		);
+
+		return new TwoWayMessage(message);
+	}
+
+	async getMessages(): Promise<TwoWayMessage[]> {
+		const db = await openDb();
+
+		const messages: TwoWayMessageTable[] = await db.all(
+			'SELECT * FROM twoWayMessage WHERE parentId = ?',
+			this.parentId
+		);
+
+		return messages.map((message) => new TwoWayMessage(message));
+	}
+
+	async getLatestMessage(): Promise<TwoWayMessage | undefined> {
+		const allMessages = await this.getMessages();
+		if (allMessages.length > 0) {
+			const latestMessage = allMessages[allMessages.length - 1];
+			return latestMessage;
+		} else {
+			return undefined;
+		}
+	}
+
+	async getParent(): Promise<Parent | undefined> {
+		const db = await openDb();
+		const parentData: ParentTable | undefined = await db.get(
+			'SELECT * FROM parent WHERE parentId = ?',
+			this.parentId
+		);
+		if (parentData !== undefined) {
+			return new Parent(parentData);
+		} else {
+			return undefined;
+		}
 	}
 }
