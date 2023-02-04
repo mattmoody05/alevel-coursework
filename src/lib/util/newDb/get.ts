@@ -2,6 +2,7 @@ import { openDb } from '../../../db';
 import {
 	Account,
 	Admin,
+	Child,
 	Expense,
 	Invoice,
 	Parent,
@@ -16,6 +17,7 @@ import {
 } from './classes';
 import type {
 	AccountTable,
+	ChildTable,
 	ExpenseTable,
 	InvoiceTable,
 	ParentTable,
@@ -192,6 +194,21 @@ export async function getShortNoticeNotification(
 	);
 	if (notificationData !== undefined) {
 		return new ShortNoticeNotification(notificationData);
+	} else {
+		return undefined;
+	}
+}
+
+export async function getChild(childId: string): Promise<Child | undefined> {
+	const db = await openDb();
+
+	const childData: ChildTable | undefined = await db.get(
+		'SELECT * FROM child WHERE childId = ?',
+		childId
+	);
+
+	if (childData !== undefined) {
+		return new Child(childData);
 	} else {
 		return undefined;
 	}
