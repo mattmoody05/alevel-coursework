@@ -7,7 +7,7 @@ import type {
 	expense,
 	invoice,
 	parent,
-	recurringSessionDayDetails,
+	RecurringSessionDayDetails,
 	recurringSessionRequest,
 	session,
 	shortNoticeNotifcation,
@@ -999,7 +999,7 @@ export async function updateAbsenceReport(
 
 export async function createRecurringSessionRequest(
 	recurringBasis: string,
-	dayDetails: recurringSessionDayDetails,
+	dayDetails: RecurringSessionDayDetails,
 	childId: string
 ) {
 	const db = await openDb();

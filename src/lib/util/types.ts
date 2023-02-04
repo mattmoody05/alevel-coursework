@@ -265,7 +265,7 @@ export type expandedSurveyWithResponses = {
 	}[];
 };
 
-export type recurringSessionDayDetails = {
+export type RecurringSessionDayDetails = {
 	mondaySelected: boolean;
 	mondayStartTime?: string;
 	mondayEndTime?: string;
@@ -290,3 +290,7 @@ export type timeOffPeriod = {
 	endDate: string;
 	cancelSessions: boolean;
 };
+
+export type CapitalisedDay = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday';
+
+export type LowercaseDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
