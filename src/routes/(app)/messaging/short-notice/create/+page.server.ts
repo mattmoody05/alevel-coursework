@@ -51,7 +51,7 @@ export const actions: Actions = {
 			await issueShortNoticeNotification(notification.notificationId, allParents, selectedParents);
 
 			// Data is returned so that it can be part of the HTML template
-			// The notification has been created and issues successfully
+			// The notification has been created and issued successfully
 			return { success: true, notification };
 		} else {
 			// The current user is not an admin, they do not have the rights to create the notification

@@ -9,6 +9,8 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		// Child and invoice data is fetched from the database
 		const invoices = await getAllInvoices();
 		const children = await getAllChildren();
+
+		// Data is returned so that it can be used in the HTML template
 		return { invoices, children };
 	} else {
 		if (account !== undefined) {
@@ -16,6 +18,8 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 				// Child and invoice data is fetched from the database for the current parent
 				const invoices = await getInvoices(account.parentId);
 				const children = await getChildren(account.parentId);
+
+				// Data is returned so that it can be used in the HTML template
 				return { invoices, children };
 			} else {
 				// The parentId field of the account record is undefined - therefore the account is not linked to a parent
