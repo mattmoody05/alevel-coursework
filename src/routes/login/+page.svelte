@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { Textbox } from '$lib/components/input';
 	import { Button, LinkButton } from '$lib/components/button';
+	import type { ActionData } from './$types';
+	import ValidationMessage from '$lib/components/input/validationMessage.svelte';
+	import { enhance } from '$app/forms';
+
+	export let form: ActionData;
 </script>
 
 <svelte:head>
@@ -13,9 +18,14 @@
 			<div class="flex flex-col gap-2 m-8">
 				<h1 class="font-bold text-3xl">Login</h1>
 				<p class="opacity-50">Please enter your username and password to login to the system.</p>
-				<form class="flex flex-col gap-2" method="POST" id="loginForm">
-					<Textbox name="username" labelText="Username" />
+				<form class="flex flex-col gap-2" method="POST" action="?/login" id="loginForm" use:enhance>
+					<Textbox name="username" labelText="Username" value={form?.data.username} />
 					<Textbox name="password" labelText="Password" isPassword={true} />
+					{#if form?.message !== undefined}
+						<ValidationMessage>
+							{form.message}
+						</ValidationMessage>
+					{/if}
 					<Button style="submit">Login</Button>
 				</form>
 				<LinkButton href="/register" style="secondary">

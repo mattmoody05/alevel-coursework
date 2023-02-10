@@ -1,52 +1,83 @@
 import type { account } from '$lib/util/types';
-import { error, redirect } from '@sveltejs/kit';
+import { invalid, redirect } from '@sveltejs/kit';
 import { openDb } from '../../db/index';
 import { JWT_SIGNING_SECRET_KEY } from '$env/static/private';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import type { AccountTable } from '$lib/util/newDb';
 
-export const load: PageServerLoad = async ({ cookies }: PageServerLoadEvent) => {
-	const token = cookies.get('token');
-	if (token !== undefined) {
-		// Check that the token is valid and that the user exists
+export const load: PageServerLoad = async ({ cookies, locals }: PageServerLoadEvent) => {
+	if (locals.account !== undefined) {
 		throw redirect(300, '/');
 	}
 };
 
 export const actions: Actions = {
-	default: async ({ request, cookies }: RequestEvent) => {
+	// Handles the user submitting the form to login to the system
+	login: async ({ request, cookies }: RequestEvent) => {
+		// Retrieves the data from the HTML form
 		const data = await request.formData();
-
 		const username: string = data.get('username') as string;
 		const password: string = data.get('password') as string;
+
+		// Creates a new instance of the database
 		const db = await openDb();
 
-		if (username !== null && password !== null) {
-			const reqAccount: account | undefined = await db.get(
+		if (username !== '' && password !== '') {
+			// Attempts to fetch the account from the databse given the username submitted
+			const reqAccount: AccountTable | undefined = await db.get(
 				`SELECT * FROM account WHERE username = ?`,
 				username
 			);
 
 			if (reqAccount !== undefined) {
+				// Compares the hashed password in the database with a hash of the input password
 				const passwordsMatch = await bcrypt.compare(password, reqAccount.password);
-
 				if (passwordsMatch) {
+					// Creates a JWT and sets it as a cookie on the client so that it can be used for authentication
 					const token = jwt.sign({ accountId: reqAccount.accountId }, JWT_SIGNING_SECRET_KEY);
-
 					cookies.set('token', token);
 
+					// Redirects the user to the dashboard
+					// 307: Temporary redirect rcode
 					throw redirect(307, '/');
+				} else {
+					// The password entered by the user does not match the one that is stored in the databse
+					// Returns a validation error to the HTML template so that it can be shown to the user
+					// Returns the email so that it can be retained in the input field
+					// Password is erased from input field
+					return invalid(400, {
+						message: 'Username or password is incorrect',
+						data: {
+							username
+						}
+					});
 				}
-
-				// Password does not matched the one stored in DB
-				throw error(400, 'incorrect password');
+			} else {
+				// An account with the username specified could not be found in the database
+				// Returns a validation error to the HTML template so that it can be shown to the user
+				// Returns the email so that it can be retained in the input field
+				// Password is erased from input field
+				return invalid(400, {
+					message: 'Username or password is incorrect',
+					data: {
+						username
+					}
+				});
 			}
-
-			// User not found with username specified not found
-			throw error(400, 'user not found with username specified');
+		} else {
+			// The username or password fields had been left blank
+			// Returns a validation error to the HTML template so that it can be shown to the user
+			// Returns the email so that it can be retained in the input field
+			// Password is erased from input field
+			return invalid(400, {
+				message:
+					'Username or password is empty, please ensure that you specify a username and password.',
+				data: {
+					username
+				}
+			});
 		}
-		// username or password is null
-		throw error(400, 'username or password is null');
 	}
 };
