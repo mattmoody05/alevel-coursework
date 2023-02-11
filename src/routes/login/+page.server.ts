@@ -1,4 +1,3 @@
-import type { account } from '$lib/util/types';
 import { invalid, redirect } from '@sveltejs/kit';
 import { openDb } from '../../db/index';
 import { JWT_SIGNING_SECRET_KEY } from '$env/static/private';

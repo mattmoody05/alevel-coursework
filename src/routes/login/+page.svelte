@@ -2,7 +2,7 @@
 	import { Textbox } from '$lib/components/input';
 	import { Button, LinkButton } from '$lib/components/button';
 	import type { ActionData } from './$types';
-	import ValidationMessage from '$lib/components/input/validationMessage.svelte';
+	import { ValidationMessage } from '$lib/components/input';
 	import { enhance } from '$app/forms';
 
 	export let form: ActionData;
