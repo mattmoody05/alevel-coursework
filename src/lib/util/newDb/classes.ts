@@ -21,8 +21,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { getDateFromLocaleString } from '../date';
 import { Mailer } from '../email';
 import type { RecurringSessionDayDetails } from '../types';
-import { RECURRING_BOOKING_EXPIRY } from '$env/static/private';
+import {
+	CHILDCARE_LIMIT_UNDER_EIGHTEEN_MONTHS,
+	CHILDCARE_LIMIT_UNDER_EIGHT_YEARS,
+	CHILDCARE_LIMIT_UNDER_FIVE_YEARS,
+	CHILDCARE_LIMIT_UNDER_TWELVE_YEARS,
+	RECURRING_BOOKING_EXPIRY
+} from '$env/static/private';
 import { differenceBetweenTimes } from '$lib/util/date';
+import { getSessionsOnDate } from '../db';
 
 export class Admin {
 	async getChildren(): Promise<Child[]> {
@@ -133,6 +140,11 @@ export class Session {
 		}
 
 		return `${String(startTimeHours)}:${String(startTimeMins)}`;
+	}
+
+	getAvailabilityChecker() {
+		const availabilityChecker = new AvailabilityChecker(this);
+		return availabilityChecker;
 	}
 }
 
@@ -740,6 +752,136 @@ export class MessageConversation {
 			return new Parent(parentData);
 		} else {
 			return undefined;
+		}
+	}
+}
+
+export class AvailabilityChecker {
+	session: Session;
+
+	constructor(session: Session) {
+		this.session = session;
+	}
+
+	async checkTimeOffPeriods(): Promise<boolean> {
+		const db = await openDb();
+		const timeOffPeriods: TimeOffPeriodTable[] = await db.all('SELECT * FROM timeOffPeriod');
+		const formattedSessionDate = getDateFromLocaleString(this.session.date);
+
+		for (let i = 0; i < timeOffPeriods.length; i++) {
+			const currentPeriod = timeOffPeriods[i];
+			const formattedTimeOffStartDate = getDateFromLocaleString(currentPeriod.startDate);
+			const formattedTimeOffEndDate = getDateFromLocaleString(currentPeriod.endDate);
+
+			if (
+				formattedSessionDate >= formattedTimeOffStartDate &&
+				formattedSessionDate <= formattedTimeOffEndDate
+			) {
+				// session is inside time off period
+				return false;
+			}
+		}
+		return true;
+	}
+
+	getOverlappingSessions(sessionsOnDate: Session[]): Session[] {
+		const proposedSessionStartTimeSplit = this.session.startTime.split(':');
+
+		// the start time of the session in minutes from midnight
+		const proposedSessionStartTime =
+			Number(proposedSessionStartTimeSplit[0]) * 60 + Number(proposedSessionStartTimeSplit[1]);
+
+		// the end time of the session in minutes from midnight
+		const proposedSessionEndTime = proposedSessionStartTime + this.session.length;
+
+		let overlappingSessions: Session[] = [];
+
+		for (let i = 0; i < sessionsOnDate.length; i++) {
+			const currentSession = sessionsOnDate[i];
+
+			const currentSessionStartTimeSplit = currentSession.startTime.split(':');
+			const currentSessionStartTime =
+				Number(currentSessionStartTimeSplit[0]) * 60 + Number(currentSessionStartTimeSplit[1]);
+
+			const currentSessionEndTime = currentSessionStartTime + currentSession.length;
+
+			if (
+				currentSessionStartTime >= proposedSessionStartTime ||
+				currentSessionStartTime <= proposedSessionEndTime
+			) {
+				overlappingSessions = [...overlappingSessions, currentSession];
+			} else if (
+				currentSessionEndTime >= proposedSessionStartTime ||
+				currentSessionEndTime <= proposedSessionEndTime
+			) {
+				overlappingSessions = [...overlappingSessions, currentSession];
+			}
+		}
+
+		return overlappingSessions;
+	}
+
+	async checkChildcareLimits(): Promise<boolean> {
+		const sessionsOnDate = await getSessionsOnDate(this.session.date);
+
+		const existingSessions = this.getOverlappingSessions(
+			sessionsOnDate.map((session) => new Session(session))
+		);
+
+		let underTwelveYears: number = 0;
+		let underEightYears: number = 0;
+		let underFiveYears: number = 0;
+		let underEighteenMonths: number = 0;
+
+		for (let i = 0; i < existingSessions.length; i++) {
+			const currentSession = existingSessions[i];
+			const currentChild = await currentSession.getChild();
+			if (currentChild !== undefined) {
+				const age = currentChild.getAge();
+				if (age < 12) {
+					underTwelveYears = underTwelveYears + 1;
+					if (age < 8) {
+						underEightYears = underEightYears + 1;
+						if (age < 5) {
+							underFiveYears = underFiveYears + 1;
+							const ageMonths = currentChild.getAgeMonths();
+							if (ageMonths < 18) {
+								underEighteenMonths = underEighteenMonths + 1;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		const newChild = await this.session.getChild();
+		if (newChild !== undefined) {
+			const age = newChild.getAge();
+			if (age < 12) {
+				underTwelveYears = underTwelveYears + 1;
+				if (age < 8) {
+					underEightYears = underEightYears + 1;
+					if (age < 5) {
+						underFiveYears = underFiveYears + 1;
+						const ageMonths = newChild.getAgeMonths();
+						if (ageMonths < 18) {
+							underEighteenMonths = underEighteenMonths + 1;
+						}
+					}
+				}
+			}
+		}
+
+		if (underTwelveYears > Number(CHILDCARE_LIMIT_UNDER_TWELVE_YEARS)) {
+			return false;
+		} else if (underEightYears > Number(CHILDCARE_LIMIT_UNDER_EIGHT_YEARS)) {
+			return false;
+		} else if (underFiveYears > Number(CHILDCARE_LIMIT_UNDER_FIVE_YEARS)) {
+			return false;
+		} else if (underEighteenMonths > Number(CHILDCARE_LIMIT_UNDER_EIGHTEEN_MONTHS)) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 }
