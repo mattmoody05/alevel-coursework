@@ -31,7 +31,7 @@
 {:else}
 	<main class="m-8">
 		<h1 class="font-extrabold text-3xl mb-4">Register parent & account</h1>
-		<form method="POST" class="grid grid-cols-1 md:grid-cols-2 w-full gap-8">
+		<form action="?/register" method="POST" class="grid grid-cols-1 md:grid-cols-2 w-full gap-8">
 			<div class="detail-section w-full" id="personal-details">
 				<h3 class="font-bold text-xl">Personal details</h3>
 				<div class="flex flex-col gap-2 mt-2">

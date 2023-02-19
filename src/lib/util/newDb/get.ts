@@ -213,3 +213,17 @@ export async function getChild(childId: string): Promise<Child | undefined> {
 		return undefined;
 	}
 }
+
+export async function getAccountByUsername(username: string): Promise<Account | undefined> {
+	const db = await openDb();
+	const accountData: AccountTable | undefined = await db.get(
+		'SELECT * FROM account WHERE username = ?',
+		username
+	);
+
+	if (accountData !== undefined) {
+		return new Account(accountData);
+	} else {
+		return undefined;
+	}
+}
