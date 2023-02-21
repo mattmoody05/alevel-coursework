@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { Button } from '$lib/components/button';
 	import { Listbox } from '$lib/components/input';
+	import type { LowercaseDay } from '$lib/util/types';
 	import { capitaliseFirst } from '$lib/util/ui';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	type days = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
-	const dayList: days[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+	const dayList: LowercaseDay[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
 	let selectedChildId = data.children[0].childId;
 

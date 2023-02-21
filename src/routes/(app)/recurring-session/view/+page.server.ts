@@ -1,84 +1,181 @@
 import {
-	createRecurringSession,
-	deleteRecurringSessionRequest,
-	getAllChildren,
-	getAllParents,
+	getAdmin,
 	getChild,
-	getChildren,
-	getRecurringSessionRequest,
-	setRecurringSessionRequestStatus
-} from '$lib/util/db';
-import type { child, recurringSessionRequest } from '$lib/util/types';
-import { error } from '@sveltejs/kit';
+	getParent,
+	RecurringSessionRequest,
+	type Child
+} from '$lib/util/newDb';
+import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin, account } = locals;
-	let children: child[] | undefined = undefined;
-	if (isAdmin) {
-		children = await getAllChildren();
+
+	let children: Child[] = [];
+
+	if (isAdmin === true) {
+		// Returns an instance of the admin class
+		const admin = getAdmin();
+
+		// Gets all the children in the database
+		children = await admin.getChildren();
 	} else {
 		if (account !== undefined) {
-			if (account.parentId !== undefined) {
-				children = await getChildren(account.parentId);
+			// Returns an instance of the parent class
+			const parent = await getParent(account.accountId);
+			if (parent !== undefined) {
+				// Returns all children belonging to the currently logged in parent
+				children = await parent.getChildren();
 			} else {
-				throw error(500, 'parent id undefined');
+				// No parent was returned from the database with the specified accountId
+				// 404: Not found code
+				throw error(
+					404,
+					'We could not find a parent associated with that account. Please make sure that you are not using an admin account. '
+				);
 			}
 		} else {
-			throw error(400, 'account undefined');
+			// No user is currently logged in
+			// User is redirected to the login page
+			// 308: Permanent redirect code
+			throw redirect(308, '/login');
 		}
 	}
-	if (children !== undefined) {
-		let requests: recurringSessionRequest[] = [];
-		for (let i = 0; i < children.length; i++) {
-			const currentChild: child = children[i];
-			const recurringSessionRequestData = await getRecurringSessionRequest(currentChild.childId);
-			if (recurringSessionRequestData !== undefined) {
-				requests = [...requests, recurringSessionRequestData];
-			}
-		}
-		if (isAdmin) {
-			const parents = await getAllParents();
-			if (parents !== undefined) {
-				return { children, recurringSessionRequests: requests, parents };
-			}
-			throw error(500, 'parents undefined');
-		} else {
-			return { children, recurringSessionRequests: requests };
+	let requests: RecurringSessionRequest[] = [];
+	for (let i = 0; i < children.length; i++) {
+		const currentChild: Child = children[i];
+
+		// Gets the recurring session request belonging to the current child
+		// If the child has a request, it is added to the array of recurring session requests
+		const recurringSessionRequestData = await currentChild.getRecurringSessionRequest();
+		if (recurringSessionRequestData !== undefined) {
+			requests = [...requests, recurringSessionRequestData];
 		}
 	}
-	throw error(500, 'children undefined');
+
+	if (isAdmin === true) {
+		// Returns an instance of the admin class
+		const admin = getAdmin();
+
+		// Gets all the parents in the database
+		const parents = await admin.getParents();
+
+		// Returns data so that it can be used in the HTML template
+		return {
+			children: children.map((child) => child.getData()),
+			recurringSessionRequests: requests.map((request) => request.getData()),
+			parents: parents.map((parent) => parent.getData())
+		};
+	} else {
+		// Returns data so that it can be used in the HTML template
+		return {
+			children: children.map((child) => child.getData()),
+			recurringSessionRequests: requests.map((request) => request.getData())
+		};
+	}
 };
 
 export const actions: Actions = {
+	// Handles the user submitting the form to cnacel a recurring session
 	parentCancel: async ({ request }: RequestEvent) => {
+		// Retrieves the data form the HTML form
 		const data = await request.formData();
-
 		const childId = data.get('childId') as string;
 
-		await deleteRecurringSessionRequest(childId);
-		return { success: true };
+		// Returns an instance of the child class
+		const child = await getChild(childId);
+
+		if (child !== undefined) {
+			// Deletes the select child's recurring session request
+			await child.deleteRecurringSessionRequest();
+
+			// Returns data so that it can be used in the HTML template
+			return { success: true };
+		} else {
+			// No child was found in the database
+			// 404: Not found code
+			throw error(
+				404,
+				'A child with that childId could not be found within the database, please ensure that you have selected a child. '
+			);
+		}
 	},
+
+	// Handles the user submitting the form to approve a recurring session
+	// Admin only action
 	adminApprove: async ({ request, locals }: RequestEvent) => {
 		const { isAdmin } = locals;
-		if (isAdmin) {
+		if (isAdmin === true) {
+			// Retrieves the data form the HTML form
 			const data = await request.formData();
 			const childId = data.get('childId') as string;
-			await setRecurringSessionRequestStatus(childId, true);
-			await createRecurringSession(childId);
-			return { success: true };
+
+			// Returns an instance of the child class
+			const child = await getChild(childId);
+
+			if (child !== undefined) {
+				// Sets the recurring session request's status field
+				await child.setRecurringSessionRequestStatus(true);
+
+				// Creates the sessions specified in the recurring session request
+				await child.createRecurringSession();
+
+				// Returns data so that it can be used in the HTML template
+				return { success: true };
+			} else {
+				// No child was found in the database
+				// 404: Not found code
+				throw error(
+					404,
+					'A child with that childId could not be found within the database, please ensure that you have selected a child. '
+				);
+			}
+		} else {
+			// User is not an admin
+			// 403: Forbidden code
+			throw error(
+				403,
+				'You must be an admin to approve a recurring session request, please ensure that you are using an admin account.'
+			);
 		}
-		throw error(400, 'must be admin');
 	},
+
+	// Handles the user submitting the form to deline a recurring session request
+	// Admin only action
 	adminDecline: async ({ request, locals }: RequestEvent) => {
 		const { isAdmin } = locals;
-		if (isAdmin) {
+		if (isAdmin === true) {
+			// Retrieves the data form the HTML form
 			const data = await request.formData();
 			const childId = data.get('childId') as string;
-			await setRecurringSessionRequestStatus(childId, false);
-			await deleteRecurringSessionRequest(childId);
-			return { success: true };
+
+			// Returns an instance of the child class
+			const child = await getChild(childId);
+
+			if (child !== undefined) {
+				// Sets the recurring session request's status field
+				await child.setRecurringSessionRequestStatus(false);
+
+				// Removes the child's recurring session request
+				await child.deleteRecurringSessionRequest();
+
+				// Returns data so that it can be used in the HTML template
+				return { success: true };
+			} else {
+				// No child was found in the database
+				// 404: Not found code
+				throw error(
+					404,
+					'A child with that childId could not be found within the database, please ensure that you have selected a child. '
+				);
+			}
+		} else {
+			// User is not an admin
+			// 403: Forbidden code
+			throw error(
+				403,
+				'You must be an admin to decline a recurring session request, please ensure that you are using an admin account.'
+			);
 		}
-		throw error(400, 'must be admin');
 	}
 };

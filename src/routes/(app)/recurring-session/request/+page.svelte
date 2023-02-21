@@ -41,7 +41,7 @@
 {/if}
 
 <h3 class="font-bold text-xl">Request recurring session</h3>
-<form class="flex flex-col gap-2 mt-2" method="POST">
+<form action="?/requestRecurringSession" class="flex flex-col gap-2 mt-2" method="POST">
 	<Listbox name="childId" labelText="Select child">
 		{#each data.children as child}
 			<option value={child.childId}>{child.firstName} {child.lastName}</option>
