@@ -2,8 +2,21 @@
 	import { Textbox } from '$lib/components/input';
 	import { LinkButton, Button } from '$lib/components/button';
 	import type { ActionData } from './$types';
+	import { SmallAlert } from '$lib/components/alert';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import { enhance } from '$app/forms';
 
 	export let form: ActionData;
+
+	onMount(() => {
+		setTimeout(() => {
+			if (form?.message !== undefined) {
+				// @ts-ignore
+				form.message = undefined;
+			}
+		}, 10000);
+	});
 </script>
 
 <svelte:head>
@@ -29,9 +42,19 @@
 		</div>
 	</main>
 {:else}
+	{#if form?.message !== undefined}
+		<div transition:fade>
+			<SmallAlert body={form?.message} title="Validation error" style="error" />
+		</div>
+	{/if}
 	<main class="m-8">
 		<h1 class="font-extrabold text-3xl mb-4">Register parent & account</h1>
-		<form action="?/register" method="POST" class="grid grid-cols-1 md:grid-cols-2 w-full gap-8">
+		<form
+			use:enhance
+			action="?/register"
+			method="POST"
+			class="grid grid-cols-1 md:grid-cols-2 w-full gap-8"
+		>
 			<div class="detail-section w-full" id="personal-details">
 				<h3 class="font-bold text-xl">Personal details</h3>
 				<div class="flex flex-col gap-2 mt-2">
@@ -39,7 +62,7 @@
 					<Textbox name="lastName" labelText="Last name" placeholderText="Doe" />
 					<Textbox name="dateOfBirth" labelText="Date of birth" placeholderText="DD/MM/YYYY" />
 					<Textbox name="email" labelText="Email" placeholderText="email@domain.com" />
-					<Textbox name="mobileNumber" labelText="Mobile number" placeholderText="07532165789" />
+					<Textbox name="phoneNumber" labelText="Mobile number" placeholderText="07532165789" />
 				</div>
 			</div>
 			<div class="detail-section w-full" id="address">
