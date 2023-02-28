@@ -1,6 +1,7 @@
 import { issueShortNoticeNotification, writeShortNoticeNoitification } from '$lib/util/db';
 import { getAdmin, type ParentTable } from '$lib/util/newDb';
-import { error } from '@sveltejs/kit';
+import { presenceCheck } from '$lib/util/validation';
+import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
@@ -43,6 +44,28 @@ export const actions: Actions = {
 			// Will only be used if allParents is false
 			const selectedParentsFormElement = data.get('selectedParents') as string;
 			const selectedParents: ParentTable[] = JSON.parse(selectedParentsFormElement);
+
+			if (presenceCheck(message) === false) {
+				return invalid(400, {
+					message:
+						'You must specify a message to issue as a short notice notification - it cannot be left blank',
+					data: {
+						selectedParentsFormElement,
+						message,
+						allParents
+					}
+				});
+			} else if (allParents === false && selectedParents.length === 0) {
+				return invalid(400, {
+					message:
+						'You must specify at least one parent to issue the short notice notification to, or select all parents.',
+					data: {
+						selectedParentsFormElement,
+						message,
+						allParents
+					}
+				});
+			}
 
 			// Creates and writes the notification data to the database
 			const notification = await writeShortNoticeNoitification(message);
