@@ -135,3 +135,24 @@ export function doubleKeyCheck(valueOne: string, valueTwo: string): boolean {
 export function validatePostcode(postcode: string): boolean {
 	return true;
 }
+
+export function validateTime(time: string) {
+	if (time.length !== 5) {
+		return false;
+	}
+
+	let hours = time.substring(0, 2);
+	let mins = time.substring(3, 5);
+
+	if ((isNumber(hours) === true && isNumber(mins) === true) === false) {
+		return false;
+	} else if (Number(hours) > 24 || Number(hours) < 0) {
+		return false;
+	} else if (Number(mins) > 59 || Number(mins) < 0) {
+		return false;
+	} else if (time[2] !== ':') {
+		return false;
+	} else {
+		return true;
+	}
+}

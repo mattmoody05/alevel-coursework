@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let placeholderText = '';
 	export let labelText: string = '';
-	export let value: number = 0;
+	export let value: string = '0';
 	export let name: string = '';
 </script>
 
