@@ -10,12 +10,12 @@
 	export let form: ActionData;
 
 	onMount(() => {
-		setTimeout(() => {
-			if (form?.message !== undefined) {
+		if (form?.message !== undefined) {
+			setTimeout(() => {
 				// @ts-ignore
 				form.message = undefined;
-			}
-		}, 10000);
+			}, 10000);
+		}
 	});
 </script>
 
