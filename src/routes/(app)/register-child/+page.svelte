@@ -3,8 +3,20 @@
 	import { Button, LinkButton } from '$lib/components/button';
 	import type { ActionData } from './$types';
 	import { stringToColour } from '$lib/util/ui';
+	import { fade } from 'svelte/transition';
+	import { SmallAlert } from '$lib/components/alert';
+	import { onMount } from 'svelte';
 
 	export let form: ActionData;
+
+	onMount(() => {
+		if (form?.message !== undefined) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.message = undefined;
+			}, 10000);
+		}
+	});
 </script>
 
 <svelte:head>
@@ -32,8 +44,14 @@
 		</div>
 	</div>
 {:else}
+	{#if form?.message !== undefined}
+		<div transition:fade>
+			<SmallAlert body={form?.message} title="Validation error" style="error" />
+		</div>
+	{/if}
+
 	<h1 class="font-extrabold text-3xl">Register child</h1>
-	<form method="POST" class="grid grid-cols-1 lg:grid-cols-2 w-full gap-8">
+	<form action="?/registerChild" method="POST" class="grid grid-cols-1 lg:grid-cols-2 w-full gap-8">
 		<div class="flex flex-col gap-2 mt-2">
 			<h3 class="font-bold text-xl">Child details</h3>
 			<Textbox labelText="First name" name="firstName" />
@@ -43,21 +61,22 @@
 		<div class="flex flex-col gap-2 mt-2">
 			<h3 class="font-bold text-xl">Additional need details</h3>
 			<Listbox labelText="Additional need type" name="additionalNeedType">
-				<option value="None">None</option>
-				<option value="Learning difficulty">Learning difficulties</option>
-				<option value="Physical disability">Physical disability</option>
+				<option value="none">None</option>
+				<option value="allergy">Child has an allergy </option>
+				<option value="health">Child has health issues</option>
+				<option value="learning">Child has learning difficulties</option>
+				<option value="language">Child has problems with language</option>
+				<option value="disability">Child has a disability</option>
 			</Listbox>
 			<LargeTextbox labelText="Additional need details" name="additionalNeedDetails" />
 		</div>
 		<div class="flex flex-col gap-2 mt-2">
 			<h3 class="font-bold text-xl">Education details</h3>
 			<Listbox labelText="Education type" name="educationType">
-				<option value="None">None</option>
-				<option value="Pre-school">Pre-school</option>
-				<option value="Primary school (infants)">Primary school (infants)</option>
-				<option value="Primary school (juniors)">Primary school (juniors)</option>
-				<option value="Secondary school">Secondary school</option>
-				<option value="Other">Other</option>
+				<option value="none">None</option>
+				<option value="nursery">Nursery</option>
+				<option value="primary-infant">Primary school (infants)</option>
+				<option value="primary-junior">Primary school (juniors)</option>
 			</Listbox>
 			<Textbox labelText="Name of education" name="educationName" />
 		</div>
