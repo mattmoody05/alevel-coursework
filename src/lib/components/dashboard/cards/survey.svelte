@@ -22,9 +22,9 @@
 		<span>Recent surveys</span>
 		<div class="flex flex-col gap-2 mt-1 opacity-50">
 			{#each recentSurveys as survey}
-				<div class="grid grid-cols-2 text-sm items-center">
+				<div class="grid grid-cols-2 gap-2 text-sm items-center">
 					<span>{survey.surveyName}</span>
-					<span class="">Due {survey.dueDate}</span>
+					<span class="">{survey.dateCreated}</span>
 				</div>
 			{/each}
 		</div>

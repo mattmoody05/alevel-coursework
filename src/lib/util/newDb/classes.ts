@@ -31,7 +31,6 @@ import {
 import { differenceBetweenTimes } from '$lib/util/date';
 import { getSessionsOnDate } from '../db';
 import bcrypt from 'bcrypt';
-import { getAccountByUsername } from './get';
 
 export class Admin {
 	async getChildren(): Promise<Child[]> {
@@ -57,6 +56,27 @@ export class Admin {
 		const db = await openDb();
 		const parents: ParentTable[] = await db.all('SELECT * FROM parent');
 		return parents.map((parent) => new Parent(parent));
+	}
+
+	async getAbsences(): Promise<Session[]> {
+		const db = await openDb();
+		const absentSessions: SessionTable[] = await db.all(
+			'SELECT * FROM session WHERE absent = ?',
+			true
+		);
+		return absentSessions.map((session) => new Session(session));
+	}
+
+	async getSurveys(): Promise<Survey[]> {
+		const db = await openDb();
+		const surveys = await db.all('SELECT * FROM survey');
+		return surveys.map((survey) => new Survey(survey));
+	}
+
+	async getInvoices(): Promise<Invoice[]> {
+		const db = await openDb();
+		const invoices = await db.all('SELECT * FROM invoice');
+		return invoices.map((invoice) => new Invoice(invoice));
 	}
 }
 
@@ -644,6 +664,15 @@ export class Survey {
 		this.dateCreated = surveyData.dateCreated;
 	}
 
+	async getQuestions(): Promise<SurveyQuestion[]> {
+		const db = await openDb();
+		const questions: SurveyQuestion[] = await db.all(
+			'SELECT * FROM surveyQuestion WHERE surveyId = ?',
+			this.surveyId
+		);
+		return questions.map((question) => new SurveyQuestion(question));
+	}
+
 	getData(): SurveyTable {
 		return { ...this };
 	}
@@ -662,6 +691,19 @@ export class SurveyQuestion {
 		this.surveyId = surveyQuestionData.surveyId;
 	}
 
+	async getSurvey(): Promise<Survey | undefined> {
+		const db = await openDb();
+		const surveyData: SurveyTable | undefined = await db.get(
+			'SELECT * FROM survey WHERE surveyId = ?',
+			this.surveyId
+		);
+		if (surveyData !== undefined) {
+			return new Survey(surveyData);
+		} else {
+			return undefined;
+		}
+	}
+
 	getData(): SurveyQuestionTable {
 		return { ...this };
 	}
@@ -678,6 +720,19 @@ export class SurveyIssue {
 		this.dateIssued = surveyIssueData.dateIssued;
 		this.surveyId = surveyIssueData.surveyId;
 		this.parentId = surveyIssueData.parentId;
+	}
+
+	async getSurvey(): Promise<Survey | undefined> {
+		const db = await openDb();
+		const surveyData: SurveyTable | undefined = await db.get(
+			'SELECT * FROM survey WHERE surveyId = ?',
+			this.surveyId
+		);
+		if (surveyData !== undefined) {
+			return new Survey(surveyData);
+		} else {
+			return undefined;
+		}
 	}
 
 	getData(): SurveyIssueTable {
@@ -790,6 +845,52 @@ export class Parent {
 	sendEmail(options: { subject: string; htmlBody: string }) {
 		const mailer = this.getMailer();
 		mailer.sendEmail(options);
+	}
+
+	async getAbsences(): Promise<Session[]> {
+		const db = await openDb();
+		let absentSessions: SessionTable[] = [];
+		const children = await this.getChildren();
+
+		for (let i = 0; i < children.length; i++) {
+			const currentChild = children[i];
+			const currentAbsentSessions: SessionTable[] = await db.all(
+				'SELECT * FROM session WHERE childId = ? AND absent = ?',
+				currentChild.childId,
+				true
+			);
+			absentSessions = [...absentSessions, ...currentAbsentSessions];
+		}
+
+		return absentSessions.map((session) => new Session(session));
+	}
+
+	async getSurveys(): Promise<Survey[]> {
+		const db = await openDb();
+		const surveyIssues: SurveyIssueTable[] = await db.all(
+			'SELECT * FROM surveyIssue WHERE parentId = ?',
+			this.parentId
+		);
+		let surveys: Survey[] = [];
+
+		for (let i = 0; i < surveyIssues.length; i++) {
+			const currentIssue = new SurveyIssue(surveyIssues[i]);
+			const currentSurvey = await currentIssue.getSurvey();
+			if (currentSurvey !== undefined) {
+				surveys = [...surveys, currentSurvey];
+			}
+		}
+
+		return surveys;
+	}
+
+	async getInvoices(): Promise<Invoice[]> {
+		const db = await openDb();
+		const invoices: InvoiceTable[] = await db.all(
+			'SELECT * FROM invoice WHERE parentId = ?',
+			this.parentId
+		);
+		return invoices.map((invoice) => new Invoice(invoice));
 	}
 
 	getData(): ParentTable {

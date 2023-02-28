@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { CardWrapper } from '$lib/components/dashboard/cards';
-	import type { absentReportSummary } from '$lib/util/types';
 	export let absencesReported: number;
-	export let absenceReports: absentReportSummary[];
+	export let absenceReports: { childName: string; date: string }[];
 </script>
 
 <CardWrapper title="Absences">
@@ -18,7 +17,7 @@
 					<div class="bg-violet-500 text-white rounded-lg px-2 py-1 max-w-max">
 						{absence.childName}
 					</div>
-					<span class="opacity-50">{absence.startDate} - {absence.endDate}</span>
+					<span class="opacity-50">{absence.date}</span>
 				</div>
 			{/each}
 		</div>

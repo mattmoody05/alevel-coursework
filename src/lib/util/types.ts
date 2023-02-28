@@ -19,7 +19,7 @@ export type invoiceSummary = {
 
 export type surveySummary = {
 	surveyName: string;
-	dueDate: string;
+	dateCreated: string;
 };
 
 export type urgentNotificationSummary = {

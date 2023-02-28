@@ -8,7 +8,7 @@
 		UrgentNotificationCard
 	} from '$lib/components/dashboard/cards';
 	import { getDateFromLocaleString } from '$lib/util/date';
-	import type { session } from '$lib/util/types';
+	import type { invoiceSummary, session } from '$lib/util/types';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -45,6 +45,18 @@
 			thisWeekNotifications = thisWeekNotifications + 1;
 		}
 	}
+
+	let absenceSummaries: { childName: string; date: string }[] = [];
+	for (let i = 0; i < data.absences.length; i++) {
+		const currentAbsence = data.absences[i];
+		absenceSummaries = [
+			...absenceSummaries,
+			{
+				childName: getChildName(currentAbsence.childId),
+				date: currentAbsence.date
+			}
+		];
+	}
 </script>
 
 <svelte:head>
@@ -79,58 +91,21 @@
 			{thisWeekNotifications}
 		/>
 	{/if}
-	<AbsenceCard
-		absenceReports={[
-			{
-				childName: 'Jon',
-				startDate: '10/11/22',
-				endDate: '12/11/22'
-			}
-		]}
-		absencesReported={1}
-	/>
+	<AbsenceCard absenceReports={absenceSummaries} absencesReported={1} />
 	<SurveyCard
 		surveysIssued={10}
 		surveysPending={2}
-		recentSurveys={[
-			{
-				dueDate: '20/10/22',
-				surveyName: 'Photo consent form'
-			},
-			{
-				dueDate: '01/10/22',
-				surveyName: 'Monthly check in'
-			},
-			{
-				dueDate: '01/09/22',
-				surveyName: 'Monthly check in'
-			},
-			{
-				dueDate: '01/09/22',
-				surveyName: 'Back to school survey'
-			}
-		]}
+		recentSurveys={data.surveys.map((survey) => ({
+			dateCreated: survey.dateCreated,
+			surveyName: survey.title
+		}))}
 	/>
 	<InvoiceCard
 		invoicesDue={1}
 		invoicesIssued={10}
-		recentInvoices={[
-			{
-				amountDue: 11889,
-				dueDate: '01/11/22'
-			},
-			{
-				amountDue: 7910,
-				dueDate: '01/10/22'
-			},
-			{
-				amountDue: 10967,
-				dueDate: '01/09/22'
-			},
-			{
-				amountDue: 5779,
-				dueDate: '01/08/22'
-			}
-		]}
+		recentInvoices={data.invoices.map((invoice) => ({
+			amountDue: invoice.total,
+			dueDate: invoice.dateDue
+		}))}
 	/>
 </div>

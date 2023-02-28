@@ -17,6 +17,9 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 			const sessions = await admin.getSessions();
 			const children = await admin.getChildren();
 			const notifications = await admin.getNotifications();
+			const surveys = await admin.getSurveys();
+			const absences = await admin.getAbsences();
+			const invoices = await admin.getInvoices();
 
 			// Data is returned so that it can be used as part of the HTML template
 			// Classes cannot be passed to the HTML template, so the getData method is called to return JSON data
@@ -24,6 +27,9 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 				sessions: sessions.map((session) => session.getData()),
 				children: children.map((child) => child.getData()),
 				notifications: notifications.map((notification) => notification.getData()),
+				surveys: surveys.map((survey) => survey.getData()),
+				absences: absences.map((absence) => absence.getData()),
+				invoices: invoices.map((invoice) => invoice.getData()),
 				isAdmin
 			};
 		} else {
@@ -38,6 +44,9 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 				const sessions = await parent.getSessions();
 				const children = await parent.getChildren();
 				const notifications = await parent.getNotifications();
+				const surveys = await parent.getSurveys();
+				const absences = await parent.getAbsences();
+				const invoices = await parent.getInvoices();
 
 				// Data is returned so that it can be used as part of the HTML template
 				// Classes cannot be passed to the HTML template, so the getData method is called to return JSON data
@@ -46,6 +55,9 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 					sessions: sessions.map((session) => session.getData()),
 					children: children.map((child) => child.getData()),
 					notifications: notifications.map((notification) => notification.getData()),
+					surveys: surveys.map((survey) => survey.getData()),
+					absences: absences.map((absence) => absence.getData()),
+					invoices: invoices.map((invoice) => invoice.getData()),
 					isAdmin
 				};
 			} else {
