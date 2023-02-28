@@ -18,6 +18,12 @@
 				form.success = false;
 			}, 5000);
 		}
+		if (form?.message !== undefined) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.message = undefined;
+			}, 10000);
+		}
 	});
 </script>
 
@@ -33,6 +39,12 @@
 				.generatedInvoice.total / 100}"
 			title="Success"
 		/>
+	</div>
+{/if}
+
+{#if form?.message !== undefined}
+	<div transition:fade>
+		<SmallAlert body={form?.message} title="Validation error" style="error" />
 	</div>
 {/if}
 

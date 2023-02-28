@@ -1,6 +1,7 @@
 import { generateInvoice, getAllChildren, getAllParents, writeInvoice } from '$lib/util/db';
 import { getParentName } from '$lib/util/ui';
-import { error } from '@sveltejs/kit';
+import { presenceCheck, validateDate } from '$lib/util/validation';
+import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
@@ -67,6 +68,132 @@ export const actions: Actions = {
 			// By default, checkboxes return a string of "on" if they are in the checked state
 			// Casts the string state to a boolean value
 			const includeExpenses = data.get('includeExpenses') === 'on' ? true : false;
+
+			if (validateDate(startDate) === false) {
+				return invalid(400, {
+					message:
+						'You have not input a valid start date, please ensure it follows the DD/MM/YYYY format',
+					data: {
+						childId,
+						startDate,
+						endDate,
+						additionalChargeAmount,
+						additionalChargeName,
+						discountAmount,
+						discountName,
+						parentId,
+						message,
+						dateDue,
+						includeExpenses
+					}
+				});
+			} else if (validateDate(endDate) === false) {
+				return invalid(400, {
+					message:
+						'You have not input a valid end date, please ensure it follows the DD/MM/YYYY format',
+					data: {
+						childId,
+						startDate,
+						endDate,
+						additionalChargeAmount,
+						additionalChargeName,
+						discountAmount,
+						discountName,
+						parentId,
+						message,
+						dateDue,
+						includeExpenses
+					}
+				});
+			} else if (validateDate(dateDue) === false) {
+				return invalid(400, {
+					message:
+						'You have not input a valid due date, please ensure it follows the DD/MM/YYYY format',
+					data: {
+						childId,
+						startDate,
+						endDate,
+						additionalChargeAmount,
+						additionalChargeName,
+						discountAmount,
+						discountName,
+						parentId,
+						message,
+						dateDue,
+						includeExpenses
+					}
+				});
+			} else if (presenceCheck(childId) === false) {
+				return invalid(400, {
+					message: 'You have not specified a child, please ensure that you have selected a child',
+					data: {
+						childId,
+						startDate,
+						endDate,
+						additionalChargeAmount,
+						additionalChargeName,
+						discountAmount,
+						discountName,
+						parentId,
+						message,
+						dateDue,
+						includeExpenses
+					}
+				});
+			} else if (presenceCheck(parentId) === false) {
+				return invalid(400, {
+					message: 'You have not specified a parent, please ensure that you have selected a parent',
+					data: {
+						childId,
+						startDate,
+						endDate,
+						additionalChargeAmount,
+						additionalChargeName,
+						discountAmount,
+						discountName,
+						parentId,
+						message,
+						dateDue,
+						includeExpenses
+					}
+				});
+			} else if (additionalChargeAmount >= 0 && additionalChargeAmount <= 100) {
+				return invalid(400, {
+					message:
+						'Additional charge amount is not in the correct range, please ensure that it is between 0 and 100',
+					data: {
+						childId,
+						startDate,
+						endDate,
+						additionalChargeAmount,
+						additionalChargeName,
+						discountAmount,
+						discountName,
+						parentId,
+						message,
+						dateDue,
+						includeExpenses
+					}
+				});
+			} else if (discountAmount >= 0 && discountAmount <= 100) {
+				return invalid(400, {
+					message:
+						'Discount charge amount is not in the correct range, please ensure that it is between 0 and 100',
+					data: {
+						childId,
+						startDate,
+						endDate,
+						additionalChargeAmount,
+						additionalChargeName,
+						discountAmount,
+						discountName,
+						parentId,
+						message,
+						dateDue,
+						includeExpenses
+					}
+				});
+			}
 
 			// Generates an invoice using the data that has been extracted from the form
 			// All data has been casted to the correct data type
