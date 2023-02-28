@@ -1,6 +1,8 @@
 import { getChild, getParent } from '$lib/util/newDb';
 import type { LowercaseDay, RecurringSessionDayDetails } from '$lib/util/types';
-import { error, redirect } from '@sveltejs/kit';
+import { presenceCheck, validateTime } from '$lib/util/validation';
+import { error, invalid, redirect } from '@sveltejs/kit';
+
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
@@ -41,6 +43,26 @@ export const actions: Actions = {
 		const childId = data.get('childId') as string;
 		const recurringBasis = data.get('recurring-basis') as string;
 
+		if (presenceCheck(childId) === false || childId === 'default') {
+			return invalid(400, {
+				message:
+					'You must specify a child to book a recurring session for - this field cannot be left blank',
+				data: {
+					childId,
+					recurringBasis
+				}
+			});
+		} else if (recurringBasis !== 'weekly' && recurringBasis !== 'daily') {
+			return invalid(400, {
+				message:
+					'You must select either weekly or daily as your recurring basis - this field cannot be left blank',
+				data: {
+					childId,
+					recurringBasis
+				}
+			});
+		}
+
 		// Returns an instance of the child class
 		const child = await getChild(childId);
 
@@ -69,6 +91,26 @@ export const actions: Actions = {
 				const startTime = data.get('week-start-time') as string;
 				const endTime = data.get('week-end-time') as string;
 
+				if (validateTime(startTime) === false) {
+					return invalid(400, {
+						message:
+							'You must specify a valid start time for the recurring sessions to start - please ensure that the time follows the HH:MM format',
+						data: {
+							childId,
+							recurringBasis
+						}
+					});
+				} else if (validateTime(endTime) === false) {
+					return invalid(400, {
+						message:
+							'You must specify a valid end time for the recurring sessions to start - please ensure that the time follows the HH:MM format',
+						data: {
+							childId,
+							recurringBasis
+						}
+					});
+				}
+
 				// Sets the day details according to the weekly start and end times specified in the form
 				// Daily recurring basis so all start and end times are the same
 				dayDetails = {
@@ -88,6 +130,28 @@ export const actions: Actions = {
 					fridayStartTime: startTime,
 					fridayEndTime: endTime
 				};
+
+				if (validateTime(startTime) === false) {
+					return invalid(400, {
+						message:
+							'You must specify a valid start time for the recurring sessions to start - please ensure that the time follows the HH:MM format',
+						data: {
+							childId,
+							recurringBasis,
+							dayDetails
+						}
+					});
+				} else if (validateTime(endTime) === false) {
+					return invalid(400, {
+						message:
+							'You must specify a valid end time for the recurring sessions to start - please ensure that the time follows the HH:MM format',
+						data: {
+							childId,
+							recurringBasis,
+							dayDetails
+						}
+					});
+				}
 			} else if (recurringBasis === 'weekly') {
 				const dayList: LowercaseDay[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
@@ -108,6 +172,37 @@ export const actions: Actions = {
 					}
 					if (endTime !== '') {
 						dayDetails[`${currentDay}EndTime`] = endTime;
+					}
+				} // Loops though each day of the week
+				for (let i = 0; i < dayList.length; i++) {
+					const currentDay = dayList[i];
+
+					// Fetches data from the form for the current day
+					// Casts string output from checkbox to boolean
+					const isSelected = (data.get(`${currentDay}-selected`) as string) === 'on';
+					const startTime = data.get(`${currentDay}-start-time`) as string;
+					const endTime = data.get(`${currentDay}-end-time`) as string;
+
+					if (isSelected === true) {
+						if (validateTime(startTime) === false) {
+							return invalid(400, {
+								message: `You must specify a valid start time (${currentDay}) for the recurring sessions to start - please ensure that the time follows the HH:MM format`,
+								data: {
+									childId,
+									recurringBasis,
+									dayDetails
+								}
+							});
+						} else if (validateTime(endTime) === false) {
+							return invalid(400, {
+								message: `You must specify a valid end time (${currentDay}) for the recurring sessions to start - please ensure that the time follows the HH:MM format`,
+								data: {
+									childId,
+									recurringBasis,
+									dayDetails
+								}
+							});
+						}
 					}
 				}
 			} else {
