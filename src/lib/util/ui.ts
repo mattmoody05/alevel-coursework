@@ -1,6 +1,10 @@
 import type { ChildTable, ParentTable } from './newDb';
 
-export function stringToColour(str: string): string {
+export function stringToColour(str: string | undefined): string {
+	if (str === undefined) {
+		return 'bg-indigo-500';
+	}
+
 	const colours = [
 		'bg-indigo-500',
 		'bg-red-600',
