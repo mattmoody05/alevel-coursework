@@ -31,6 +31,9 @@
 				<LinkButton href="/register" style="secondary">
 					Don't have an account? Register here
 				</LinkButton>
+				<LinkButton href="/forgot-password" style="secondary">
+					Forgot your password? Reset it here
+				</LinkButton>
 			</div>
 		</div>
 		<div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-200 hidden md:block" />

@@ -30,6 +30,8 @@ import {
 } from '$env/static/private';
 import { differenceBetweenTimes } from '$lib/util/date';
 import { getSessionsOnDate } from '../db';
+import bcrypt from 'bcrypt';
+import { getAccountByUsername } from './get';
 
 export class Admin {
 	async getChildren(): Promise<Child[]> {
@@ -71,6 +73,18 @@ export class Account {
 		this.password = accountData.password;
 		this.isAdmin = accountData.isAdmin;
 		this.parentId = accountData.parentId;
+	}
+
+	async updatePassword(newPassword: string) {
+		const passwordHash: string = await bcrypt.hash(newPassword, 10);
+		this.password = passwordHash;
+
+		const db = await openDb();
+		await db.run(
+			'UPDATE account SET password = ? WHERE accountId = ?',
+			this.password,
+			this.accountId
+		);
 	}
 }
 

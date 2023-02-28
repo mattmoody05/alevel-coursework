@@ -205,7 +205,6 @@ export const actions: Actions = {
 			} else {
 				// All fields are valid, therefore the data can be stored in the database
 
-				// @ts-ignore
 				const passwordHash: string = await bcrypt.hash(password, 10);
 
 				// Generates an ID for the parent being registered
