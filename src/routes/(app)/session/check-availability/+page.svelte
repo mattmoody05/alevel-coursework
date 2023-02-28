@@ -17,6 +17,12 @@
 				form.sessionAllowed = undefined;
 			}, 10000);
 		}
+		if (form?.message !== undefined) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.message = undefined;
+			}, 10000);
+		}
 	});
 </script>
 
@@ -39,6 +45,12 @@
 		/>
 	{/if}
 </div>
+
+{#if form?.message !== undefined}
+	<div transition:fade>
+		<SmallAlert body={form?.message} title="Validation error" style="error" />
+	</div>
+{/if}
 
 <h3 class="font-bold text-xl">Check availability</h3>
 <form action="?/checkAvailability" method="POST" class="flex flex-col gap-2" use:enhance>
