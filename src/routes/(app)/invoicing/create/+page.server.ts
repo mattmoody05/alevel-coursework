@@ -1,4 +1,5 @@
-import { generateInvoice, getAllChildren, getAllParents, writeInvoice } from '$lib/util/db';
+import { generateInvoice } from '$lib/util/db';
+import { createInvoice, getAdmin } from '$lib/util/newDb';
 import { getParentName } from '$lib/util/ui';
 import { presenceCheck, validateDate } from '$lib/util/validation';
 import { error, invalid } from '@sveltejs/kit';
@@ -7,9 +8,10 @@ import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin } = locals;
 	if (isAdmin === true) {
+		const admin = getAdmin();
 		// All child and parent data is fetched from the database
-		const children = await getAllChildren();
-		const parents = await getAllParents();
+		const children = await admin.getChildren();
+		const parents = await admin.getParents();
 
 		let childrenSummary: {
 			childId: string;
@@ -33,7 +35,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		});
 
 		// Data is returned so that it can be part of the HTML template
-		return { childrenSummary, parents };
+		return { childrenSummary, parents: parents.map((parent) => parent.getData()) };
 	} else {
 		// The current user is not an admin, they do not have the rights to view the data
 		// 401: Forbidden code
@@ -213,7 +215,10 @@ export const actions: Actions = {
 			});
 
 			// Writes the previously generated invoice to the database
-			await writeInvoice(generatedInvoice);
+			const invoice = await createInvoice(generatedInvoice);
+
+			// Sends a confirmation email to the parent the invoice has been issued to prompting them to view the invoice
+			await invoice.sendConfirmationEmail();
 
 			// Data is returned so that it can be part of the HTML template
 			// The invoice was successfully generated and written

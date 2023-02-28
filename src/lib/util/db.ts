@@ -24,6 +24,7 @@ import { openDb } from '../../db/index';
 import { v4 as uuidv4 } from 'uuid';
 import { HOURLY_RATE, RECURRING_BOOKING_EXPIRY } from '$env/static/private';
 import { getDateFromLocaleString } from './date';
+import type { InvoiceTable } from './newDb';
 
 export async function getParent(
 	id: string,
@@ -407,7 +408,7 @@ export async function generateInvoice(invoiceDetails: {
 	discountAmount?: number;
 	message?: string;
 	parentId: string;
-}) {
+}): Promise<InvoiceTable> {
 	// Fetch all sessions in period
 	const sessionsInPeriod: session[] = await getSessionsInPeriod(
 		invoiceDetails.childId,

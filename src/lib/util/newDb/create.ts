@@ -1,6 +1,6 @@
 import { openDb } from '../../../db';
-import { Account, Parent, Session } from './classes';
-import type { AccountTable, ParentTable, SessionTable } from './tables';
+import { Account, Invoice, Parent, Session } from './classes';
+import type { AccountTable, InvoiceTable, ParentTable, SessionTable } from './tables';
 
 export async function createParent(parentData: ParentTable): Promise<Parent> {
 	const parent = new Parent(parentData);
@@ -60,4 +60,31 @@ export async function createSession(sessionData: SessionTable): Promise<Session>
 	);
 
 	return session;
+}
+
+export async function createInvoice(invoiceData: InvoiceTable): Promise<Invoice> {
+	const invoice = new Invoice(invoiceData);
+
+	const db = await openDb();
+	await db.run(
+		'INSERT INTO invoice VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		invoiceData.invoiceId,
+		invoiceData.dateGenerated,
+		invoiceData.dateIssued,
+		invoiceData.dateDue,
+		invoiceData.startDate,
+		invoiceData.endDate,
+		invoiceData.includeExpenses,
+		invoiceData.additionalChargeName,
+		invoiceData.additionalChargeAmount,
+		invoiceData.discountName,
+		invoiceData.discountAmount,
+		invoiceData.message,
+		invoiceData.total,
+		invoiceData.paymentStatus,
+		invoiceData.parentId,
+		invoiceData.childId
+	);
+
+	return invoice;
 }

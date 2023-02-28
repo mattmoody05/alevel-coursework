@@ -152,7 +152,7 @@ export class Session {
 		if (child !== undefined) {
 			const parent = await child.getParent();
 			if (parent !== undefined) {
-				const mailer = new Mailer(parent.emailAddress);
+				const mailer = parent.getMailer();
 
 				mailer.sendEmail({
 					subject: 'Session booking confirmation',
@@ -535,6 +535,55 @@ export class Invoice {
 		this.paymentStatus = invoiceData.paymentStatus;
 		this.parentId = invoiceData.parentId;
 		this.childId = invoiceData.childId;
+	}
+
+	async getParent(): Promise<Parent | undefined> {
+		const db = await openDb();
+		const parentData: ParentTable | undefined = await db.get(
+			'SELECT * FROM parent WHERE parentId = ?',
+			this.parentId
+		);
+		if (parentData !== undefined) {
+			return new Parent(parentData);
+		} else {
+			return undefined;
+		}
+	}
+
+	async getChild(): Promise<Child | undefined> {
+		const db = await openDb();
+		const childData: ChildTable | undefined = await db.get(
+			'SELECT * FROM child WHERE childId = ?',
+			this.childId
+		);
+		if (childData !== undefined) {
+			return new Child(childData);
+		} else {
+			return undefined;
+		}
+	}
+
+	async sendConfirmationEmail() {
+		const parent = await this.getParent();
+		if (parent !== undefined) {
+			const child = await this.getChild();
+			if (child !== undefined) {
+				const mailer = parent.getMailer();
+
+				mailer.sendEmail({
+					subject: 'Session booking confirmation',
+					htmlBody: `
+				Hi ${parent.firstName},
+				<br><br>
+				You have just been issued a new invoice for ${child.firstName}, please view it using the link below or via the dashboard.
+				<br><br>
+				<a href="http://localhost:5173/invoicing/view/${this.invoiceId}">View invoice</a>
+				<br><br>
+				Thank you
+				`
+				});
+			}
+		}
 	}
 
 	getData(): InvoiceTable {
