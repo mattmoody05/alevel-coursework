@@ -1,28 +1,43 @@
-import { getAccountId } from '$lib/util/cookies';
-import { createSingleSession, getChild, getChildren, getParent } from '$lib/util/db';
-import type { child, parent, session } from '$lib/util/types';
+import { getAdmin, getParent } from '$lib/util/newDb';
+import { createSession } from '$lib/util/newDb';
 import { presenceCheck, validateDate, validateTime } from '$lib/util/validation';
-import { error, invalid } from '@sveltejs/kit';
+import { error, invalid, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
+import { v4 as uuidv4 } from 'uuid';
 
-export const load: PageServerLoad = async ({ cookies }: PageServerLoadEvent) => {
-	const accountId = getAccountId(cookies);
-	if (accountId !== undefined) {
-		const parentData: parent | undefined = await getParent(accountId, 'account');
-		if (parentData !== undefined) {
-			const children: child[] | undefined = await getChildren(parentData.parentId);
-			if (children !== undefined) {
-				return { children };
-			}
-			throw error(400, 'children is undefned');
+export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
+	const { account, isAdmin } = locals;
+	if (isAdmin === true) {
+		const admin = getAdmin();
+		const children = await admin.getChildren();
+		return { children: children.map((child) => child.getData()) };
+	} else if (account !== undefined) {
+		const parent = await getParent(account.accountId);
+		if (parent !== undefined) {
+			// Gets all the children for the currently logged in parent
+			const children = await parent.getChildren();
+
+			// Returns data so that it can be used in the HTML template
+			return { children: children.map((child) => child.getData()) };
+		} else {
+			// No parent was found in the database with a matching parentId
+			// 500: Internal server error code
+			throw error(
+				500,
+				'Could not get the data for the parent with the current accountId from the database. If an admin account is being used, please switch to a parent account.'
+			);
 		}
-		throw error(400, 'parent data not defined');
+	} else {
+		// No user is currently logged in
+		// User is redirected to the login page
+		// 308: Permanent redirect code
+		throw redirect(308, '/login');
 	}
-	throw error(400, 'account id not defined');
 };
 
 export const actions: Actions = {
-	default: async ({ request }: RequestEvent) => {
+	// Handles the user submitting the form to book a session
+	book: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 
 		const childId = data.get('childId') as string;
@@ -78,13 +93,33 @@ export const actions: Actions = {
 
 		// should check that regulations are not broken here
 
-		const createdSession: session = await createSingleSession(childId, date, startTime, length);
+		const currentDate = new Date();
 
-		const childData: child | undefined = await getChild(createdSession.childId);
+		const session = await createSession({
+			sessionId: uuidv4(),
+			childId: childId,
+			date: date,
+			startTime: startTime,
+			length: length,
+			absenceCharge: false,
+			absent: false,
+			absenceKeepSession: true,
+			dateBooked: currentDate.toLocaleDateString('en-GB'),
+			isRecurring: false,
+			invoiceId: undefined
+		});
 
-		if (childData !== undefined) {
-			return { success: true, createdSession, childData };
+		await session.sendConfirmationEmail();
+
+		const child = await session.getChild();
+
+		if (child !== undefined) {
+			return { success: true, createdSession: session.getData(), childData: child.getData() };
+		} else {
+			throw error(
+				400,
+				'There was an error in fetching the child assoiated with the current session. No child with the specified childId was found. '
+			);
 		}
-		throw error(400, 'child data not defined');
 	}
 };

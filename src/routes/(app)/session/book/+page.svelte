@@ -48,7 +48,7 @@
 {/if}
 
 <h3 class="font-bold text-xl">Book session</h3>
-<form method="POST" class="flex flex-col gap-2">
+<form action="?/book" method="POST" class="flex flex-col gap-2">
 	<Listbox name="childId" labelText="Select child">
 		{#each data.children as child}
 			<option value={child.childId}>{child.firstName} {child.lastName}</option>

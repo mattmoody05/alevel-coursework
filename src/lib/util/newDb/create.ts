@@ -1,6 +1,6 @@
 import { openDb } from '../../../db';
-import { Account, Parent } from './classes';
-import type { AccountTable, ParentTable } from './tables';
+import { Account, Parent, Session } from './classes';
+import type { AccountTable, ParentTable, SessionTable } from './tables';
 
 export async function createParent(parentData: ParentTable): Promise<Parent> {
 	const parent = new Parent(parentData);
@@ -36,4 +36,28 @@ export async function createAccount(accountData: AccountTable): Promise<Account>
 	);
 
 	return account;
+}
+
+export async function createSession(sessionData: SessionTable): Promise<Session> {
+	const session = new Session(sessionData);
+
+	const db = await openDb();
+	await db.run(
+		'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		session.sessionId,
+		session.date,
+		session.startTime,
+		session.length,
+		session.dateBooked,
+		session.absent,
+		session.absenceCharge,
+		session.absenceReason,
+		session.absenceAdditionalInformation,
+		session.absenceKeepSession,
+		session.isRecurring,
+		session.childId,
+		session.invoiceId
+	);
+
+	return session;
 }

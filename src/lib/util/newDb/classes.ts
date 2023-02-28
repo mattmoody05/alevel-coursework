@@ -146,6 +146,39 @@ export class Session {
 		const availabilityChecker = new AvailabilityChecker(this);
 		return availabilityChecker;
 	}
+
+	async sendConfirmationEmail() {
+		const child = await this.getChild();
+		if (child !== undefined) {
+			const parent = await child.getParent();
+			if (parent !== undefined) {
+				const mailer = new Mailer(parent.emailAddress);
+
+				mailer.sendEmail({
+					subject: 'Session booking confirmation',
+					htmlBody: `
+						Hi ${parent.firstName}!
+						<br> <br>
+						This email is a confirmation that you have booked a new session with the details listed below.
+						<br> <br>
+						<b>Date:</b> ${this.date}
+						<br>
+						<b>Start time:</b> ${this.startTime}
+						<br>
+						<b>Length:</b> ${this.length / 60} hours
+						<br>
+						<b>Child:</b> ${child.firstName}
+						<br> <br>
+						If these details look wrong, modify your session <a href="http://localhost:5173/session/view/${
+							this.sessionId
+						}">here.</a>
+						<br>
+						Thank you
+					`
+				});
+			}
+		}
+	}
 }
 
 export class Expense {
@@ -449,6 +482,19 @@ export class Child {
 		}
 	}
 
+	async getParent(): Promise<Parent | undefined> {
+		const db = await openDb();
+		const parentData: ParentTable | undefined = await db.get(
+			'SELECT * FROM parent WHERE parentId = ?',
+			this.parentId
+		);
+		if (parentData !== undefined) {
+			return new Parent(parentData);
+		} else {
+			return undefined;
+		}
+	}
+
 	getData(): ChildTable {
 		return { ...this };
 	}
@@ -678,7 +724,7 @@ export class Parent {
 		return new Mailer(this.emailAddress);
 	}
 
-	sendEmail(options: { subject: string; body: string }) {
+	sendEmail(options: { subject: string; htmlBody: string }) {
 		const mailer = this.getMailer();
 		mailer.sendEmail(options);
 	}

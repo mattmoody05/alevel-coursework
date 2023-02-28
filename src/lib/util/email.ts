@@ -13,7 +13,7 @@ export class Mailer {
 		this.#email = email;
 	}
 
-	sendEmail(options: { subject: string; body: string }) {
+	sendEmail(options: { subject: string; htmlBody: string }) {
 		const transporter = createTransport({
 			host: NODEMAILER_HOST,
 			port: Number(NODEMAILER_PORT),
@@ -25,7 +25,7 @@ export class Mailer {
 		transporter.sendMail({
 			to: this.#email,
 			subject: options.subject,
-			text: options.body
+			html: options.htmlBody
 		});
 	}
 }
