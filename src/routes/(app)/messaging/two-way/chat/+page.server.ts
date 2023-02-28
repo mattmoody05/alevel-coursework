@@ -1,6 +1,7 @@
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from '../$types';
-import { error, redirect } from '@sveltejs/kit';
+import { error, invalid, redirect } from '@sveltejs/kit';
 import { MessageConversation, getParent } from '$lib/util/newDb';
+import { presenceCheck } from '$lib/util/validation';
 
 export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent) => {
 	const { account, isAdmin } = locals;
@@ -88,6 +89,14 @@ export const actions: Actions = {
 				const data = await request.formData();
 				const messageContent = data.get('messageContent') as string;
 
+				if (presenceCheck(messageContent) === false) {
+					return invalid(400, {
+						validationMessage:
+							'You must specify a two way message to send - it cannot be left blank',
+						data: {}
+					});
+				}
+
 				// Creates a new message conversation for the selected parent
 				const messageConversation = new MessageConversation(selectedParentId, true);
 
@@ -102,6 +111,14 @@ export const actions: Actions = {
 				// Retrieves the data that has been submitted in the form
 				const data = await request.formData();
 				const messageContent = data.get('messageContent') as string;
+
+				if (presenceCheck(messageContent) === false) {
+					return invalid(400, {
+						validationMessage:
+							'You must specify a two way message to send - it cannot be left blank',
+						data: {}
+					});
+				}
 
 				// Returns an instance of the parent class
 				const parent = await getParent(account.accountId);

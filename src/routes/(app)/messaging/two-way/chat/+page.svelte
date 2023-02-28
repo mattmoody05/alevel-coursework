@@ -3,12 +3,15 @@
 	import { Textbox } from '$lib/components/input';
 	import { TwoWayMessage } from '$lib/components/messages';
 	import { afterUpdate, onMount } from 'svelte';
-	import type { PageData } from './$types';
+	import type { ActionData, PageData } from './$types';
 	import { enhance } from '$app/forms';
 	import type { TwoWayMessageTable } from '$lib/util/newDb';
 	import { scrollToBottom } from '$lib/util/ui';
+	import { SmallAlert } from '$lib/components/alert';
+	import { fade } from 'svelte/transition';
 
 	export let data: PageData;
+	export let form: ActionData;
 
 	let textboxContent: string = '';
 	let conversationViewElement: HTMLElement;
@@ -32,6 +35,14 @@
 				data.messages = messages;
 			}
 		}, 10 * 1000);
+
+		if (form?.validationMessage !== undefined) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.message = undefined;
+			}, 10000);
+		}
+
 		return () => {
 			clearInterval(getMessagesInterval);
 		};
@@ -41,6 +52,12 @@
 <svelte:head>
 	<title>Two way messaging: {data.chattingWith}</title>
 </svelte:head>
+
+{#if form?.validationMessage !== undefined}
+	<div transition:fade>
+		<SmallAlert body={form?.validationMessage} title="Validation error" style="error" />
+	</div>
+{/if}
 
 <div class="flex justify-between flex-col h-full">
 	<div id="chatting-with-banner">
