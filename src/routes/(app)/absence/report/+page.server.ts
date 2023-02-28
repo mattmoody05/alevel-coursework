@@ -1,6 +1,7 @@
 import { getChildren, getParent, createAbsenceReport } from '$lib/util/db';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
-import { error, redirect } from '@sveltejs/kit';
+import { error, invalid, redirect } from '@sveltejs/kit';
+import { presenceCheck, validateDate } from '$lib/util/validation';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account } = locals;
@@ -38,6 +39,40 @@ export const actions: Actions = {
 		const endDate = data.get('endDate') as string;
 		const reason = data.get('reason') as string;
 		const additionalInformation = data.get('additionalInformation') as string;
+
+		if (validateDate(startDate) === false) {
+			return invalid(400, {
+				message:
+					'You have not input a valid start date, please ensure it follows the DD/MM/YYYY format',
+				data: {
+					startDate,
+					endDate,
+					reason,
+					additionalInformation
+				}
+			});
+		} else if (validateDate(endDate) === false) {
+			return invalid(400, {
+				message:
+					'You have not input a valid end date, please ensure it follows the DD/MM/YYYY format',
+				data: {
+					startDate,
+					endDate,
+					reason,
+					additionalInformation
+				}
+			});
+		} else if (presenceCheck(reason) === false) {
+			return invalid(400, {
+				message: 'You have not entered a reason, please specify one as it cannot be left blank',
+				data: {
+					startDate,
+					endDate,
+					reason,
+					additionalInformation
+				}
+			});
+		}
 
 		// Writing the absence report to the database
 		const sessionsMarkedAsAbsent = await createAbsenceReport(
