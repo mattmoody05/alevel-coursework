@@ -1,4 +1,4 @@
-import { getAdmin, getParent } from '$lib/util/newDb';
+import { getAdmin, getParent, Session } from '$lib/util/newDb';
 import { createSession } from '$lib/util/newDb';
 import { presenceCheck, validateDate, validateTime } from '$lib/util/validation';
 import { error, invalid, redirect } from '@sveltejs/kit';
@@ -91,11 +91,9 @@ export const actions: Actions = {
 			});
 		}
 
-		// should check that regulations are not broken here
-
 		const currentDate = new Date();
 
-		const session = await createSession({
+		const session = new Session({
 			sessionId: uuidv4(),
 			childId: childId,
 			date: date,
@@ -109,17 +107,39 @@ export const actions: Actions = {
 			invoiceId: undefined
 		});
 
-		await session.sendConfirmationEmail();
+		const availabilityChecker = session.getAvailabilityChecker();
 
-		const child = await session.getChild();
+		const okayChildcareLimits = await availabilityChecker.checkChildcareLimits();
+		const okayTimeOff = await availabilityChecker.checkTimeOffPeriods();
 
-		if (child !== undefined) {
-			return { success: true, createdSession: session.getData(), childData: child.getData() };
+		const sessionAllowed = okayTimeOff && okayChildcareLimits;
+
+		if (sessionAllowed === true) {
+			await createSession(session.getData());
+
+			await session.sendConfirmationEmail();
+
+			const child = await session.getChild();
+
+			if (child !== undefined) {
+				return { success: true, createdSession: session.getData(), childData: child.getData() };
+			} else {
+				throw error(
+					400,
+					'There was an error in fetching the child assoiated with the current session. No child with the specified childId was found. '
+				);
+			}
 		} else {
-			throw error(
-				400,
-				'There was an error in fetching the child assoiated with the current session. No child with the specified childId was found. '
-			);
+			return invalid(400, {
+				message:
+					'Due to childcare regulations, your session is not able to be booked due to the business being at capacity.',
+				data: {
+					childId,
+					startTime,
+					date,
+					length
+				}
+			});
 		}
 	}
 };
