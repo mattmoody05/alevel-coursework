@@ -597,6 +597,47 @@ export class Child {
 		}
 	}
 
+	async createAbsenceReport(
+		startDate: string,
+		endDate: string,
+		reason: string,
+		additionalInformation: string
+	): Promise<Number> {
+		const db = await openDb();
+
+		const formattedStartDate = getDateFromLocaleString(startDate);
+		const formattedEndDate = getDateFromLocaleString(endDate);
+
+		let currentLoopDate = formattedStartDate;
+		let sessionsAffected: number = 0;
+		do {
+			// checks that there is a session on the current loop date
+			const sessionToMark: SessionTable | undefined = await db.get(
+				'SELECT * FROM session WHERE childId = ? AND date = ?',
+				this.childId,
+				currentLoopDate.toLocaleDateString('en-GB')
+			);
+
+			if (sessionToMark !== undefined) {
+				// if there is a session, update the session with the absense details
+				await db.run(
+					'UPDATE session SET absent = ?, absenceReason = ?, absenceAdditionalInformation = ? WHERE childId = ? AND date = ?',
+					true,
+					reason,
+					additionalInformation,
+					this.childId,
+					currentLoopDate.toLocaleDateString('en-GB')
+				);
+				sessionsAffected = sessionsAffected + 1;
+			}
+
+			// 86400000 is 1 day in ms
+			// increment day by 1
+			currentLoopDate = new Date(currentLoopDate.getTime() + 86400000);
+		} while (currentLoopDate <= formattedEndDate);
+		return sessionsAffected;
+	}
+
 	getData(): ChildTable {
 		return { ...this };
 	}

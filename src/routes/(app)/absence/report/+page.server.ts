@@ -1,4 +1,4 @@
-import { getChildren, getParent, createAbsenceReport } from '$lib/util/db';
+import { getParent, getChild } from '$lib/util/newDb';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import { error, invalid, redirect } from '@sveltejs/kit';
 import { presenceCheck, validateDate } from '$lib/util/validation';
@@ -7,13 +7,13 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account } = locals;
 	if (account !== undefined) {
 		// Parent data is fetched from the database using the current user's accountId
-		const parentData = await getParent(account.accountId, 'account');
-		if (parentData !== undefined) {
+		const parent = await getParent(account.accountId);
+		if (parent !== undefined) {
 			// Child data is fetched from the database using the current parentId
-			const children = await getChildren(parentData.parentId);
+			const children = await parent.getChildren();
 
 			// Data is returned so that it can be used as part of the HTML template
-			return { children };
+			return { children: children.map((child) => child.getData()) };
 		}
 		// No parent was found in the database with a matching parentId
 		// 500: Internal server error code
@@ -74,17 +74,26 @@ export const actions: Actions = {
 			});
 		}
 
-		// Writing the absence report to the database
-		const sessionsMarkedAsAbsent = await createAbsenceReport(
-			childId,
-			startDate,
-			endDate,
-			reason,
-			additionalInformation
-		);
+		const child = await getChild(childId);
 
-		// Data is returned so that it can be part of the HTML template
-		// The number of sessions that have been marked as absent is returned so that it can be displayed in the interface
-		return { success: true, sessionsMarkedAsAbsent };
+		if (child !== undefined) {
+			const sessionsMarkedAsAbsent = await child.createAbsenceReport(
+				startDate,
+				endDate,
+				reason,
+				additionalInformation
+			);
+
+			// Data is returned so that it can be part of the HTML template
+			// The number of sessions that have been marked as absent is returned so that it can be displayed in the interface
+			return { success: true, sessionsMarkedAsAbsent };
+		} else {
+			// The child specified by the user was not found in the database
+			// 404: Not found code
+			throw error(
+				404,
+				'The child that you have specified could not be found in the database, please ensure that you have selected a child'
+			);
+		}
 	}
 };
