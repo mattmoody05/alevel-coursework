@@ -290,6 +290,73 @@ export class RecurringSessionRequest {
 		this.childId = recurringSessionRequestData.childId;
 	}
 
+	async getChild(): Promise<Child | undefined> {
+		const db = await openDb();
+		const childData: ChildTable | undefined = await db.get(
+			'SELECT * FROM child WHERE childId = ?',
+			this.childId
+		);
+		if (childData !== undefined) {
+			return new Child(childData);
+		} else {
+			return undefined;
+		}
+	}
+
+	async sendConfirmationEmail(type: 'confirm-request' | 'approve' | 'decline' | 'cancel') {
+		const child = await this.getChild();
+		if (child !== undefined) {
+			const parent = await child.getParent();
+			if (parent !== undefined) {
+				if (type === 'confirm-request') {
+					parent.sendEmail({
+						subject: 'Recurring session request submitted',
+						htmlBody: `
+						Hi ${parent.firstName},
+						<br><br>
+						Your recurring session request has been submitted and will be reviewed by an admin soon.
+						<br><br>
+						Thank you	
+					`
+					});
+				} else if (type === 'approve') {
+					parent.sendEmail({
+						subject: 'Recurring session request approved',
+						htmlBody: `
+						Hi ${parent.firstName},
+						<br><br>
+						Your recurring session request has been approved by an admin and the sessions requested within it have been booked. Manage your recurring session <a href="http://localhost:5173/recurring-session/view">here</a>
+						<br><br>
+						Thank you	
+					`
+					});
+				} else if (type === 'decline') {
+					parent.sendEmail({
+						subject: 'Recurring session request submitted',
+						htmlBody: `
+						Hi ${parent.firstName},
+						<br><br>
+						Unfortunately your recurring session request has been declined by an admin. If you would like to request another click <a href="http://localhost:5173/recurring-session/request">here</a>
+						<br><br>
+						Thank you	
+					`
+					});
+				} else if (type === 'cancel') {
+					parent.sendEmail({
+						subject: 'Recurring session request submitted',
+						htmlBody: `
+						Hi ${parent.firstName},
+						<br><br>
+						Your recurring session has been successfully cancelled. If you would like to request another click <a href="http://localhost:5173/recurring-session/request">here</a>
+						<br><br>
+						Thank you	
+					`
+					});
+				}
+			}
+		}
+	}
+
 	getData(): RecurringSessionRequestTable {
 		return { ...this };
 	}

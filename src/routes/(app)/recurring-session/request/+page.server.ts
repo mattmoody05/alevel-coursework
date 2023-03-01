@@ -214,6 +214,11 @@ export const actions: Actions = {
 			// Creates the recurring session request in the database with the data input
 			await child.createRecurringSessionRequest(recurringBasis, dayDetails);
 
+			const recurringSessionRequest = await child.getRecurringSessionRequest();
+			if (recurringSessionRequest !== undefined) {
+				await recurringSessionRequest.sendConfirmationEmail('confirm-request');
+			}
+
 			// Returns data so that it can be used in the HTML template
 			return { success: true };
 		} else {
