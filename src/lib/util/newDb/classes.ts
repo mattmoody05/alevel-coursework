@@ -12,6 +12,7 @@ import type {
 	ShortNoticeNotifcationIssueTable,
 	ShortNoticeNotificationTable,
 	SurveyIssueTable,
+	SurveyQuestionOptionTable,
 	SurveyQuestionTable,
 	SurveyTable,
 	TimeOffPeriodTable,
@@ -803,6 +804,37 @@ export class SurveyIssue {
 	}
 
 	getData(): SurveyIssueTable {
+		return { ...this };
+	}
+}
+
+export class SurveyQuestionOption {
+	surveyQuestionOptionId: string;
+	prompt: string;
+	dateCreated: string;
+	surveyQuestionId: string;
+
+	constructor(surveyQuestionOptionData: SurveyQuestionOptionTable) {
+		this.surveyQuestionOptionId = surveyQuestionOptionData.surveyQuestionOptionId;
+		this.prompt = surveyQuestionOptionData.prompt;
+		this.dateCreated = surveyQuestionOptionData.dateCreated;
+		this.surveyQuestionId = surveyQuestionOptionData.surveyQuestionId;
+	}
+
+	async getSurveyQuestion(): Promise<SurveyQuestion | undefined> {
+		const db = await openDb();
+		const surveyQuestionData: SurveyQuestionTable | undefined = await db.get(
+			'SELECT * FROM surveyQuestion WHERE surveyQuestionId = ?',
+			this.surveyQuestionId
+		);
+		if (surveyQuestionData !== undefined) {
+			return new SurveyQuestion(surveyQuestionData);
+		} else {
+			return undefined;
+		}
+	}
+
+	getData() {
 		return { ...this };
 	}
 }
