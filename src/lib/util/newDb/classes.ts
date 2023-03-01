@@ -741,6 +741,34 @@ export class Survey {
 		return questions.map((question) => new SurveyQuestion(question));
 	}
 
+	async addQuestion(prompt: string): Promise<SurveyQuestion> {
+		const date = new Date();
+		const surveyQuestion = new SurveyQuestion({
+			dateCreated: date.toLocaleDateString('en-GB'),
+			prompt: prompt,
+			surveyId: this.surveyId,
+			surveyQuestionId: uuidv4()
+		});
+		const db = await openDb();
+		await db.run(
+			'INSERT INTO surveyQuestion VALUES (?, ?, ?, ?)',
+			surveyQuestion.surveyQuestionId,
+			surveyQuestion.prompt,
+			surveyQuestion.dateCreated,
+			surveyQuestion.surveyId
+		);
+
+		this.numberOfQuestions = this.numberOfQuestions + 1;
+
+		await db.run(
+			'UPDATE survey SET numberOfQuestions = ? WHERE surveyId = ?',
+			this.numberOfQuestions,
+			this.surveyId
+		);
+
+		return surveyQuestion;
+	}
+
 	getData(): SurveyTable {
 		return { ...this };
 	}
@@ -770,6 +798,27 @@ export class SurveyQuestion {
 		} else {
 			return undefined;
 		}
+	}
+
+	async addOption(prompt: string): Promise<SurveyQuestionOption> {
+		const date = new Date();
+		const surveyQuestionOption = new SurveyQuestionOption({
+			dateCreated: date.toLocaleDateString('en-GB'),
+			prompt: prompt,
+			surveyQuestionId: this.surveyQuestionId,
+			surveyQuestionOptionId: uuidv4()
+		});
+
+		const db = await openDb();
+		await db.run(
+			'INSERT INTO surveyQuestionOption VALUES (?, ?, ?, ?)',
+			surveyQuestionOption.surveyQuestionOptionId,
+			surveyQuestionOption.prompt,
+			surveyQuestionOption.dateCreated,
+			surveyQuestionOption.surveyQuestionId
+		);
+
+		return surveyQuestionOption;
 	}
 
 	getData(): SurveyQuestionTable {

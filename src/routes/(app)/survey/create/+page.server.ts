@@ -1,13 +1,11 @@
 import { error } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import { v4 as uuidv4 } from 'uuid';
-
-import type { expandedSurvey, expandedSurveyQuestion } from '$lib/util/types';
-import { writeSurvey } from '$lib/util/db';
+import { createSurvey } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin } = locals;
-	if (isAdmin) {
+	if (isAdmin === true) {
 		return;
 	}
 	throw error(400, 'Must be admin to create a survey');
@@ -34,20 +32,20 @@ export const actions: Actions = {
 		const date = new Date();
 		const currentDateString = date.toLocaleDateString('en-GB');
 
-		let survey: expandedSurvey = {
+		// new code
+
+		const newSurvey = await createSurvey({
+			anonymous: isAnonymous,
 			surveyId: uuidv4(),
 			title: title,
-			description: description,
 			consentForm: isConsentForm,
-			anonymous: isAnonymous,
 			dateCreated: currentDateString,
-			numberOfQuestions: 0,
-			questions: []
-		};
+			description: description,
+			numberOfQuestions: 0
+		});
 
-		let questions: expandedSurveyQuestion[] = [];
-
-		formEntries.forEach((entry) => {
+		for (let i = 0; i < formEntries.length; i++) {
+			const entry = formEntries[i];
 			if (entry.key.startsWith('question-')) {
 				const splitKey = entry.key.split('-');
 				const questionNumber = Number(splitKey[1]);
@@ -55,27 +53,18 @@ export const actions: Actions = {
 				const keyType = splitKey[2];
 				if (keyType === 'prompt') {
 					const questionPrompt = entry.data;
-					survey.questions.push({
-						surveyQuestionId: uuidv4(),
-						dateCreated: survey.dateCreated,
-						prompt: questionPrompt,
-						options: []
-					});
+
+					// very important that await is used here - the code below relies on the data already being in the database
+					await newSurvey.addQuestion(questionPrompt);
 				} else if (keyType === 'answer') {
 					const answerPrompt = entry.data;
-					survey.questions[questionNumber].options.push({
-						surveyQuestionOptionId: uuidv4(),
-						dateCreated: survey.dateCreated,
-						prompt: answerPrompt
-					});
+					const surveyQuestions = await newSurvey.getQuestions();
+
+					surveyQuestions[questionNumber].addOption(answerPrompt);
 				}
 			}
-		});
+		}
 
-		survey.numberOfQuestions = survey.questions.length;
-
-		await writeSurvey(survey);
-
-		return { success: true, surveyData: survey };
+		return { success: true, surveyData: newSurvey.getData() };
 	}
 };

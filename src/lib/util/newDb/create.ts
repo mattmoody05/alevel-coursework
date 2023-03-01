@@ -1,6 +1,6 @@
 import { openDb } from '../../../db';
-import { Account, Invoice, Parent, Session } from './classes';
-import type { AccountTable, InvoiceTable, ParentTable, SessionTable } from './tables';
+import { Account, Invoice, Parent, Session, Survey } from './classes';
+import type { AccountTable, InvoiceTable, ParentTable, SessionTable, SurveyTable } from './tables';
 
 export async function createParent(parentData: ParentTable): Promise<Parent> {
 	const parent = new Parent(parentData);
@@ -87,4 +87,22 @@ export async function createInvoice(invoiceData: InvoiceTable): Promise<Invoice>
 	);
 
 	return invoice;
+}
+
+export async function createSurvey(surveyData: SurveyTable): Promise<Survey> {
+	const survey = new Survey(surveyData);
+
+	const db = await openDb();
+	await db.run(
+		'INSERT INTO survey VALUES (?, ?, ?, ?, ?, ?, ?)',
+		surveyData.surveyId,
+		surveyData.title,
+		surveyData.description,
+		surveyData.consentForm,
+		surveyData.anonymous,
+		surveyData.numberOfQuestions,
+		surveyData.dateCreated
+	);
+
+	return survey;
 }
