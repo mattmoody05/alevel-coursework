@@ -1,19 +1,7 @@
-import { getAccount, getAdmin, Parent } from '$lib/util/newDb';
-import { invalid } from '@sveltejs/kit';
-import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
-import jwt, { type JwtPayload } from 'jsonwebtoken';
+import { getAdmin, Parent } from '$lib/util/newDb';
+import type { Actions, RequestEvent } from './$types';
+import jwt from 'jsonwebtoken';
 import { JWT_SIGNING_SECRET_KEY } from '$env/static/private';
-import { doubleKeyCheck } from '$lib/util/validation';
-
-export const load: PageServerLoad = async ({ url }: PageServerLoadEvent) => {
-	if (url.searchParams.has('token')) {
-		const token = url.searchParams.get('token') as string;
-
-		return { tokenSupplied: true, tokenValid: true, token: token };
-	} else {
-		return { tokenSupplied: false, tokenValid: false };
-	}
-};
 
 export const actions: Actions = {
 	requestReset: async ({ request }: RequestEvent) => {
@@ -48,7 +36,7 @@ export const actions: Actions = {
 <br><br>
 			Thank you for requesting a password reset. In order to reset your password, please click on the link below.
 			<br><br>
-			<a href="https://localhost:5173/forgot-password?token=${token}">Reset password</a>
+			<a href="http://localhost:5173/forgot-password/${token}">Reset password</a>
 			<br><br>
 			Thank you
 			`
@@ -56,33 +44,5 @@ export const actions: Actions = {
 		}
 
 		return { success: true };
-	},
-	resetWithToken: async ({ request }) => {
-		const data = await request.formData();
-		const token = data.get('token') as string;
-		const password = data.get('password') as string;
-		const confirmPassword = data.get('confirmPassword') as string;
-
-		if (doubleKeyCheck(password, confirmPassword) === false) {
-			return invalid(400, {
-				message: 'The passwords that you have entered do not match, please ensure that they match'
-			});
-		}
-
-		const decoded = jwt.verify(token, JWT_SIGNING_SECRET_KEY) as
-			| {
-					accountId: string;
-					emailAddress: string;
-			  }
-			| undefined;
-
-		if (decoded !== undefined) {
-			const account = await getAccount(decoded.accountId);
-
-			if (account !== undefined) {
-				await account.updatePassword(password);
-				return { success: true };
-			}
-		}
 	}
 };
