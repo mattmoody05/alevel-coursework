@@ -224,7 +224,10 @@ export const actions: Actions = {
 		} else {
 			// The child specified by the user was not found in the database
 			// 404: Not found code
-			throw error(404, 'The child that you have specified could not be found in thw ');
+			throw error(
+				404,
+				'The child that you have specified could not be found in the database, please ensure that you have selected a child'
+			);
 		}
 	}
 };
