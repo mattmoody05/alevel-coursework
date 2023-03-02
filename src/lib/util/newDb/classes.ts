@@ -214,6 +214,62 @@ export class Session {
 			}
 		}
 	}
+
+	async setDate(date: string) {
+		this.date = date;
+		const db = await openDb();
+		await db.run('UPDATE session SET date = ? WHERE sessionId = ?', date, this.sessionId);
+	}
+
+	async setStartTime(startTime: string) {
+		this.startTime = startTime;
+		const db = await openDb();
+		await db.run('UPDATE session SET startTime = ? WHERE sessionId = ?', startTime, this.sessionId);
+	}
+
+	async setLength(length: number) {
+		this.length = length;
+		const db = await openDb();
+		await db.run('UPDATE session SET length = ? WHERE sessionId = ?', length, this.sessionId);
+	}
+
+	async sendEditEmail() {
+		const child = await this.getChild();
+		if (child !== undefined) {
+			const parent = await child.getParent();
+			if (parent !== undefined) {
+				const mailer = parent.getMailer();
+
+				mailer.sendEmail({
+					subject: 'Session edit confirmation',
+					htmlBody: `
+						Hi ${parent.firstName}!
+						<br> <br>
+						This email is a confirmation that you have edited an existing session, and the new details are below. 
+						<br> <br>
+						<b>Date:</b> ${this.date}
+						<br>
+						<b>Start time:</b> ${this.startTime}
+						<br>
+						<b>Length:</b> ${this.length / 60} hours
+						<br>
+						<b>Child:</b> ${child.firstName}
+						<br> <br>
+						If these details look wrong, modify your session <a href="http://localhost:5173/session/view/${
+							this.sessionId
+						}">here.</a>
+						<br>
+						Thank you
+					`
+				});
+			}
+		}
+	}
+
+	async deleteFromDatabase() {
+		const db = await openDb();
+		await db.run('DELETE FROM session WHERE sessionId = ?', this.sessionId);
+	}
 }
 
 export class Expense {

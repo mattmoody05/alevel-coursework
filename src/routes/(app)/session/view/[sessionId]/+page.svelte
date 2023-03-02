@@ -26,7 +26,11 @@
 	</div>
 	<Textbox name="date" value={data.sessionData.date} labelText="Date" />
 	<Textbox name="startTime" value={data.sessionData.startTime} labelText="Start time" />
-	<NumericUpDown name="length" value={data.sessionData.length / 60} labelText="Session length" />
+	<NumericUpDown
+		name="length"
+		value={String(data.sessionData.length / 60)}
+		labelText="Session length"
+	/>
 	<Button style="submit">Update session</Button>
 </form>
 <form method="POST" action="?/cancelSession">
