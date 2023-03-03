@@ -360,6 +360,74 @@ export class RecurringSessionRequest {
 		}
 	}
 
+	async approve() {
+		const db = await openDb();
+		await db.run(
+			'UPDATE recurringSessionRequest SET approved = ? WHERE childId = ?',
+			true,
+			this.childId
+		);
+
+		type days = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday';
+		const weekday: days[] = [
+			'sunday',
+			'monday',
+			'tuesday',
+			'wednesday',
+			'thursday',
+			'friday',
+			'saturday'
+		];
+		const startDate = new Date();
+		const endDate = getDateFromLocaleString(RECURRING_BOOKING_EXPIRY);
+		let currentDate = startDate;
+		do {
+			const currentDay = weekday[currentDate.getDay()];
+			if (currentDay !== 'saturday' && currentDay !== 'sunday') {
+				// coming up as 1 or 0 instead of true or false, use strict equality when fixed
+				if (this[`${currentDay}Selected`] == true) {
+					const startTime = this[`${currentDay}StartTime`] as string;
+					const endTime = this[`${currentDay}EndTime`] as string;
+					const length = differenceBetweenTimes(startTime, endTime);
+
+					await db.run(
+						'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+						uuidv4(),
+						currentDate.toLocaleDateString('en-GB'),
+						startTime,
+						length,
+						new Date().toLocaleDateString('en-GB'),
+						false,
+						false,
+						null,
+						null,
+						false,
+						true,
+						this.childId,
+						null
+					);
+				}
+			}
+			// Increment day by 1
+			currentDate = new Date(currentDate.getTime() + 86400000);
+		} while (currentDate <= endDate);
+
+		await this.sendConfirmationEmail('approve');
+	}
+
+	async decline() {
+		await this.deleteFromDatabase();
+		await this.sendConfirmationEmail('decline');
+	}
+
+	async deleteFromDatabase() {
+		const db = await openDb();
+		await db.run(
+			'DELETE FROM recurringSessionRequest WHERE recurringSessionId = ?',
+			this.recurringSessionId
+		);
+	}
+
 	async sendConfirmationEmail(type: 'confirm-request' | 'approve' | 'decline' | 'cancel') {
 		const child = await this.getChild();
 		if (child !== undefined) {
