@@ -54,7 +54,7 @@
 {/if}
 
 <h3 class="font-bold text-xl">Issue survey</h3>
-<form method="POST" class="flex flex-col gap-2 mt-2">
+<form action="?/issue" method="POST" class="flex flex-col gap-2 mt-2">
 	<Listbox name="surveyId" labelText="Select survey">
 		{#each data.surveyData as survey}
 			<option value={survey.surveyId}>{survey.title}</option>

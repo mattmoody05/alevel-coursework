@@ -1,46 +1,55 @@
-import { getAllParents, getAllSurveys, issueSurvey } from '$lib/util/db';
 import { error } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
-import type { parent } from '$lib/util/types';
+import { getAdmin, getSurvey, type ParentTable } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin } = locals;
-	if (isAdmin) {
-		const allSurveys = await getAllSurveys();
-		if (allSurveys !== undefined) {
-			const allParents = await getAllParents();
-			if (allParents !== undefined) {
-				return { parentData: allParents, surveyData: allSurveys };
-			}
-			throw error(500, 'all parents undefined');
-		}
-		throw error(500, 'all surveys undefined');
+	if (isAdmin === true) {
+		const admin = getAdmin();
+		const surveys = await admin.getSurveys();
+		const parents = await admin.getParents();
+		return {
+			parentData: parents.map((parent) => parent.getData()),
+			surveyData: surveys.map((survey) => survey.getData())
+		};
+	} else {
+		throw error(
+			403,
+			'You must be an admin to issue surveys, please ensure that you are using an admin account. '
+		);
 	}
-	throw error(400, 'must be admin');
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	// Handles the user submitting the form to issue a survey
+	issue: async ({ request }) => {
 		const data = await request.formData();
 		const isAllParents = (data.get('allParents') as string) === 'on';
 		const surveyId = data.get('surveyId') as string;
-		if (isAllParents === true) {
-			const allParents = await getAllParents();
-			if (allParents !== undefined) {
-				for (let i = 0; i < allParents.length; i++) {
-					const currentParent = allParents[i];
-					await issueSurvey(surveyId, currentParent.parentId);
-				}
-				return { success: true };
+
+		const survey = await getSurvey(surveyId);
+		if (survey !== undefined) {
+			let parentIdToIssue: string[] = [];
+
+			if (isAllParents === true) {
+				const admin = getAdmin();
+				const parents = await admin.getParents();
+				parentIdToIssue = parents.map((parent) => parent.parentId);
+			} else {
+				const selectedParents: ParentTable[] = JSON.parse(data.get('selectedParents') as string);
+				parentIdToIssue = selectedParents.map((parent) => parent.parentId);
 			}
-			throw error(500, 'all parents undefined');
-		} else {
-			const selectedParents: parent[] = JSON.parse(data.get('selectedParents') as string);
-			for (let i = 0; i < selectedParents.length; i++) {
-				const currentParent = selectedParents[i];
-				await issueSurvey(surveyId, currentParent.parentId);
+
+			for (let i = 0; i < parentIdToIssue.length; i++) {
+				const currentParentId = parentIdToIssue[i];
+				await survey.issue(currentParentId);
 			}
 			return { success: true };
+		} else {
+			throw error(
+				404,
+				'The survey that you have specified cannot be found in the database, please ensure that you have selected a survey. '
+			);
 		}
 	}
 };

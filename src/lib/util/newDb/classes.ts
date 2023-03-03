@@ -897,6 +897,19 @@ export class Survey {
 		this.dateCreated = surveyData.dateCreated;
 	}
 
+	async issue(parentId: string) {
+		const date = new Date();
+
+		const db = await openDb();
+		await db.run(
+			'INSERT INTO surveyIssue VALUES (?, ?, ?, ?)',
+			uuidv4(),
+			date.toLocaleDateString('en-GB'),
+			this.surveyId,
+			parentId
+		);
+	}
+
 	async getQuestions(): Promise<SurveyQuestion[]> {
 		const db = await openDb();
 		const questions: SurveyQuestion[] = await db.all(
