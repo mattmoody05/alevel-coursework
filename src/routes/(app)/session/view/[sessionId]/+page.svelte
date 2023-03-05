@@ -1,16 +1,35 @@
 <script lang="ts">
+	import { SmallAlert } from '$lib/components/alert';
 	import { Button } from '$lib/components/button';
 
 	import { NumericUpDown, Textbox } from '$lib/components/input';
 	import { stringToColour } from '$lib/util/ui';
-	import type { PageData } from './$types';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import type { PageData, ActionData } from './$types';
 
 	export let data: PageData;
+	export let form: ActionData;
+
+	onMount(() => {
+		if (form?.message !== undefined) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.message = undefined;
+			}, 10000);
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>View session</title>
 </svelte:head>
+
+{#if form?.message !== undefined}
+	<div transition:fade>
+		<SmallAlert body={form?.message} title="Validation error" style="error" />
+	</div>
+{/if}
 
 <h3 class="font-bold text-xl">View session details</h3>
 <form class="flex flex-col gap-2 my-2" method="POST" action="?/updateSession">

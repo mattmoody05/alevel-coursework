@@ -1,5 +1,6 @@
 import { getSession } from '$lib/util/newDb';
-import { error, redirect } from '@sveltejs/kit';
+import { presenceCheck, validateDate, validateTime } from '$lib/util/validation';
+import { error, invalid, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 
 export const load: PageServerLoad = async ({ params }: PageServerLoadEvent) => {
@@ -36,6 +37,38 @@ export const actions: Actions = {
 			const date = data.get('date') as string;
 			const startTime = data.get('startTime') as string;
 			const length = Number(data.get('length') as string) * 60;
+
+			if (validateTime(startTime) === false) {
+				return invalid(400, {
+					message:
+						'The time that you have input is not valid - please ensure that the time specified follows the format HH:MM',
+					data: {
+						startTime,
+						date,
+						length
+					}
+				});
+			} else if (validateDate(date) === false) {
+				return invalid(400, {
+					message:
+						'The date that you have input is not valid - please ensure that the date specified follows the format DD/MM/YYYY',
+					data: {
+						startTime,
+						date,
+						length
+					}
+				});
+			} else if (length < 1 || length > 570) {
+				return invalid(400, {
+					message:
+						'The length of session that you have input is not valid - please ensure that between 0 and 9.5 hours',
+					data: {
+						startTime,
+						date,
+						length
+					}
+				});
+			}
 
 			if (session !== undefined) {
 				await session.setDate(date);
