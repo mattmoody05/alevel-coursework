@@ -141,7 +141,7 @@
 							{#each option.responses as response}
 								{#if response.parent.parentId === selectedParentId}
 									{option.prompt}
-								{/if}.
+								{/if}
 							{/each}
 						{/each}
 					</div>

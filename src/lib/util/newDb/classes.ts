@@ -189,9 +189,7 @@ export class Session {
 		if (child !== undefined) {
 			const parent = await child.getParent();
 			if (parent !== undefined) {
-				const mailer = parent.getMailer();
-
-				mailer.sendEmail({
+				parent.sendEmail({
 					subject: 'Session booking confirmation',
 					htmlBody: `
 						Hi ${parent.firstName}!
@@ -209,6 +207,35 @@ export class Session {
 						If these details look wrong, modify your session <a href="http://localhost:5173/session/view/${
 							this.sessionId
 						}">here.</a>
+						<br>
+						Thank you
+					`
+				});
+			}
+		}
+	}
+
+	async sendDeletionEmail() {
+		const child = await this.getChild();
+		if (child !== undefined) {
+			const parent = await child.getParent();
+			if (parent !== undefined) {
+				parent.sendEmail({
+					subject: 'Session deletion notice ',
+					htmlBody: `
+						Hi ${parent.firstName}!
+						<br> <br>
+						This email is to say that the session with the following details has been deleted. 
+						<br> <br>
+						<b>Date:</b> ${this.date}
+						<br>
+						<b>Start time:</b> ${this.startTime}
+						<br>
+						<b>Length:</b> ${this.length / 60} hours
+						<br>
+						<b>Child:</b> ${child.firstName}
+						<br> <br>
+						This may be because of a time off period, if so you will have already had an email saying that one has been booked. 
 						<br>
 						Thank you
 					`

@@ -24,7 +24,7 @@ import { openDb } from '../../db/index';
 import { v4 as uuidv4 } from 'uuid';
 import { HOURLY_RATE, RECURRING_BOOKING_EXPIRY } from '$env/static/private';
 import { getDateFromLocaleString } from './date';
-import type { InvoiceTable } from './newDb';
+import { Session, type InvoiceTable } from './newDb';
 
 export async function getParent(
 	id: string,
@@ -1164,11 +1164,13 @@ export async function createTimeOffPeriod(
 		const formattedEndDate = getDateFromLocaleString(endDate);
 		let currentDate = formattedStartDate;
 		do {
-			const sessions = await getSessionsOnDate(currentDate.toLocaleDateString('en-GB'));
-
+			const sessionData = await getSessionsOnDate(currentDate.toLocaleDateString('en-GB'));
+			const sessions = sessionData.map((session) => new Session(session));
 			for (let i = 0; i < sessions.length; i++) {
 				const currentSession = sessions[i];
-				await deleteSession(currentSession.sessionId);
+
+				await currentSession.sendDeletionEmail();
+				await currentSession.deleteFromDatabase();
 			}
 
 			// Increment day by 1
