@@ -61,11 +61,8 @@
 	</div>
 	<div />
 	<form action="?/updatePaymentStatus" class="flex flex-col gap-2" method="POST">
-		<Listbox
-			name="paymentStatus"
-			labelText="Payment status"
-			bind:value={data.invoiceData.paymentStatus}
-		>
+		<Listbox name="paymentStatus" labelText="Status" bind:value={data.invoiceData.paymentStatus}>
+			<option value="Viewed">Viewed</option>
 			<option value="Unpaid">Unpaid</option>
 			<option value="Paid">Paid</option>
 			{#if data.isAdmin === true}

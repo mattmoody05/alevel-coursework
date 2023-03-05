@@ -21,7 +21,7 @@
 	<span class="hidden lg:block">Date issued</span>
 	<span class="hidden lg:block">Payable</span>
 	<span class="">Date due</span>
-	<span>Payment status</span>
+	<span>Status</span>
 </div>
 {#each data.invoices as invoice}
 	<InvoiceSummary

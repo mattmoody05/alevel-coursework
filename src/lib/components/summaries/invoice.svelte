@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { stringToColour } from '$lib/util/ui';
 
-	type invoicePaymentStatus = 'Unpaid' | 'Paid' | 'Confirmed paid';
-
 	export let invoiceId: string;
 	export let childName: string;
 	export let dateIssued: string;
@@ -25,6 +23,8 @@
 			<div class="px-2 py-1 bg-amber-500 text-white rounded-lg max-w-max">Paid</div>
 		{:else if status === 'Confirmed paid'}
 			<div class="px-2 py-1 bg-green-500 text-white rounded-lg max-w-max">Confirmed paid</div>
+		{:else if status === 'Viewed'}
+			<div class="px-2 py-1 bg-blue-500 text-white rounded-lg max-w-max">Viewed</div>
 		{/if}
 
 		<div class="hidden lg:flex justify-end">
