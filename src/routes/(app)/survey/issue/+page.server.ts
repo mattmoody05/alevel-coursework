@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 import { getAdmin, getSurvey, type ParentTable } from '$lib/util/newDb';
 
@@ -37,6 +37,12 @@ export const actions: Actions = {
 				parentIdToIssue = parents.map((parent) => parent.parentId);
 			} else {
 				const selectedParents: ParentTable[] = JSON.parse(data.get('selectedParents') as string);
+				if (selectedParents.length < 1) {
+					return invalid(400, {
+						message: 'You must select at least 1 parent to issue the survey to. '
+					});
+				}
+
 				parentIdToIssue = selectedParents.map((parent) => parent.parentId);
 			}
 

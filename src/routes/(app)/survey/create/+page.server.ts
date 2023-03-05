@@ -1,7 +1,8 @@
-import { error } from '@sveltejs/kit';
+import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import { v4 as uuidv4 } from 'uuid';
 import { createSurvey } from '$lib/util/newDb';
+import { presenceCheck } from '$lib/util/validation';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin } = locals;
@@ -28,6 +29,12 @@ export const actions: Actions = {
 		const description = data.get('description') as string;
 		const isConsentForm = (data.get('consentForm') as string) === 'on';
 		const isAnonymous = (data.get('anonymous') as string) === 'on';
+
+		if (presenceCheck(title) === false) {
+			return invalid(400, {
+				message: 'You must input a survey title, this field cannot be left blank'
+			});
+		}
 
 		const date = new Date();
 		const currentDateString = date.toLocaleDateString('en-GB');
