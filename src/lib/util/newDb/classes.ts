@@ -33,7 +33,7 @@ import { differenceBetweenTimes } from '$lib/util/date';
 import { getSessionsOnDate } from '../db';
 import bcrypt from 'bcrypt';
 import { createSession } from './create';
-import { getAdmin } from './get';
+import { getAdmin, getParent } from './get';
 
 export class Admin {
 	async getChildren(): Promise<Child[]> {
@@ -1120,6 +1120,32 @@ export class ShortNoticeNotification {
 		this.notificationId = shortNoticeNotificationData.notificationId;
 		this.message = shortNoticeNotificationData.message;
 		this.dateCreated = shortNoticeNotificationData.dateCreated;
+	}
+
+	async sendConfirmationEmail() {
+		const db = await openDb();
+		const issues: ShortNoticeNotifcationIssueTable[] = await db.all(
+			'SELECT * FROM shortNoticeNotificationIssue WHERE notificationId = ?',
+			this.notificationId
+		);
+
+		for (let i = 0; i < issues.length; i++) {
+			const currentIssue = issues[i];
+			const currentParent = await getParent(currentIssue.parentId);
+			if (currentParent !== undefined) {
+				await currentParent.sendEmail({
+					subject: 'New short notice notification issued. ',
+					htmlBody: `Hi ${currentParent.firstName}
+					<br><br>
+					You have been issued a new short notice notification. It is listed below and is also accessible via the dashboard. 
+					<br><br>
+					<i>${this.message}</i>
+					<br><br>
+					Thank you
+					`
+				});
+			}
+		}
 	}
 
 	getData(): ShortNoticeNotificationTable {

@@ -1,5 +1,5 @@
 import { issueShortNoticeNotification, writeShortNoticeNoitification } from '$lib/util/db';
-import { getAdmin, type ParentTable } from '$lib/util/newDb';
+import { getAdmin, ShortNoticeNotification, type ParentTable } from '$lib/util/newDb';
 import { presenceCheck } from '$lib/util/validation';
 import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
@@ -69,6 +69,10 @@ export const actions: Actions = {
 
 			// Creates and writes the notification data to the database
 			const notification = await writeShortNoticeNoitification(message);
+
+			const shortNoticeNotification = new ShortNoticeNotification(notification);
+
+			await shortNoticeNotification.sendConfirmationEmail();
 
 			// Issues the notification that has been created and written to the parents that have been specified
 			await issueShortNoticeNotification(notification.notificationId, allParents, selectedParents);
