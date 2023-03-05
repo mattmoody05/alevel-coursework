@@ -1,11 +1,14 @@
 <script lang="ts">
+	import { SmallAlert } from '$lib/components/alert';
 	import { Button } from '$lib/components/button';
 	import { Listbox } from '$lib/components/input';
 	import type { LowercaseDay } from '$lib/util/types';
 	import { capitaliseFirst } from '$lib/util/ui';
-	import type { PageData } from './$types';
+	import { fade } from 'svelte/transition';
+	import type { ActionData, PageData } from './$types';
 
 	export let data: PageData;
+	export let form: ActionData;
 
 	const dayList: LowercaseDay[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
@@ -29,6 +32,18 @@
 <svelte:head>
 	<title>View recurring session</title>
 </svelte:head>
+
+{#if form?.success === true}
+	<div transition:fade>
+		<SmallAlert style="success" body="" title="Success" />
+	</div>
+{:else}
+	<SmallAlert
+		style="error"
+		title="Error"
+		body="Clashing sessions so request could not be approved"
+	/>
+{/if}
 
 <h3 class="font-bold text-xl">View recurring session</h3>
 <form method="POST" class="flex flex-col gap-2 mt-2">

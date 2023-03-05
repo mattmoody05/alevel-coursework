@@ -42,6 +42,7 @@ export const actions: Actions = {
 				await session.setStartTime(startTime);
 				await session.setLength(length);
 				await session.sendEditEmail();
+				throw redirect(302, '/session/view?redirect-from=update-session');
 			} else {
 				throw error(
 					400,

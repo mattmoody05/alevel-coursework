@@ -21,7 +21,7 @@ import type {
 import { v4 as uuidv4 } from 'uuid';
 import { getDateFromLocaleString } from '../date';
 import { Mailer } from '../email';
-import type { RecurringSessionDayDetails } from '../types';
+import type { LowercaseDay, LowercaseDaysWithWeekend, RecurringSessionDayDetails } from '../types';
 import {
 	CHILDCARE_LIMIT_UNDER_EIGHTEEN_MONTHS,
 	CHILDCARE_LIMIT_UNDER_EIGHT_YEARS,
@@ -32,6 +32,7 @@ import {
 import { differenceBetweenTimes } from '$lib/util/date';
 import { getSessionsOnDate } from '../db';
 import bcrypt from 'bcrypt';
+import { createSession } from './create';
 
 export class Admin {
 	async getChildren(): Promise<Child[]> {
@@ -650,20 +651,14 @@ export class Child {
 		await db.run('DELETE FROM session WHERE childId = ? and isRecurring = ?', this.childId, true);
 	}
 
-	async createRecurringSession() {
+	async createRecurringSession(): Promise<
+		{ success: true } | { success: false; clashes: Session[] } | undefined
+	> {
 		const db = await openDb();
 
 		const request = await this.getRecurringSessionRequest();
 		if (request !== undefined) {
-			type days =
-				| 'sunday'
-				| 'monday'
-				| 'tuesday'
-				| 'wednesday'
-				| 'thursday'
-				| 'friday'
-				| 'saturday';
-			const weekday: days[] = [
+			const weekday: LowercaseDaysWithWeekend[] = [
 				'sunday',
 				'monday',
 				'tuesday',
@@ -675,6 +670,8 @@ export class Child {
 			const startDate = new Date();
 			const endDate = getDateFromLocaleString(RECURRING_BOOKING_EXPIRY);
 			let currentDate = startDate;
+			let allowedSessions: Session[] = [];
+			let clashingSessions: Session[] = [];
 			do {
 				const currentDay = weekday[currentDate.getDay()];
 				if (currentDay !== 'saturday' && currentDay !== 'sunday') {
@@ -684,27 +681,48 @@ export class Child {
 						const endTime = request[`${currentDay}EndTime`] as string;
 						const length = differenceBetweenTimes(startTime, endTime);
 
-						await db.run(
-							'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-							uuidv4(),
-							currentDate.toLocaleDateString('en-GB'),
-							startTime,
-							length,
-							new Date().toLocaleDateString('en-GB'),
-							false,
-							false,
-							null,
-							null,
-							false,
-							true,
-							this.childId,
-							null
-						);
+						const session = new Session({
+							sessionId: uuidv4(),
+							date: currentDate.toLocaleDateString('en-GB'),
+							startTime: startTime,
+							length: length,
+							dateBooked: new Date().toLocaleDateString('en-GB'),
+							absent: false,
+							absenceCharge: false,
+							absenceKeepSession: false,
+							isRecurring: true,
+							childId: this.childId
+						});
+
+						const availabilityChecker = new AvailabilityChecker(session);
+
+						const sessionAllowed =
+							(await availabilityChecker.checkChildcareLimits()) &&
+							(await availabilityChecker.checkTimeOffPeriods());
+
+						if (sessionAllowed === true) {
+							allowedSessions = [...allowedSessions, session];
+						} else {
+							clashingSessions = [...clashingSessions, session];
+						}
 					}
 				}
 				// Increment day by 1
 				currentDate = new Date(currentDate.getTime() + 86400000);
 			} while (currentDate <= endDate);
+
+			if (clashingSessions.length > 0) {
+				// sessions have clashed
+				return { success: false, clashes: clashingSessions };
+			} else {
+				for (let i = 0; i < allowedSessions.length; i++) {
+					const currentSession = allowedSessions[i];
+					await createSession(currentSession.getData());
+				}
+
+				// all sessions are okay
+				return { success: true };
+			}
 		}
 	}
 
@@ -1393,6 +1411,7 @@ export class AvailabilityChecker {
 		const newChild = await this.session.getChild();
 		if (newChild !== undefined) {
 			const age = newChild.getAge();
+			console.log(age);
 			if (age < 12) {
 				underTwelveYears = underTwelveYears + 1;
 				if (age < 8) {

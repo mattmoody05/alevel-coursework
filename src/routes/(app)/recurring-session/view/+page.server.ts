@@ -90,7 +90,7 @@ export const actions: Actions = {
 			await child.deleteRecurringSessionRequest();
 
 			// Returns data so that it can be used in the HTML template
-			return { success: true };
+			return { success: true, action: 'parentCancel' };
 		} else {
 			// No child was found in the database
 			// 404: Not found code
@@ -114,14 +114,32 @@ export const actions: Actions = {
 			const child = await getChild(childId);
 
 			if (child !== undefined) {
+				const request = await child.getRecurringSessionRequest();
+
+				if (request !== undefined) {
+					await request.sendConfirmationEmail('approve');
+				} else {
+					throw error(404, 'A recurring session for the child could not be found. ');
+				}
+
 				// Sets the recurring session request's status field
 				await child.setRecurringSessionRequestStatus(true);
 
 				// Creates the sessions specified in the recurring session request
-				await child.createRecurringSession();
-
-				// Returns data so that it can be used in the HTML template
-				return { success: true };
+				const recurringSessionBookingStatus = await child.createRecurringSession();
+				if (recurringSessionBookingStatus === undefined) {
+					throw error(500, 'there was an issue when booking the recurring session');
+				} else if (recurringSessionBookingStatus.success === true) {
+					return { success: true, action: 'adminApprove' };
+				} else if (recurringSessionBookingStatus.success === false) {
+					return {
+						action: 'adminApprove',
+						success: false,
+						clashingSession: recurringSessionBookingStatus.clashes.map((session) =>
+							session.getData()
+						)
+					};
+				}
 			} else {
 				// No child was found in the database
 				// 404: Not found code
@@ -153,6 +171,14 @@ export const actions: Actions = {
 			const child = await getChild(childId);
 
 			if (child !== undefined) {
+				const request = await child.getRecurringSessionRequest();
+
+				if (request !== undefined) {
+					await request.sendConfirmationEmail('decline');
+				} else {
+					throw error(404, 'A recurring session for the child could not be found. ');
+				}
+
 				// Sets the recurring session request's status field
 				await child.setRecurringSessionRequestStatus(false);
 
@@ -160,7 +186,7 @@ export const actions: Actions = {
 				await child.deleteRecurringSessionRequest();
 
 				// Returns data so that it can be used in the HTML template
-				return { success: true };
+				return { success: true, action: 'adminDecline' };
 			} else {
 				// No child was found in the database
 				// 404: Not found code
