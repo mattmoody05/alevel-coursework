@@ -21,7 +21,7 @@ import type {
 import { v4 as uuidv4 } from 'uuid';
 import { getDateFromLocaleString } from '../date';
 import { Mailer } from '../email';
-import type { LowercaseDay, LowercaseDaysWithWeekend, RecurringSessionDayDetails } from '../types';
+import type { LowercaseDaysWithWeekend, RecurringSessionDayDetails } from '../types';
 import {
 	CHILDCARE_LIMIT_UNDER_EIGHTEEN_MONTHS,
 	CHILDCARE_LIMIT_UNDER_EIGHT_YEARS,
