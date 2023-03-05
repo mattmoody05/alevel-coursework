@@ -1,15 +1,34 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
 	import { Button } from '$lib/components/button';
 	import { Checkbox } from '$lib/components/checkbox';
 	import { Listbox, Textbox } from '$lib/components/input';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import { SmallAlert } from '$lib/components/alert';
 
 	export let data: PageData;
+	export let form: ActionData;
+
+	onMount(() => {
+		if (form?.message !== undefined) {
+			setTimeout(() => {
+				// @ts-ignore
+				form.message = undefined;
+			}, 10000);
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>View expense report</title>
 </svelte:head>
+
+{#if form?.message !== undefined}
+	<div transition:fade>
+		<SmallAlert body={form?.message} title="Validation error" style="error" />
+	</div>
+{/if}
 
 <h3 class="font-bold text-xl">View expense report</h3>
 
