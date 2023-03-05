@@ -34,7 +34,7 @@
 	</div>
 	<div class="mt-4">
 		<span>Sessions</span>
-		<div class="flex flex-col gap-2 mt-1">
+		<div class="flex flex-col-reverse gap-2 mt-1">
 			{#each visibleRecentSessions as session}
 				<div class="grid grid-cols-3 text-sm items-center">
 					<div

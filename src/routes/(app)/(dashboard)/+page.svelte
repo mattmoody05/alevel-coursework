@@ -8,7 +8,7 @@
 		UrgentNotificationCard
 	} from '$lib/components/dashboard/cards';
 	import { getDateFromLocaleString } from '$lib/util/date';
-	import type { invoiceSummary, session } from '$lib/util/types';
+	import type { SessionTable } from '$lib/util/newDb';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -20,17 +20,63 @@
 		return children[0].firstName;
 	}
 
-	for (let index = 0; index < data.sessions.length; index++) {
-		const currentSession: session = data.sessions[index];
-		recentSessions = [
-			...recentSessions,
-			{
-				childName: getChildName(currentSession.childId),
-				date: currentSession.date,
-				time: currentSession.startTime
+	function quickSortSessions(arr: SessionTable[]): SessionTable[] {
+		if (arr.length <= 1) {
+			return arr; // Base case: an array of length 1 is already sorted
+		}
+
+		function getDateInt(session: SessionTable) {
+			return getDateFromLocaleString(session.date).getTime();
+		}
+
+		// Choose a pivot element
+		const pivotIndex = Math.floor(arr.length / 2);
+		const pivot = arr[pivotIndex];
+
+		// Partition the array around the pivot
+		let less: SessionTable[] = [];
+		let greater: SessionTable[] = [];
+		for (let i = 0; i < arr.length; i++) {
+			if (i === pivotIndex) {
+				continue; // Skip the pivot element
 			}
-		];
+			if (getDateInt(arr[i]) < getDateInt(pivot)) {
+				less = [...less, arr[i]];
+			} else {
+				greater = [...greater, arr[i]];
+			}
+		}
+
+		// Recursively sort the two partitions
+		const sortedLess = quickSortSessions(less);
+		const sortedGreater = quickSortSessions(greater);
+
+		// Combine the sorted partitions with the pivot element
+		return [...sortedLess, pivot, ...sortedGreater];
 	}
+
+	data.sessions = quickSortSessions(data.sessions);
+
+	// gets all the sessions in the next 7 days
+	for (let index = 0; index < data.sessions.length; index++) {
+		const currentSession: SessionTable = data.sessions[index];
+		let currentDate = new Date();
+		for (let i = 0; i < 7; i++) {
+			if (currentSession.date === currentDate.toLocaleDateString('en-GB')) {
+				recentSessions = [
+					...recentSessions,
+					{
+						childName: getChildName(currentSession.childId),
+						date: currentSession.date,
+						time: currentSession.startTime
+					}
+				];
+			}
+			currentDate = new Date(currentDate.getTime() + 86400000);
+		}
+	}
+
+	console.log(recentSessions);
 
 	let thisWeekNotifications = 0;
 	for (let index = 0; index < data.notifications.length; index++) {
