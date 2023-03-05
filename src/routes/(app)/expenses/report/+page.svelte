@@ -51,8 +51,11 @@
 		<option value="Food">Food</option>
 		<option value="Activity">Activity</option>
 	</Listbox>
-	<!-- File upload is currently not functional -->
-	<Textbox labelText="Supporting docs" name="supportingDocsPath" />
+	<Textbox
+		labelText="Supporting docs"
+		name="supportingDocsPath"
+		placeholderText="Link to supporting documents"
+	/>
 	<Checkbox name="chargeParents" labelText="Charge to parents via invoicing" />
 	<div />
 	<Button style="submit">Submit</Button>

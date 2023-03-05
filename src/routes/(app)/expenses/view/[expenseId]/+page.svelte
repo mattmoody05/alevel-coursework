@@ -36,7 +36,7 @@
 		value={data.expenseData.supportingDocs}
 		name="supportingDocs"
 		labelText="Supporting documents"
-		placeholderText="File upload here"
+		placeholderText="Link to supporting documents here"
 	/>
 	<Checkbox
 		isChecked={data.expenseData.chargeToParents}
