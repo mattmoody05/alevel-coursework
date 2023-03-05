@@ -68,7 +68,9 @@
 		>
 			<option value="Unpaid">Unpaid</option>
 			<option value="Paid">Paid</option>
-			<option value="Confirmed paid">Confirmed paid</option>
+			{#if data.isAdmin === true}
+				<option value="Confirmed paid">Confirmed paid</option>
+			{/if}
 		</Listbox>
 		<Button style="submit">Update payment status</Button>
 	</form>
