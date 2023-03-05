@@ -294,3 +294,12 @@ export type timeOffPeriod = {
 export type CapitalisedDay = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday';
 
 export type LowercaseDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
+
+export type LowercaseDaysWithWeekend =
+	| 'sunday'
+	| 'monday'
+	| 'tuesday'
+	| 'wednesday'
+	| 'thursday'
+	| 'friday'
+	| 'saturday';
