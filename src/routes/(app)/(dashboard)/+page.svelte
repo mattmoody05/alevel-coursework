@@ -57,12 +57,17 @@
 
 	data.sessions = quickSortSessions(data.sessions);
 
+	let childrenBooked: string[] = [];
+
 	// gets all the sessions in the next 7 days
 	for (let index = 0; index < data.sessions.length; index++) {
 		const currentSession: SessionTable = data.sessions[index];
 		let currentDate = new Date();
 		for (let i = 0; i < 7; i++) {
 			if (currentSession.date === currentDate.toLocaleDateString('en-GB')) {
+				if (childrenBooked.includes(currentSession.childId) === false) {
+					childrenBooked = [...childrenBooked, currentSession.childId];
+				}
 				recentSessions = [
 					...recentSessions,
 					{
@@ -75,8 +80,6 @@
 			currentDate = new Date(currentDate.getTime() + 86400000);
 		}
 	}
-
-	console.log(recentSessions);
 
 	let thisWeekNotifications = 0;
 	for (let index = 0; index < data.notifications.length; index++) {
@@ -117,8 +120,8 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 mt-2">
 	<ThisWeekCard
-		childrenBooked={data.children.length}
-		sessionsBooked={data.sessions.length}
+		childrenBooked={childrenBooked.length}
+		sessionsBooked={recentSessions.length}
 		{recentSessions}
 	/>
 	{#if data.notifications.length === 0}
