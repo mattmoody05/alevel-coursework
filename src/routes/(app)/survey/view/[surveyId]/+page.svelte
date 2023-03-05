@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Toggle } from '$lib/components/checkbox';
+	import { Listbox } from '$lib/components/input';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -108,34 +110,68 @@
 		}
 		return parentList;
 	}
+
+	let viewByParent: boolean = false;
+	let selectedParentId: string;
 </script>
 
 <div class="flex flex-col gap-2">
 	<span class="opacity-50">
 		Hover over number of responses to see list of parents who have voted this way
 	</span>
-	{#each questions as question}
-		<div class="border bg-gray-100 border-gray-300 p-4 rounded-xl">
-			<h3 class="font-bold text-xl">{question.prompt}</h3>
-			<div class="flex flex-col gap-2 mt-2">
-				{#each question.options as option}
-					{@const parentList = getParentList(option)}
-					{@const percentage = (option.responses.length / question.numberOfResponses) * 100}
-					<div class="w-full grid grid-cols-2 items-center">
-						<span class="font-bold">{option.prompt}</span>
-						<div class="w-full border border-gray-300 rounded-lg overflow-hidden">
-							<div
-								class="px-3 py-2 font-bold {percentage < 10
-									? 'bg-gray-100'
-									: 'bg-gray-900 text-white'}"
-								style="width: {String(percentage)}%;"
-							>
-								<span title={parentList}>{String(percentage)}%</span>
+	<Toggle
+		leftLabelText="View by question"
+		rightLabelText="View by parent"
+		bind:isChecked={viewByParent}
+	/>
+	{#if viewByParent === true}
+		<Listbox labelText="Select parent" bind:value={selectedParentId}>
+			{#each data.parentData as parent}
+				<option value={parent.parentId}>{parent.firstName} {parent.lastName}</option>
+			{/each}
+		</Listbox>
+		{#if selectedParentId === 'default'}
+			Please select a parent
+		{:else}
+			{#each questions as question}
+				<div class="border bg-gray-100 border-gray-300 p-4 rounded-xl">
+					<h3 class="font-bold text-xl">{question.prompt}</h3>
+					<div class="flex flex-col gap-2 mt-2">
+						{#each question.options as option}
+							{#each option.responses as response}
+								{#if response.parent.parentId === selectedParentId}
+									{option.prompt}
+								{/if}.
+							{/each}
+						{/each}
+					</div>
+				</div>
+			{/each}
+		{/if}
+	{:else}
+		{#each questions as question}
+			<div class="border bg-gray-100 border-gray-300 p-4 rounded-xl">
+				<h3 class="font-bold text-xl">{question.prompt}</h3>
+				<div class="flex flex-col gap-2 mt-2">
+					{#each question.options as option}
+						{@const parentList = getParentList(option)}
+						{@const percentage = (option.responses.length / question.numberOfResponses) * 100}
+						<div class="w-full grid grid-cols-2 items-center">
+							<span class="font-bold">{option.prompt}</span>
+							<div class="w-full border border-gray-300 rounded-lg overflow-hidden">
+								<div
+									class="px-3 py-2 font-bold {percentage < 10
+										? 'bg-gray-100'
+										: 'bg-gray-900 text-white'}"
+									style="width: {String(percentage)}%;"
+								>
+									<span title={parentList}>{String(percentage)}%</span>
+								</div>
 							</div>
 						</div>
-					</div>
-				{/each}
+					{/each}
+				</div>
 			</div>
-		</div>
-	{/each}
+		{/each}
+	{/if}
 </div>
