@@ -33,6 +33,7 @@ import { differenceBetweenTimes } from '$lib/util/date';
 import { getSessionsOnDate } from '../db';
 import bcrypt from 'bcrypt';
 import { createSession } from './create';
+import { getAdmin } from './get';
 
 export class Admin {
 	async getChildren(): Promise<Child[]> {
@@ -889,6 +890,32 @@ export class TimeOffPeriod {
 		this.startDate = timeOffPeriodData.startDate;
 		this.endDate = timeOffPeriodData.endDate;
 		this.cancelSessions = timeOffPeriodData.cancelSessions;
+	}
+
+	async sendConfirmationEmail() {
+		const admin = getAdmin();
+		const parents = await admin.getParents();
+		for (let i = 0; i < parents.length; i++) {
+			const currentParent = parents[i];
+			await currentParent.sendEmail({
+				subject: 'Time off period booked by business',
+				htmlBody: `
+				Hi ${currentParent.firstName},
+				<br><br>
+				The business has created a time off period between the dates of ${this.startDate} and ${
+					this.endDate
+				}. You will not be able to book any sessions within this time.
+				<br>
+${
+	this.cancelSessions
+		? 'Existing sessions within this period will be cancelled, so please arrange other childcare.'
+		: 'Existing sessions within this period will <b>NOT</b> be cancelled. '
+}
+				<br><br>
+				Thank you
+				`
+			});
+		}
 	}
 
 	getData(): TimeOffPeriodTable {
