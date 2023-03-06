@@ -108,6 +108,7 @@ export type recurringSessionRequest = {
 	dateRequestSubmitted: string;
 	dateApproved?: string;
 	childId: string;
+	decisionReason?: string;
 };
 
 export type survey = {

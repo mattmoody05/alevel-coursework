@@ -351,6 +351,7 @@ export class RecurringSessionRequest {
 	dateRequestSubmitted: string;
 	dateApproved?: string;
 	childId: string;
+	decisionReason?: string;
 
 	constructor(recurringSessionRequestData: RecurringSessionRequestTable) {
 		this.recurringSessionId = recurringSessionRequestData.recurringSessionId;
@@ -374,6 +375,7 @@ export class RecurringSessionRequest {
 		this.dateRequestSubmitted = recurringSessionRequestData.dateRequestSubmitted;
 		this.dateApproved = recurringSessionRequestData.dateApproved;
 		this.childId = recurringSessionRequestData.childId;
+		this.decisionReason = recurringSessionRequestData.decisionReason;
 	}
 
 	async getChild(): Promise<Child | undefined> {

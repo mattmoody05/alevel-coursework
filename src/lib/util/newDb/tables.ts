@@ -68,6 +68,7 @@ export type RecurringSessionRequestTable = {
 	dateRequestSubmitted: string;
 	dateApproved?: string;
 	childId: string;
+	decisionReason?: string;
 };
 
 export type SurveyTable = {

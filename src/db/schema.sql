@@ -78,6 +78,7 @@ CREATE TABLE recurringSessionRequest(
     dateRequestSubmitted TEXT NOT NULL,
     dateApproved TEXT,
     childId TEXT NOT NULL,
+    decisionReason TEXT,
 
     FOREIGN KEY(childId) REFERENCES child(childId)
 )
