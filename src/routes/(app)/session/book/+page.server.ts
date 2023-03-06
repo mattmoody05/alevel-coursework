@@ -44,6 +44,7 @@ export const actions: Actions = {
 		const startTime = data.get('startTime') as string;
 		const date = data.get('date') as string;
 		const length = Number(data.get('length') as string) * 60;
+		const bypassRegs = (data.get('bypassRegs') as string) === 'on';
 
 		if (presenceCheck(childId) === false) {
 			return invalid(400, {
@@ -112,7 +113,7 @@ export const actions: Actions = {
 		const okayChildcareLimits = await availabilityChecker.checkChildcareLimits();
 		const okayTimeOff = await availabilityChecker.checkTimeOffPeriods();
 
-		const sessionAllowed = okayTimeOff && okayChildcareLimits;
+		const sessionAllowed = (okayTimeOff && okayChildcareLimits) || bypassRegs;
 
 		if (sessionAllowed === true) {
 			await createSession(session.getData());

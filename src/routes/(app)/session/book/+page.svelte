@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SmallAlert } from '$lib/components/alert';
 	import { Button } from '$lib/components/button';
+	import { Checkbox } from '$lib/components/checkbox';
 	import { Listbox, NumericUpDown, Textbox } from '$lib/components/input';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -67,5 +68,10 @@
 		placeholderText="Hours"
 		value={String(form?.data?.length)}
 	/>
+	{#if data.isAdmin}
+		<div class="py-2">
+			<Checkbox name="bypassRegs" labelText="Override childcare limits / time off periods" />
+		</div>
+	{/if}
 	<Button style="submit">Book session</Button>
 </form>
