@@ -44,7 +44,7 @@ export const actions: Actions = {
 						supportingDocsPath
 					}
 				});
-			} else if (cost > 0) {
+			} else if (cost < 0) {
 				return invalid(400, {
 					message: 'The cost for this expense cannot be zero - please input an amount',
 					data: {
