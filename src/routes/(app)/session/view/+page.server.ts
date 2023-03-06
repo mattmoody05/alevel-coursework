@@ -8,6 +8,7 @@ export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent)
 		const admin = getAdmin();
 		const sessions = await admin.getSessions();
 		const children = await admin.getChildren();
+		const parents = await admin.getParents();
 
 		let redirectFrom;
 		if (url.searchParams.has('redirect-from')) {
@@ -16,6 +17,7 @@ export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent)
 		return {
 			sessions: sessions.map((session) => session.getData()),
 			children: children.map((child) => child.getData()),
+			parents: parents.map((parent) => parent.getData()),
 			redirectFrom
 		};
 	} else if (account !== undefined) {
@@ -35,6 +37,7 @@ export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent)
 			return {
 				sessions: sessions.map((session) => session.getData()),
 				children: children.map((child) => child.getData()),
+				parents: [parent.getData()],
 				redirectFrom
 			};
 		} else {

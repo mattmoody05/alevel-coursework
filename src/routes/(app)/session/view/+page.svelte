@@ -13,9 +13,32 @@
 	export let data: PageData;
 	let visibleSessions: SessionTable[] = data.sessions;
 
-	function getChildName(childId: string) {
-		const children = data.children.filter((child) => child.childId === childId);
-		return children[0];
+	function getChildName(childId: string): string {
+		for (let i = 0; i < data.children.length; i++) {
+			const currentChild = data.children[i];
+			if (currentChild.childId === childId) {
+				return currentChild.firstName;
+			}
+		}
+		return '';
+	}
+	function getParentId(childId: string): string {
+		for (let i = 0; i < data.children.length; i++) {
+			const currentChild = data.children[i];
+			if (currentChild.childId === childId) {
+				return currentChild.parentId;
+			}
+		}
+		return '';
+	}
+	function getParentName(parentId: string): string {
+		for (let i = 0; i < data.parents.length; i++) {
+			const currentParent = data.parents[i];
+			if (parentId === currentParent.parentId) {
+				return `${currentParent.firstName} ${currentParent.lastName}`;
+			}
+		}
+		return '';
 	}
 
 	onMount(() => {
@@ -30,6 +53,7 @@
 	let filterDate: string = '';
 	let sortDate: boolean = false;
 	let filterChild: string = 'default';
+	let filterParent: string = 'default';
 
 	function updateFilters() {
 		// Working variable is the sessions that the filters are currently working with
@@ -103,6 +127,18 @@
 			working = innerWorking;
 		}
 
+		if (filterParent !== 'default') {
+			let innerWorking: SessionTable[] = [];
+			for (let i = 0; i < working.length; i++) {
+				const currentSession = working[i];
+				const sessionParentId = getParentId(currentSession.childId);
+				if (sessionParentId === filterParent) {
+					innerWorking = [...innerWorking, currentSession];
+				}
+			}
+			working = innerWorking;
+		}
+
 		visibleSessions = working;
 	}
 
@@ -138,7 +174,7 @@
 </div>
 {#if showFilters === true}
 	<div class="flex flex-col gap-2">
-		<div class="grid grid-cols-3 items-center gap-4">
+		<div class="grid {data.isAdmin ? 'grid-cols-4' : 'grid-cols-3'} items-center gap-4">
 			<Textbox placeholderText="DD/MM/YYYY" labelText="Date filter" bind:value={filterDate} />
 			<Checkbox labelText="Sort by date" bind:isChecked={sortDate} />
 			<Listbox labelText="Child filter" bind:value={filterChild}>
@@ -146,6 +182,13 @@
 					<option value={child.childId}>{child.firstName}</option>
 				{/each}
 			</Listbox>
+			{#if data.isAdmin === true}
+				<Listbox labelText="Parent filter" bind:value={filterParent}>
+					{#each data.parents as parent}
+						<option value={parent.parentId}>{parent.firstName} {parent.lastName}</option>
+					{/each}
+				</Listbox>
+			{/if}
 		</div>
 		<Button on:click={updateFilters}>Update results</Button>
 	</div>
@@ -160,7 +203,7 @@
 <div class="flex flex-col gap-2">
 	{#each visibleSessions as session}
 		<SessionSummary
-			childName={getChildName(session.childId).firstName}
+			childName={getChildName(session.childId)}
 			date={session.date}
 			length={session.length}
 			sessionId={session.sessionId}
