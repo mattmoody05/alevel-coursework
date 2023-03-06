@@ -1159,6 +1159,8 @@ export async function createTimeOffPeriod(
 		timeOffPeriodData.cancelSessions
 	);
 
+	let cancelledSessions: Session[] = [];
+
 	if (cancelSessions === true) {
 		const formattedStartDate = getDateFromLocaleString(startDate);
 		const formattedEndDate = getDateFromLocaleString(endDate);
@@ -1169,6 +1171,8 @@ export async function createTimeOffPeriod(
 			for (let i = 0; i < sessions.length; i++) {
 				const currentSession = sessions[i];
 
+				cancelledSessions = [...cancelledSessions, currentSession];
+
 				await currentSession.sendDeletionEmail();
 				await currentSession.deleteFromDatabase();
 			}
@@ -1178,7 +1182,7 @@ export async function createTimeOffPeriod(
 		} while (currentDate <= formattedEndDate);
 	}
 
-	return timeOffPeriodData;
+	return { timeOffPeriodData, cancelledSessions };
 }
 
 export async function getSessionsOnDate(date: string) {

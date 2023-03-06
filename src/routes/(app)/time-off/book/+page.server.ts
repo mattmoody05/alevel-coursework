@@ -35,9 +35,12 @@ export const actions: Actions = {
 		}
 
 		const timeOffPeriodData = await createTimeOffPeriod(startDate, endDate, cancelSessions);
-		const timeOffPeriod = new TimeOffPeriod(timeOffPeriodData);
+		const timeOffPeriod = new TimeOffPeriod(timeOffPeriodData.timeOffPeriodData);
 		await timeOffPeriod.sendConfirmationEmail();
 
-		return { success: true };
+		return {
+			success: true,
+			cancelledSessions: timeOffPeriodData.cancelledSessions.map((session) => session.getData())
+		};
 	}
 };

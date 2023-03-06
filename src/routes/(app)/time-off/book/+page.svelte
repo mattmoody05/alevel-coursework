@@ -31,7 +31,12 @@
 
 {#if form?.success}
 	<div out:fade>
-		<SmallAlert style="success" body="Time off period successfully created." title="Success" />
+		<SmallAlert
+			style="success"
+			body="Time off period successfully created. {form.cancelledSessions
+				.length} Sessions were cancelled"
+			title="Success"
+		/>
 	</div>
 {/if}
 
