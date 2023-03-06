@@ -53,7 +53,7 @@ export const actions: Actions = {
 					childId,
 					startTime,
 					date,
-					length
+					length: length / 60
 				}
 			});
 		} else if (validateTime(startTime) === false) {
@@ -64,7 +64,7 @@ export const actions: Actions = {
 					childId,
 					startTime,
 					date,
-					length
+					length: length / 60
 				}
 			});
 		} else if (validateDate(date) === false) {
@@ -75,7 +75,7 @@ export const actions: Actions = {
 					childId,
 					startTime,
 					date,
-					length
+					length: length / 60
 				}
 			});
 		} else if (length < 1 || length > 570) {
@@ -86,7 +86,7 @@ export const actions: Actions = {
 					childId,
 					startTime,
 					date,
-					length
+					length: length / 60
 				}
 			});
 		}
@@ -137,7 +137,7 @@ export const actions: Actions = {
 					childId,
 					startTime,
 					date,
-					length
+					length: length / 60
 				}
 			});
 		}

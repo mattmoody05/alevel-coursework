@@ -587,14 +587,11 @@ export class Child {
 	getAge(): number {
 		const date = new Date();
 		const formattedDateOfBirth = getDateFromLocaleString(this.dateOfBirth);
+		let age = date.getFullYear() - formattedDateOfBirth.getFullYear();
+		const monthDiff = date.getMonth() - formattedDateOfBirth.getMonth();
 
-		let age: number = date.getFullYear() - formattedDateOfBirth.getFullYear();
-		if (date.getMonth() < formattedDateOfBirth.getMonth()) {
+		if (monthDiff < 0 || (monthDiff === 0 && date.getDate() < formattedDateOfBirth.getDate())) {
 			age = age - 1;
-		} else if (date.getMonth() === formattedDateOfBirth.getMonth()) {
-			if (date.getDay() < formattedDateOfBirth.getDay()) {
-				age = age - 1;
-			}
 		}
 
 		return age;
@@ -688,9 +685,9 @@ export class Child {
 		await db.run('DELETE FROM session WHERE childId = ? and isRecurring = ?', this.childId, true);
 	}
 
-	async createRecurringSession(): Promise<
-		{ success: true } | { success: false; clashes: Session[] } | undefined
-	> {
+	async createRecurringSession(
+		bypassRegs?: boolean
+	): Promise<{ success: true } | { success: false; clashes: Session[] } | undefined> {
 		const db = await openDb();
 
 		const request = await this.getRecurringSessionRequest();
@@ -734,8 +731,9 @@ export class Child {
 						const availabilityChecker = new AvailabilityChecker(session);
 
 						const sessionAllowed =
-							(await availabilityChecker.checkChildcareLimits()) &&
-							(await availabilityChecker.checkTimeOffPeriods());
+							bypassRegs ||
+							((await availabilityChecker.checkChildcareLimits()) &&
+								(await availabilityChecker.checkTimeOffPeriods()));
 
 						if (sessionAllowed === true) {
 							allowedSessions = [...allowedSessions, session];
@@ -1500,7 +1498,7 @@ export class AvailabilityChecker {
 		const newChild = await this.session.getChild();
 		if (newChild !== undefined) {
 			const age = newChild.getAge();
-			console.log(age);
+			console.log(newChild.getAge());
 			if (age < 12) {
 				underTwelveYears = underTwelveYears + 1;
 				if (age < 8) {

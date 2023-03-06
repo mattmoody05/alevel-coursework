@@ -49,13 +49,23 @@
 
 <h3 class="font-bold text-xl">Book session</h3>
 <form action="?/book" method="POST" class="flex flex-col gap-2">
-	<Listbox name="childId" labelText="Select child">
+	<Listbox name="childId" labelText="Select child" value={form?.data?.childId}>
 		{#each data.children as child}
 			<option value={child.childId}>{child.firstName} {child.lastName}</option>
 		{/each}
 	</Listbox>
-	<Textbox name="date" labelText="Date" placeholderText="DD/MM/YYYY" />
-	<Textbox name="startTime" labelText="Start time" placeholderText="HH:MM" />
-	<NumericUpDown name="length" labelText="Session length" placeholderText="Hours" value="" />
+	<Textbox name="date" labelText="Date" placeholderText="DD/MM/YYYY" value={form?.data?.date} />
+	<Textbox
+		name="startTime"
+		labelText="Start time"
+		placeholderText="HH:MM"
+		value={form?.data?.startTime}
+	/>
+	<NumericUpDown
+		name="length"
+		labelText="Session length"
+		placeholderText="Hours"
+		value={String(form?.data?.length)}
+	/>
 	<Button style="submit">Book session</Button>
 </form>
