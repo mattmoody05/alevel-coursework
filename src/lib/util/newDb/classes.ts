@@ -36,6 +36,12 @@ import { createSession } from './create';
 import { getAdmin, getParent } from './get';
 
 export class Admin {
+	async setPassword(newPassword: string) {
+		const passwordHash: string = await bcrypt.hash(newPassword, 10);
+		const db = await openDb();
+		await db.run('UPDATE account SET password = ? WHERE isAdmin = ?', passwordHash, true);
+	}
+
 	async getChildren(): Promise<Child[]> {
 		const db = await openDb();
 		const children: ChildTable[] = await db.all('SELECT * FROM child');
