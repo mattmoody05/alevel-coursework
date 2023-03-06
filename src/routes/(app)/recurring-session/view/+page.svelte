@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/button';
 	import { Listbox, Textbox } from '$lib/components/input';
 	import type { LowercaseDay } from '$lib/util/types';
-	import { capitaliseFirst } from '$lib/util/ui';
+	import { capitaliseFirst, getChildName } from '$lib/util/ui';
 	import { fade } from 'svelte/transition';
 	import type { ActionData, PageData } from './$types';
 
@@ -38,11 +38,29 @@
 		<SmallAlert style="success" body="" title="Success" />
 	</div>
 {:else if form?.success === false}
-	<SmallAlert
-		style="error"
-		title="Error"
-		body="Clashing sessions so request could not be approved"
-	/>
+	<div transition:fade>
+		<SmallAlert
+			style="error"
+			title="Error"
+			body="There were clashing sessions so the recurring session could not be approved."
+		/>
+		<div class="absolute right-4 top-28">
+			<div class="rounded-xl border bg-red-400 border-red-500 text-white z-50 min-w-min w-96 p-3">
+				There are the following clashing sessions that the recurring booking would interfere with...
+				<ul class="list-disc pb-2">
+					{#each form.clashingSessions as clash}
+						<li class="ml-4 font-semibold">
+							{getChildName(clash.childId, data.children).fullName} - {clash.date} @ {clash.startTime}
+						</li>
+					{/each}
+				</ul>
+				<form method="POST" action="?/approveAnyway">
+					<input name="childId" type="text" value={form.childId} class="hidden" />
+					<Button style="danger">Approve anyway</Button>
+				</form>
+			</div>
+		</div>
+	</div>
 {/if}
 
 <h3 class="font-bold text-xl">View recurring session</h3>
@@ -110,14 +128,12 @@
 				{#if currentRequest?.approved == true}
 					<Button formaction="?/adminDecline" style="danger">Cancel recurring session</Button>
 				{:else}
-					<form method="POST" class="flex flex-col gap-2">
-						<Textbox labelText="Reason for decision" name="decision-reason" />
+					<Textbox labelText="Reason for decision" name="decision-reason" />
 
-						<div class="flex flex-row gap-2">
-							<Button formaction="?/adminDecline" style="danger">Decline request</Button>
-							<Button formaction="?/adminApprove" style="submit">Approve request</Button>
-						</div>
-					</form>
+					<div class="flex flex-row gap-2">
+						<Button formaction="?/adminDecline" style="danger">Decline request</Button>
+						<Button formaction="?/adminApprove" style="submit">Approve request</Button>
+					</div>
 				{/if}
 			{:else}
 				<Button formaction="?/parentCancel" style="danger">Cancel recurring session</Button>

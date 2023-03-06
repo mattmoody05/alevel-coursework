@@ -124,21 +124,22 @@ export const actions: Actions = {
 				}
 
 				// Sets the recurring session request's status field
-				await child.setRecurringSessionRequestStatus(true, reason);
 
 				// Creates the sessions specified in the recurring session request
 				const recurringSessionBookingStatus = await child.createRecurringSession();
 				if (recurringSessionBookingStatus === undefined) {
 					throw error(500, 'there was an issue when booking the recurring session');
 				} else if (recurringSessionBookingStatus.success === true) {
+					await child.setRecurringSessionRequestStatus(true, reason);
 					return { success: true, action: 'adminApprove' };
 				} else if (recurringSessionBookingStatus.success === false) {
 					return {
 						action: 'adminApprove',
 						success: false,
-						clashingSession: recurringSessionBookingStatus.clashes.map((session) =>
+						clashingSessions: recurringSessionBookingStatus.clashes.map((session) =>
 							session.getData()
-						)
+						),
+						childId: childId
 					};
 				}
 			} else {
@@ -202,5 +203,18 @@ export const actions: Actions = {
 				'You must be an admin to decline a recurring session request, please ensure that you are using an admin account.'
 			);
 		}
+	},
+	approveAnyway: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+
+		const childId = (await data.get('childId')) as string;
+
+		const child = await getChild(childId);
+
+		if (child !== undefined) {
+			await child.createRecurringSession(true);
+			await child.setRecurringSessionRequestStatus(true, '');
+		}
+		return { success: true, action: 'approveAnyway' };
 	}
 };
