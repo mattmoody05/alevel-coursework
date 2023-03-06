@@ -641,7 +641,7 @@ export class Child {
 		const date = new Date();
 
 		await db.run(
-			'INSERT INTO recurringSessionRequest VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+			'INSERT INTO recurringSessionRequest VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 			uuidv4(),
 			false,
 			recurringBasis,
@@ -662,11 +662,12 @@ export class Child {
 			dayDetails.fridayEndTime,
 			date.toLocaleDateString('en-GB'),
 			null,
-			this.childId
+			this.childId,
+			null
 		);
 	}
 
-	async setRecurringSessionRequestStatus(approvalStatus: boolean) {
+	async setRecurringSessionRequestStatus(approvalStatus: boolean, reason: string) {
 		const db = await openDb();
 		await db.run(
 			'UPDATE recurringSessionRequest SET approved = ? WHERE childId = ?',

@@ -109,6 +109,7 @@ export const actions: Actions = {
 			// Retrieves the data form the HTML form
 			const data = await request.formData();
 			const childId = data.get('childId') as string;
+			const reason = data.get('decision-reason') as string;
 
 			// Returns an instance of the child class
 			const child = await getChild(childId);
@@ -123,7 +124,7 @@ export const actions: Actions = {
 				}
 
 				// Sets the recurring session request's status field
-				await child.setRecurringSessionRequestStatus(true);
+				await child.setRecurringSessionRequestStatus(true, reason);
 
 				// Creates the sessions specified in the recurring session request
 				const recurringSessionBookingStatus = await child.createRecurringSession();
@@ -166,6 +167,7 @@ export const actions: Actions = {
 			// Retrieves the data form the HTML form
 			const data = await request.formData();
 			const childId = data.get('childId') as string;
+			const reason = data.get('decision-reason') as string;
 
 			// Returns an instance of the child class
 			const child = await getChild(childId);
@@ -180,10 +182,7 @@ export const actions: Actions = {
 				}
 
 				// Sets the recurring session request's status field
-				await child.setRecurringSessionRequestStatus(false);
-
-				// Removes the child's recurring session request
-				await child.deleteRecurringSessionRequest();
+				await child.setRecurringSessionRequestStatus(false, reason);
 
 				// Returns data so that it can be used in the HTML template
 				return { success: true, action: 'adminDecline' };

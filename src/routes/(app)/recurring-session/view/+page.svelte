@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { SmallAlert } from '$lib/components/alert';
 	import { Button } from '$lib/components/button';
-	import { Listbox } from '$lib/components/input';
+	import { Listbox, Textbox } from '$lib/components/input';
 	import type { LowercaseDay } from '$lib/util/types';
 	import { capitaliseFirst } from '$lib/util/ui';
 	import { fade } from 'svelte/transition';
@@ -37,7 +37,7 @@
 	<div transition:fade>
 		<SmallAlert style="success" body="" title="Success" />
 	</div>
-{:else}
+{:else if form?.success === false}
 	<SmallAlert
 		style="error"
 		title="Error"
@@ -80,6 +80,10 @@
 				<span class="font-bold">Approved: </span>
 				{currentRequest?.approved ? 'yes' : 'no'}
 			</div>
+			<div class="">
+				<span class="font-bold">Reason: </span>
+				{currentRequest?.decisionReason}
+			</div>
 			<span class="font-bold">Days in recurring session booking:</span>
 			{#each dayList as currentDayName}
 				{@const daySelected = currentRequest[`${currentDayName}Selected`]}
@@ -103,14 +107,18 @@
 				{/if}
 			{/each}
 			{#if data.isAdmin}
-				<div class="flex flex-row gap-2">
-					{#if currentRequest?.approved == true}
-						<Button formaction="?/adminDecline" style="danger">Cancel recurring session</Button>
-					{:else}
-						<Button formaction="?/adminDecline" style="danger">Decline request</Button>
-						<Button formaction="?/adminApprove" style="submit">Approve request</Button>
-					{/if}
-				</div>
+				{#if currentRequest?.approved == true}
+					<Button formaction="?/adminDecline" style="danger">Cancel recurring session</Button>
+				{:else}
+					<form method="POST" class="flex flex-col gap-2">
+						<Textbox labelText="Reason for decision" name="decision-reason" />
+
+						<div class="flex flex-row gap-2">
+							<Button formaction="?/adminDecline" style="danger">Decline request</Button>
+							<Button formaction="?/adminApprove" style="submit">Approve request</Button>
+						</div>
+					</form>
+				{/if}
 			{:else}
 				<Button formaction="?/parentCancel" style="danger">Cancel recurring session</Button>
 			{/if}
