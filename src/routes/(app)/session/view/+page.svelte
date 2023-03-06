@@ -84,7 +84,7 @@
 		if (filterDate !== '') {
 			let innerWorking: SessionTable[] = [];
 			for (let i = 0; i < working.length; i++) {
-				const currentSession = data.sessions[i];
+				const currentSession = working[i];
 				if (currentSession.date === filterDate) {
 					innerWorking = [...innerWorking, currentSession];
 				}
