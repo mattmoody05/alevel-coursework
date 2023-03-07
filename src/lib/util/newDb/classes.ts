@@ -1495,6 +1495,9 @@ export class AvailabilityChecker {
 		return overlappingSessions;
 	}
 
+	// Checks whether the session causes childcare limits to be exceeded
+	// False = session is not available
+	// True = session is available
 	async checkChildcareLimits(): Promise<boolean> {
 		const sessionsOnDate = await getSessionsOnDate(this.session.date);
 
