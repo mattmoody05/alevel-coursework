@@ -43,6 +43,7 @@ export class Admin {
 		await db.run('UPDATE account SET password = ? WHERE isAdmin = ?', passwordHash, true);
 	}
 
+	// Gets all expenses from the database
 	async getExpenses(): Promise<Expense[]> {
 		const db = await openDb();
 		const expenses: ExpenseTable[] = await db.all('SELECT * FROM expense');
@@ -117,6 +118,7 @@ export class Admin {
 		return invoices.map((invoice) => new Invoice(invoice));
 	}
 
+	// Gets all time off periods from the database
 	async getTimeOffPeriods() {
 		const db = await openDb();
 		const timeOffPeriods: TimeOffPeriodTable[] = await db.all('SELECT * FROM timeOffPeriod');
@@ -186,6 +188,7 @@ export class Session {
 		this.invoiceId = sessionData.invoiceId;
 	}
 
+	// Updates the absence status of the session
 	async updateAbsenceStatus(chargeSession: boolean, keepSession: boolean) {
 		const db = await openDb();
 		await db.run(
@@ -386,28 +389,35 @@ export class Expense {
 		this.invoiceId = expenseData.invoiceId;
 	}
 
+	// Updates the expense name in the database
 	async setName(newName: string) {
 		this.name = newName;
 		const db = await openDb();
 		await db.run('UPDATE expense SET name = ? WHERE expenseId = ?', newName, this.expenseId);
 	}
+
+	// Updates the expense date in the database
 	async setDate(newDate: string) {
 		this.date = newDate;
 		const db = await openDb();
 		await db.run('UPDATE expense SET date = ? WHERE expenseId = ?', newDate, this.expenseId);
 	}
+
+	// Updates the expense cost in the database
 	async setCost(newCost: number) {
 		this.cost = newCost;
 		const db = await openDb();
 		await db.run('UPDATE expense SET cost = ? WHERE expenseId = ?', newCost, this.expenseId);
 	}
 
+	// Updates the expense type in the databse
 	async setType(newType: string) {
 		this.type = newType;
 		const db = await openDb();
 		await db.run('UPDATE expense SET type = ? WHERE expenseId = ?', newType, this.expenseId);
 	}
 
+	// Updates the expense charge status in the database
 	async setChargeStatus(newChargeStatus: boolean) {
 		this.chargeToParents = newChargeStatus;
 		const db = await openDb();
@@ -418,6 +428,7 @@ export class Expense {
 		);
 	}
 
+	// Updates the supporting docs of the invoice in the database
 	async setSupportingDocsPath(newSupportingDocsPath: string) {
 		this.supportingDocs = newSupportingDocsPath;
 		const db = await openDb();
@@ -428,6 +439,7 @@ export class Expense {
 		);
 	}
 
+	// Deletes the expense record from the database
 	async deleteFromDatabase() {
 		const db = await openDb();
 		await db.run('DELETE FROM expense WHERE expenseId = ?', this.expenseId);
@@ -654,6 +666,7 @@ export class Child {
 		return sessionData.map((session) => new Session(session));
 	}
 
+	// Gets all the child's absent sessions
 	async getAbsentSessions() {
 		const db = await openDb();
 		const sessionsWithAbsence: SessionTable[] = await db.all(
@@ -1076,6 +1089,7 @@ ${
 		}
 	}
 
+	// Deletes the time off period from the database
 	async deleteFromDatabase() {
 		const db = await openDb();
 		await db.run('DELETE FROM timeOffPeriod WHERE timeOffPeriodId = ?', this.timeOffPeriodId);
@@ -1176,6 +1190,7 @@ export class SurveyQuestion {
 		this.surveyId = surveyQuestionData.surveyId;
 	}
 
+	// Gets all the responses to the question from the database
 	async getResponses(): Promise<SurveyResponseTable[]> {
 		const db = await openDb();
 		const responses: SurveyResponseTable[] = await db.all(
@@ -1221,6 +1236,7 @@ export class SurveyQuestion {
 		return surveyQuestionOption;
 	}
 
+	// Gets all the question's options from the database
 	async getOptions(): Promise<SurveyQuestionOption[]> {
 		const db = await openDb();
 		const optionData: SurveyQuestionOptionTable[] = await db.all(
@@ -1338,6 +1354,7 @@ export class ShortNoticeNotification {
 		}
 	}
 
+	// Issues the notification to the parent with the specified parentId
 	async issue(allParents: boolean, parentId: string) {
 		const db = await openDb();
 		await db.run(
