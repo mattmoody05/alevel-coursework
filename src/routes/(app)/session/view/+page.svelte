@@ -5,7 +5,7 @@
 	import { Listbox, Textbox } from '$lib/components/input';
 	import { SessionSummary } from '$lib/components/summaries';
 	import { getDateFromLocaleString } from '$lib/util/date';
-	import type { SessionTable } from '$lib/util/newDb';
+	import type { SessionTable } from '$lib/util/db';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import type { PageData } from './$types';

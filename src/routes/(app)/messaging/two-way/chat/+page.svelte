@@ -5,7 +5,7 @@
 	import { afterUpdate, onMount } from 'svelte';
 	import type { ActionData, PageData } from './$types';
 	import { enhance } from '$app/forms';
-	import type { TwoWayMessageTable } from '$lib/util/newDb';
+	import type { TwoWayMessageTable } from '$lib/util/db';
 	import { scrollToBottom } from '$lib/util/ui';
 	import { SmallAlert } from '$lib/components/alert';
 	import { fade } from 'svelte/transition';

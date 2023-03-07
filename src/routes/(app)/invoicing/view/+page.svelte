@@ -5,7 +5,7 @@
 	import { Listbox, Textbox } from '$lib/components/input';
 	import { Checkbox } from '$lib/components/checkbox';
 	import { Button } from '$lib/components/button';
-	import type { InvoiceTable } from '$lib/util/newDb';
+	import type { InvoiceTable } from '$lib/util/db';
 	import { getDateFromLocaleString } from '$lib/util/date';
 
 	export let data: PageData;

@@ -8,7 +8,7 @@
 		UrgentNotificationCard
 	} from '$lib/components/dashboard/cards';
 	import { getDateFromLocaleString } from '$lib/util/date';
-	import type { SessionTable } from '$lib/util/newDb';
+	import type { SessionTable } from '$lib/util/db';
 	import type { PageData } from './$types';
 
 	export let data: PageData;

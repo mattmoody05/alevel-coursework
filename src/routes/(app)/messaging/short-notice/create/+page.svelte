@@ -7,7 +7,7 @@
 	import type { ActionData, PageData } from './$types';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
-	import type { ParentTable } from '$lib/util/newDb';
+	import type { ParentTable } from '$lib/util/db';
 
 	export let data: PageData;
 	export let form: ActionData;
