@@ -36,55 +36,78 @@ import { createSession } from './create';
 import { getAdmin, getParent } from './get';
 
 export class Admin {
+	// Sets the admin's password
 	async setPassword(newPassword: string) {
 		const passwordHash: string = await bcrypt.hash(newPassword, 10);
 		const db = await openDb();
 		await db.run('UPDATE account SET password = ? WHERE isAdmin = ?', passwordHash, true);
 	}
 
+	// Gets all child records from the database
 	async getChildren(): Promise<Child[]> {
 		const db = await openDb();
 		const children: ChildTable[] = await db.all('SELECT * FROM child');
+
+		// Creates and returns an instance of the child class for each record from the database
 		return children.map((child) => new Child(child));
 	}
 
+	// Gets all session records from the database
 	async getSessions(): Promise<Session[]> {
 		const db = await openDb();
 		const sessions: SessionTable[] = await db.all('SELECT * FROM session');
+
+		// Creates and returns an instance of the session class for each record from the database
 		return sessions.map((session) => new Session(session));
 	}
 
+	// Gets all short notice notification records from the database
 	async getNotifications(): Promise<ShortNoticeNotification[]> {
 		const db = await openDb();
 		const notifications: ShortNoticeNotificationTable[] = await db.all(
 			'SELECT * FROM shortNoticeNotification'
 		);
+
+		// Creates and returns an instance of the short notice notification class for each record from the database
 		return notifications.map((notification) => new ShortNoticeNotification(notification));
 	}
+
+	// Gets all parent records from the database
 	async getParents(): Promise<Parent[]> {
 		const db = await openDb();
 		const parents: ParentTable[] = await db.all('SELECT * FROM parent');
+
+		// Creates and returns an instance of the parent class for each record from the database
 		return parents.map((parent) => new Parent(parent));
 	}
 
+	// Gets all session records from the database which are marked as absent
 	async getAbsences(): Promise<Session[]> {
 		const db = await openDb();
 		const absentSessions: SessionTable[] = await db.all(
 			'SELECT * FROM session WHERE absent = ?',
 			true
 		);
+
+		// Creates and returns an instance of the session class for each record from the database
 		return absentSessions.map((session) => new Session(session));
 	}
 
+	// Gets all survey records from the database
 	async getSurveys(): Promise<Survey[]> {
 		const db = await openDb();
 		const surveys = await db.all('SELECT * FROM survey');
+
+		// Creates and returns an instance of the survey class for each record from the database
 		return surveys.map((survey) => new Survey(survey));
 	}
 
+	// Gets all invoice records from the database
 	async getInvoices(): Promise<Invoice[]> {
 		const db = await openDb();
 		const invoices = await db.all('SELECT * FROM invoice');
+
+		// Creates and returns an instance of the invoice class for each record from the database
 		return invoices.map((invoice) => new Invoice(invoice));
 	}
 }
@@ -104,8 +127,11 @@ export class Account {
 		this.parentId = accountData.parentId;
 	}
 
+	// Updates the password for the current account in the database
 	async updatePassword(newPassword: string) {
+		// Generates a hash of the password so that it is not stored in plain text in the database
 		const passwordHash: string = await bcrypt.hash(newPassword, 10);
+
 		this.password = passwordHash;
 
 		const db = await openDb();
@@ -152,6 +178,7 @@ export class Session {
 		return { ...this };
 	}
 
+	// Gets an instance of the child class for the child which the session belongs to
 	async getChild(): Promise<Child | undefined> {
 		const db = await openDb();
 		const childData: ChildTable | undefined = await db.get(
@@ -165,6 +192,7 @@ export class Session {
 		}
 	}
 
+	// Calculates the finish time of the session
 	getFinishTime(): string {
 		const startTimeSplit: string[] = this.startTime.split(':');
 
@@ -185,11 +213,13 @@ export class Session {
 		return `${String(startTimeHours)}:${String(startTimeMins)}`;
 	}
 
+	// Gets an instance of the availability checker class for the session
 	getAvailabilityChecker() {
 		const availabilityChecker = new AvailabilityChecker(this);
 		return availabilityChecker;
 	}
 
+	// Sends a booking confirmation email for the session
 	async sendConfirmationEmail() {
 		const child = await this.getChild();
 		if (child !== undefined) {
@@ -221,6 +251,7 @@ export class Session {
 		}
 	}
 
+	// Sends a deletion confirmation email for the session
 	async sendDeletionEmail() {
 		const child = await this.getChild();
 		if (child !== undefined) {
@@ -250,32 +281,34 @@ export class Session {
 		}
 	}
 
+	// Updates the date of the session in the database
 	async setDate(date: string) {
 		this.date = date;
 		const db = await openDb();
 		await db.run('UPDATE session SET date = ? WHERE sessionId = ?', date, this.sessionId);
 	}
 
+	// Updates the start time of the session in the database
 	async setStartTime(startTime: string) {
 		this.startTime = startTime;
 		const db = await openDb();
 		await db.run('UPDATE session SET startTime = ? WHERE sessionId = ?', startTime, this.sessionId);
 	}
 
+	// Updates the length of the session in the database
 	async setLength(length: number) {
 		this.length = length;
 		const db = await openDb();
 		await db.run('UPDATE session SET length = ? WHERE sessionId = ?', length, this.sessionId);
 	}
 
+	// Sends a confirmation email that the session has been edited
 	async sendEditEmail() {
 		const child = await this.getChild();
 		if (child !== undefined) {
 			const parent = await child.getParent();
 			if (parent !== undefined) {
-				const mailer = parent.getMailer();
-
-				mailer.sendEmail({
+				parent.sendEmail({
 					subject: 'Session edit confirmation',
 					htmlBody: `
 						Hi ${parent.firstName}!
@@ -301,6 +334,7 @@ export class Session {
 		}
 	}
 
+	// Removes the session from the database
 	async deleteFromDatabase() {
 		const db = await openDb();
 		await db.run('DELETE FROM session WHERE sessionId = ?', this.sessionId);
@@ -384,6 +418,7 @@ export class RecurringSessionRequest {
 		this.decisionReason = recurringSessionRequestData.decisionReason;
 	}
 
+	// Gets an instance of the child class for the child which the recurring session request belongs to
 	async getChild(): Promise<Child | undefined> {
 		const db = await openDb();
 		const childData: ChildTable | undefined = await db.get(
@@ -397,66 +432,7 @@ export class RecurringSessionRequest {
 		}
 	}
 
-	async approve() {
-		const db = await openDb();
-		await db.run(
-			'UPDATE recurringSessionRequest SET approved = ? WHERE childId = ?',
-			true,
-			this.childId
-		);
-
-		type days = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday';
-		const weekday: days[] = [
-			'sunday',
-			'monday',
-			'tuesday',
-			'wednesday',
-			'thursday',
-			'friday',
-			'saturday'
-		];
-		const startDate = new Date();
-		const endDate = getDateFromLocaleString(RECURRING_BOOKING_EXPIRY);
-		let currentDate = startDate;
-		do {
-			const currentDay = weekday[currentDate.getDay()];
-			if (currentDay !== 'saturday' && currentDay !== 'sunday') {
-				// coming up as 1 or 0 instead of true or false, use strict equality when fixed
-				if (this[`${currentDay}Selected`] == true) {
-					const startTime = this[`${currentDay}StartTime`] as string;
-					const endTime = this[`${currentDay}EndTime`] as string;
-					const length = differenceBetweenTimes(startTime, endTime);
-
-					await db.run(
-						'INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-						uuidv4(),
-						currentDate.toLocaleDateString('en-GB'),
-						startTime,
-						length,
-						new Date().toLocaleDateString('en-GB'),
-						false,
-						false,
-						null,
-						null,
-						false,
-						true,
-						this.childId,
-						null
-					);
-				}
-			}
-			// Increment day by 1
-			currentDate = new Date(currentDate.getTime() + 86400000);
-		} while (currentDate <= endDate);
-
-		await this.sendConfirmationEmail('approve');
-	}
-
-	async decline() {
-		await this.deleteFromDatabase();
-		await this.sendConfirmationEmail('decline');
-	}
-
+	// Deletes the recurring session request from the database
 	async deleteFromDatabase() {
 		const db = await openDb();
 		await db.run(
@@ -465,6 +441,8 @@ export class RecurringSessionRequest {
 		);
 	}
 
+	// Sends a confirmation email to the parent which the recurring session request belongs to
+	// Email can be to confirm a request, say it is approved, say it has been declined, or say that it has been cancelled
 	async sendConfirmationEmail(type: 'confirm-request' | 'approve' | 'decline' | 'cancel') {
 		const child = await this.getChild();
 		if (child !== undefined) {
@@ -567,36 +545,31 @@ export class Child {
 		this.parentId = childData.parentId;
 	}
 
+	// Gets all the sessions that the child has from the database
 	async getSessions(): Promise<Session[]> {
 		const db = await openDb();
-
-		const databaseData: SessionTable[] = await db.all(
+		const sessionData: SessionTable[] = await db.all(
 			'SELECT * FROM session WHERE childId = ?',
 			this.childId
 		);
 
-		let sessions: Session[] = [];
-		for (let i = 0; i < databaseData.length; i++) {
-			const currentData = databaseData[i];
-			const currentSession = new Session(currentData);
-			sessions = [...sessions, currentSession];
-		}
-		return sessions;
+		// Returns an instance of the session class for each record returned from the database
+		return sessionData.map((session) => new Session(session));
 	}
 
+	// Calculates the child's age
 	getAge(): number {
 		const date = new Date();
 		const formattedDateOfBirth = getDateFromLocaleString(this.dateOfBirth);
 		let age = date.getFullYear() - formattedDateOfBirth.getFullYear();
 		const monthDiff = date.getMonth() - formattedDateOfBirth.getMonth();
-
 		if (monthDiff < 0 || (monthDiff === 0 && date.getDate() < formattedDateOfBirth.getDate())) {
 			age = age - 1;
 		}
-
 		return age;
 	}
 
+	// Calculates the child's age in months
 	getAgeMonths(): number {
 		const date = new Date();
 		const formattedDateOfBirth = getDateFromLocaleString(this.dateOfBirth);
@@ -613,19 +586,21 @@ export class Child {
 		return months - 1;
 	}
 
+	// Gets the child's recurring session request from the database if they have one
 	async getRecurringSessionRequest(): Promise<RecurringSessionRequest | undefined> {
 		const db = await openDb();
-		const request: RecurringSessionRequestTable | undefined = await db.get(
+		const requestData: RecurringSessionRequestTable | undefined = await db.get(
 			'SELECT * FROM recurringSessionRequest WHERE childId = ?',
 			this.childId
 		);
-		if (request !== undefined) {
-			return new RecurringSessionRequest(request);
+		if (requestData !== undefined) {
+			return new RecurringSessionRequest(requestData);
 		} else {
 			return undefined;
 		}
 	}
 
+	// Checks whether or not the child has a recurring session request
 	async hasRecurringSessionRequest(): Promise<boolean> {
 		const recurringSessionRequest = await this.getRecurringSessionRequest();
 		if (recurringSessionRequest === undefined) {
@@ -635,6 +610,7 @@ export class Child {
 		}
 	}
 
+	// Creates a recurring session request in the database for the child
 	async createRecurringSessionRequest(
 		recurringBasis: string,
 		dayDetails: RecurringSessionDayDetails
@@ -670,6 +646,7 @@ export class Child {
 		);
 	}
 
+	// Sets the status of the child's recurring session request in the database
 	async setRecurringSessionRequestStatus(approvalStatus: boolean, reason: string) {
 		const db = await openDb();
 		await db.run(
@@ -679,12 +656,14 @@ export class Child {
 		);
 	}
 
+	// Deletes the child's recurring session request in the database, and any sessions booked under it
 	async deleteRecurringSessionRequest() {
 		const db = await openDb();
 		await db.run('DELETE FROM recurringSessionRequest WHERE childId = ?', this.childId);
 		await db.run('DELETE FROM session WHERE childId = ? and isRecurring = ?', this.childId, true);
 	}
 
+	// Creates the sessions specified in the recurring session request
 	async createRecurringSession(
 		bypassRegs?: boolean
 	): Promise<{ success: true } | { success: false; clashes: Session[] } | undefined> {
@@ -761,6 +740,7 @@ export class Child {
 		}
 	}
 
+	// Gets the parent that the child belongs to
 	async getParent(): Promise<Parent | undefined> {
 		const db = await openDb();
 		const parentData: ParentTable | undefined = await db.get(
@@ -774,6 +754,8 @@ export class Child {
 		}
 	}
 
+	// Creates an absence report for the child
+	// Marks sessions within the specified time as absent
 	async createAbsenceReport(
 		startDate: string,
 		endDate: string,
@@ -857,6 +839,7 @@ export class Invoice {
 		this.childId = invoiceData.childId;
 	}
 
+	// Gets the parent that the invoice is issued to
 	async getParent(): Promise<Parent | undefined> {
 		const db = await openDb();
 		const parentData: ParentTable | undefined = await db.get(
@@ -870,6 +853,7 @@ export class Invoice {
 		}
 	}
 
+	// Gets the child that the invoice is generated upon
 	async getChild(): Promise<Child | undefined> {
 		const db = await openDb();
 		const childData: ChildTable | undefined = await db.get(
@@ -883,6 +867,7 @@ export class Invoice {
 		}
 	}
 
+	// Sends an email to the issued parent to notify them that they have a new invoice
 	async sendConfirmationEmail() {
 		const parent = await this.getParent();
 		if (parent !== undefined) {
@@ -891,7 +876,7 @@ export class Invoice {
 				const mailer = parent.getMailer();
 
 				mailer.sendEmail({
-					subject: 'Session booking confirmation',
+					subject: 'New invoice issued',
 					htmlBody: `
 				Hi ${parent.firstName},
 				<br><br>
@@ -906,12 +891,14 @@ export class Invoice {
 		}
 	}
 
+	// Gets all sessions that are part of the invoice
 	async getSessions(): Promise<Session[]> {
 		return (await getSessionsInPeriod(this.childId, this.startDate, this.endDate)).map(
 			(session) => new Session(session)
 		);
 	}
 
+	// Gets all expenses that are part of the invoice
 	async getExpenses(): Promise<Expense[]> {
 		if (this.includeExpenses) {
 			return (await getExpensesInPeriod(this.startDate, this.endDate)).map(
@@ -942,6 +929,7 @@ export class TimeOffPeriod {
 		this.cancelSessions = timeOffPeriodData.cancelSessions;
 	}
 
+	// Sends an email to all parents notifying them that a time off period has been booked
 	async sendConfirmationEmail() {
 		const admin = getAdmin();
 		const parents = await admin.getParents();
@@ -992,6 +980,7 @@ export class Survey {
 		this.dateCreated = surveyData.dateCreated;
 	}
 
+	// Issues the survey to the parent with the specified parentId
 	async issue(parentId: string) {
 		const date = new Date();
 
@@ -1005,6 +994,7 @@ export class Survey {
 		);
 	}
 
+	// Gets all the questions that are part of the survey
 	async getQuestions(): Promise<SurveyQuestion[]> {
 		const db = await openDb();
 		const questions: SurveyQuestion[] = await db.all(
@@ -1014,6 +1004,7 @@ export class Survey {
 		return questions.map((question) => new SurveyQuestion(question));
 	}
 
+	// Adds a question to the survey and creates the relevant database entries
 	async addQuestion(prompt: string): Promise<SurveyQuestion> {
 		const date = new Date();
 		const surveyQuestion = new SurveyQuestion({
@@ -1060,6 +1051,7 @@ export class SurveyQuestion {
 		this.surveyId = surveyQuestionData.surveyId;
 	}
 
+	// Gets the survey which the question belongs to
 	async getSurvey(): Promise<Survey | undefined> {
 		const db = await openDb();
 		const surveyData: SurveyTable | undefined = await db.get(
@@ -1073,6 +1065,7 @@ export class SurveyQuestion {
 		}
 	}
 
+	// Adds an option to the question and creates the relevant entries in the database
 	async addOption(prompt: string): Promise<SurveyQuestionOption> {
 		const date = new Date();
 		const surveyQuestionOption = new SurveyQuestionOption({
@@ -1112,6 +1105,7 @@ export class SurveyIssue {
 		this.parentId = surveyIssueData.parentId;
 	}
 
+	// Gets the survey that the survey issue is for
 	async getSurvey(): Promise<Survey | undefined> {
 		const db = await openDb();
 		const surveyData: SurveyTable | undefined = await db.get(
@@ -1143,6 +1137,7 @@ export class SurveyQuestionOption {
 		this.surveyQuestionId = surveyQuestionOptionData.surveyQuestionId;
 	}
 
+	// Gets the question that the option belongs to
 	async getSurveyQuestion(): Promise<SurveyQuestion | undefined> {
 		const db = await openDb();
 		const surveyQuestionData: SurveyQuestionTable | undefined = await db.get(
@@ -1172,6 +1167,8 @@ export class ShortNoticeNotification {
 		this.dateCreated = shortNoticeNotificationData.dateCreated;
 	}
 
+	// Sends an email to all parents that the notification has been issued to
+	// Notifies them that a new notification has been issued to them
 	async sendConfirmationEmail() {
 		const db = await openDb();
 		const issues: ShortNoticeNotifcationIssueTable[] = await db.all(
@@ -1184,7 +1181,7 @@ export class ShortNoticeNotification {
 			const currentParent = await getParent(currentIssue.parentId);
 			if (currentParent !== undefined) {
 				await currentParent.sendEmail({
-					subject: 'New short notice notification issued. ',
+					subject: 'New short notice notification issued',
 					htmlBody: `Hi ${currentParent.firstName}
 					<br><br>
 					You have been issued a new short notice notification. It is listed below and is also accessible via the dashboard. 
@@ -1226,6 +1223,7 @@ export class Parent {
 		this.accountId = parentData.accountId;
 	}
 
+	// Gets the account that the parent belongs to
 	async getAccount(): Promise<Account | undefined> {
 		const db = await openDb();
 		const databaseData: AccountTable | undefined = await db.get(
@@ -1238,6 +1236,8 @@ export class Parent {
 			return undefined;
 		}
 	}
+
+	// Gets all children that belong to the parent
 	async getChildren(): Promise<Child[]> {
 		const db = await openDb();
 		const children: ChildTable[] = await db.all(
@@ -1246,6 +1246,8 @@ export class Parent {
 		);
 		return children.map((child) => new Child(child));
 	}
+
+	// Gets all sessions that the parent has booked
 	async getSessions(): Promise<Session[]> {
 		const children = await this.getChildren();
 		let sessions: Session[] = [];
@@ -1260,6 +1262,7 @@ export class Parent {
 		return sessions;
 	}
 
+	// Gets all notifications that have been issued to the parent
 	async getNotifications(): Promise<ShortNoticeNotification[]> {
 		const db = await openDb();
 		const issues: ShortNoticeNotifcationIssueTable[] = await db.all(
@@ -1281,19 +1284,23 @@ export class Parent {
 		return notifications;
 	}
 
+	// Gets an instance of the two way message conversation class for the parent
 	getMessageConversation(): MessageConversation {
 		return new MessageConversation(this.parentId, false);
 	}
 
+	// Gets an instance of the mailer class for the parent
 	getMailer(): Mailer {
 		return new Mailer(this.emailAddress);
 	}
 
+	// Sends an email to the parent given a subject and HTML formatted body
 	sendEmail(options: { subject: string; htmlBody: string }) {
 		const mailer = this.getMailer();
 		mailer.sendEmail(options);
 	}
 
+	// Gets all sessions that have been marked as absent that belong to the parent
 	async getAbsences(): Promise<Session[]> {
 		const db = await openDb();
 		let absentSessions: SessionTable[] = [];
@@ -1312,6 +1319,7 @@ export class Parent {
 		return absentSessions.map((session) => new Session(session));
 	}
 
+	// Gets all surveys that have been issued to the parent
 	async getSurveys(): Promise<Survey[]> {
 		const db = await openDb();
 		const surveyIssues: SurveyIssueTable[] = await db.all(
@@ -1331,6 +1339,7 @@ export class Parent {
 		return surveys;
 	}
 
+	// Gets all invoices that have been issued to the parent
 	async getInvoices(): Promise<Invoice[]> {
 		const db = await openDb();
 		const invoices: InvoiceTable[] = await db.all(
@@ -1354,6 +1363,8 @@ export class MessageConversation {
 		this.isAdmin = isAdmin;
 	}
 
+	// Sends a message from the current user to the chat
+	// Adds the relevant entries in the databas
 	async sendMessage(messageContent: string): Promise<TwoWayMessage> {
 		const db = await openDb();
 		const date = new Date();
@@ -1378,6 +1389,7 @@ export class MessageConversation {
 		return new TwoWayMessage(message);
 	}
 
+	// Gets all messages within the conversation
 	async getMessages(): Promise<TwoWayMessage[]> {
 		const db = await openDb();
 
@@ -1389,6 +1401,7 @@ export class MessageConversation {
 		return messages.map((message) => new TwoWayMessage(message));
 	}
 
+	// Gets the latest message from the conversation
 	async getLatestMessage(): Promise<TwoWayMessage | undefined> {
 		const allMessages = await this.getMessages();
 		if (allMessages.length > 0) {
@@ -1399,6 +1412,7 @@ export class MessageConversation {
 		}
 	}
 
+	// Returns the parent that the message conversation is for
 	async getParent(): Promise<Parent | undefined> {
 		const db = await openDb();
 		const parentData: ParentTable | undefined = await db.get(
@@ -1420,6 +1434,9 @@ export class AvailabilityChecker {
 		this.session = session;
 	}
 
+	// Checks whether the session interferes with a time off period
+	// False = session not available
+	// True = sesison is available
 	async checkTimeOffPeriods(): Promise<boolean> {
 		const db = await openDb();
 		const timeOffPeriods: TimeOffPeriodTable[] = await db.all('SELECT * FROM timeOffPeriod');
@@ -1434,13 +1451,13 @@ export class AvailabilityChecker {
 				formattedSessionDate >= formattedTimeOffStartDate &&
 				formattedSessionDate <= formattedTimeOffEndDate
 			) {
-				// session is inside time off period
 				return false;
 			}
 		}
 		return true;
 	}
 
+	// Gets all sessions that overlap with the proposed one
 	getOverlappingSessions(sessionsOnDate: Session[]): Session[] {
 		const proposedSessionStartTimeSplit = this.session.startTime.split(':');
 
