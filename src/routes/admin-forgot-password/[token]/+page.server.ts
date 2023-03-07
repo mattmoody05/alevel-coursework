@@ -1,5 +1,5 @@
 import { JWT_SIGNING_SECRET_KEY } from '$env/static/private';
-import { getAccount, getAdmin } from '$lib/util/newDb';
+import { getAccount, getAdmin } from '$lib/util/db';
 import { doubleKeyCheck } from '$lib/util/validation';
 import { error, invalid, type Actions } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';

@@ -1,4 +1,4 @@
-import { getAdmin, Parent } from '$lib/util/newDb';
+import { getAdmin, Parent } from '$lib/util/db';
 import type { Actions, RequestEvent } from './$types';
 import jwt from 'jsonwebtoken';
 import { JWT_SIGNING_SECRET_KEY } from '$env/static/private';

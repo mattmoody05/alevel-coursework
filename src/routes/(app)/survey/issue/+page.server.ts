@@ -1,6 +1,6 @@
 import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
-import { getAdmin, getSurvey, type ParentTable } from '$lib/util/newDb';
+import { getAdmin, getSurvey, type ParentTable } from '$lib/util/db';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin } = locals;

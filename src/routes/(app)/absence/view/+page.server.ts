@@ -1,6 +1,6 @@
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 import { error, redirect } from '@sveltejs/kit';
-import { getAdmin, getParent, type Child, type Session } from '$lib/util/newDb';
+import { getAdmin, getParent, type Child, type Session } from '$lib/util/db';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account, isAdmin } = locals;

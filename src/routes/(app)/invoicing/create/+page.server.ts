@@ -1,5 +1,5 @@
 import { generateInvoice } from '$lib/util/generate';
-import { createInvoice, getAdmin } from '$lib/util/newDb';
+import { createInvoice, getAdmin } from '$lib/util/db';
 import { getParentName } from '$lib/util/ui';
 import { presenceCheck, validateDate } from '$lib/util/validation';
 import { error, invalid } from '@sveltejs/kit';

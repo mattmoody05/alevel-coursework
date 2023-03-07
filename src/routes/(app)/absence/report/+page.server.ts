@@ -1,4 +1,4 @@
-import { getParent, getChild } from '$lib/util/newDb';
+import { getParent, getChild } from '$lib/util/db';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import { error, invalid, redirect } from '@sveltejs/kit';
 import { presenceCheck, validateDate } from '$lib/util/validation';

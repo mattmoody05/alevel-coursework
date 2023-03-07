@@ -1,4 +1,4 @@
-import type { Account } from '$lib/util/newDb';
+import type { Account } from '$lib/util/db';
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces

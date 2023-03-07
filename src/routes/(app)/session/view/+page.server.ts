@@ -1,4 +1,4 @@
-import { getAdmin, getParent, Session } from '$lib/util/newDb';
+import { getAdmin, getParent, Session } from '$lib/util/db';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 

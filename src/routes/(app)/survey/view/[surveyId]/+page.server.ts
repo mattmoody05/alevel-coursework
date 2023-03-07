@@ -1,5 +1,5 @@
 import { getExpandedSurvey, getExpandedSurveyWithResponses } from '$lib/util/expandedSurveyUtil';
-import { getAdmin } from '$lib/util/newDb';
+import { getAdmin } from '$lib/util/db';
 import type { expandedSurvey } from '$lib/util/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';

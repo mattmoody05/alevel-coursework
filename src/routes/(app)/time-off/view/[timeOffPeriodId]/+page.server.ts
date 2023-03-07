@@ -1,7 +1,7 @@
 // import { deleteTimeOffPeriod, getTimeOffPeriod } from '$lib/util/db';
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
-import { getTimeOffPeriod } from '$lib/util/newDb';
+import { getTimeOffPeriod } from '$lib/util/db';
 
 export const load: PageServerLoad = async ({ params, request }: PageServerLoadEvent) => {
 	const { timeOffPeriodId } = params;

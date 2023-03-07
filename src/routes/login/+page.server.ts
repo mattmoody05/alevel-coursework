@@ -4,7 +4,7 @@ import { JWT_SIGNING_SECRET_KEY } from '$env/static/private';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import type { AccountTable } from '$lib/util/newDb';
+import type { AccountTable } from '$lib/util/db';
 
 export const load: PageServerLoad = async ({ cookies, locals }: PageServerLoadEvent) => {
 	if (locals.account !== undefined) {

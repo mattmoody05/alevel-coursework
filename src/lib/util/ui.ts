@@ -1,4 +1,4 @@
-import type { ChildTable, ParentTable } from './newDb';
+import type { ChildTable, ParentTable } from './db';
 
 export function stringToColour(str: string | undefined): string {
 	if (str === undefined) {

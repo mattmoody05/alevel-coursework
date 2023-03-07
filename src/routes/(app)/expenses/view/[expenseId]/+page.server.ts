@@ -1,7 +1,7 @@
 import { presenceCheck, validateDate } from '$lib/util/validation';
 import { error, invalid, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
-import { getExpense } from '$lib/util/newDb';
+import { getExpense } from '$lib/util/db';
 
 export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEvent) => {
 	const { isAdmin } = locals;

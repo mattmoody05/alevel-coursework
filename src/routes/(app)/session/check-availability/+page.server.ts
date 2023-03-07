@@ -1,4 +1,4 @@
-import { getAdmin, getParent, Session } from '$lib/util/newDb';
+import { getAdmin, getParent, Session } from '$lib/util/db';
 import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import { v4 as uuidv4 } from 'uuid';

@@ -1,4 +1,4 @@
-import { createExpense } from '$lib/util/newDb';
+import { createExpense } from '$lib/util/db';
 import { presenceCheck, validateDate } from '$lib/util/validation';
 import { error, invalid, type Actions } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';

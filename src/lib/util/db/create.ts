@@ -1,6 +1,6 @@
 import { openDb } from '../../../db';
 import { getDateFromLocaleString } from '../date';
-import { getSessionsOnDate } from '../newDb';
+import { getSessionsOnDate } from '.';
 import {
 	Account,
 	Expense,

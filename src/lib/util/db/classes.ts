@@ -18,7 +18,7 @@ import type {
 	SurveyTable,
 	TimeOffPeriodTable,
 	TwoWayMessageTable
-} from '$lib/util/newDb/tables';
+} from '$lib/util/db/tables';
 import { v4 as uuidv4 } from 'uuid';
 import { getDateFromLocaleString } from '../date';
 import { Mailer } from '../email';

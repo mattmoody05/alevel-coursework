@@ -1,5 +1,5 @@
 import { HOURLY_RATE } from '$env/static/private';
-import { getInvoice } from '$lib/util/newDb';
+import { getInvoice } from '$lib/util/db';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 

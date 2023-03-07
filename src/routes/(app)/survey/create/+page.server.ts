@@ -1,7 +1,7 @@
 import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import { v4 as uuidv4 } from 'uuid';
-import { createSurvey } from '$lib/util/newDb';
+import { createSurvey } from '$lib/util/db';
 import { presenceCheck } from '$lib/util/validation';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {

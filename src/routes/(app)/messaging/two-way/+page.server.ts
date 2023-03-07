@@ -1,7 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-import { getAdmin, type ParentTable, type TwoWayMessageTable } from '$lib/util/newDb';
-import { getParent } from '$lib/util/newDb';
+import { getAdmin, type ParentTable, type TwoWayMessageTable } from '$lib/util/db';
+import { getParent } from '$lib/util/db';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account, isAdmin } = locals;

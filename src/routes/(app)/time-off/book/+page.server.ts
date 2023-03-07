@@ -1,4 +1,4 @@
-import { createTimeOffPeriod } from '$lib/util/newDb';
+import { createTimeOffPeriod } from '$lib/util/db';
 import { validateDate } from '$lib/util/validation';
 import { invalid } from '@sveltejs/kit';
 import type { Actions, RequestEvent } from './$types';

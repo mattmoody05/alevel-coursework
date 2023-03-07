@@ -1,5 +1,5 @@
-import { getAdmin, getParent, Session } from '$lib/util/newDb';
-import { createSession } from '$lib/util/newDb';
+import { getAdmin, getParent, Session } from '$lib/util/db';
+import { createSession } from '$lib/util/db';
 import { presenceCheck, validateDate, validateTime } from '$lib/util/validation';
 import { error, invalid, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';

@@ -1,4 +1,4 @@
-import { getAdmin, ShortNoticeNotification, getParent } from '$lib/util/newDb';
+import { getAdmin, ShortNoticeNotification, getParent } from '$lib/util/db';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 

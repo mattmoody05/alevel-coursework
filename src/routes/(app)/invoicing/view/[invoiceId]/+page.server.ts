@@ -1,4 +1,4 @@
-import { getParent, getInvoice } from '$lib/util/newDb';
+import { getParent, getInvoice } from '$lib/util/db';
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 

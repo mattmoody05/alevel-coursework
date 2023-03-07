@@ -1,5 +1,5 @@
-import { getParent } from '$lib/util/newDb';
-import { MessageConversation } from '$lib/util/newDb';
+import { getParent } from '$lib/util/db';
+import { MessageConversation } from '$lib/util/db';
 import { error, json, redirect } from '@sveltejs/kit';
 import type { RequestEvent, RequestHandler } from './$types';
 

@@ -1,4 +1,4 @@
-import { getParent, getChild } from '$lib/util/newDb';
+import { getParent, getChild } from '$lib/util/db';
 import { error, invalid } from '@sveltejs/kit';
 import type { Actions, RequestEvent } from './$types';
 import { openDb } from '../../../db/index';

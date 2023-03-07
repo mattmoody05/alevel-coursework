@@ -7,7 +7,7 @@ import type {
 } from './types';
 import { openDb } from '../../db/index';
 import { v4 as uuidv4 } from 'uuid';
-import { getSurvey, getSurveyQuestion, SurveyQuestion, type SurveyResponseTable } from './newDb';
+import { getSurvey, getSurveyQuestion, SurveyQuestion, type SurveyResponseTable } from './db';
 
 export async function getExpandedSurveyQuestion(
 	surveyQuestionId: string

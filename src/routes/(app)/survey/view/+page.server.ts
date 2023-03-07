@@ -1,4 +1,4 @@
-import { getAdmin, Survey } from '$lib/util/newDb';
+import { getAdmin, Survey } from '$lib/util/db';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 

@@ -2,7 +2,7 @@ import type { Actions, RequestEvent } from './$types';
 import { invalid } from '@sveltejs/kit';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
-import { getAccountByUsername, createAccount, createParent } from '$lib/util/newDb';
+import { getAccountByUsername, createAccount, createParent } from '$lib/util/db';
 import {
 	presenceCheck,
 	validateDate,

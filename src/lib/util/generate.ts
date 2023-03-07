@@ -1,12 +1,5 @@
 import { HOURLY_RATE } from '$env/static/private';
-import {
-	Expense,
-	getChild,
-	getExpensesInPeriod,
-	Invoice,
-	Session,
-	type InvoiceTable
-} from './newDb';
+import { Expense, getChild, getExpensesInPeriod, Invoice, Session, type InvoiceTable } from './db';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function generateInvoice(invoiceDetails: {

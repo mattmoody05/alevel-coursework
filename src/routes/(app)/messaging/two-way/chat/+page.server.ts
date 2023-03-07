@@ -1,6 +1,6 @@
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from '../$types';
 import { error, invalid, redirect } from '@sveltejs/kit';
-import { MessageConversation, getParent } from '$lib/util/newDb';
+import { MessageConversation, getParent } from '$lib/util/db';
 import { presenceCheck } from '$lib/util/validation';
 
 export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent) => {

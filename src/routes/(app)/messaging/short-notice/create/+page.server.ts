@@ -1,8 +1,8 @@
-import { getAdmin, type ParentTable } from '$lib/util/newDb';
+import { getAdmin, type ParentTable } from '$lib/util/db';
 import { presenceCheck } from '$lib/util/validation';
 import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
-import { createShortNoticeNotification } from '$lib/util/newDb';
+import { createShortNoticeNotification } from '$lib/util/db';
 import { v4 as uuidv4 } from 'uuid';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {

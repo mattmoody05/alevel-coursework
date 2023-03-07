@@ -1,10 +1,4 @@
-import {
-	getAdmin,
-	getChild,
-	getParent,
-	RecurringSessionRequest,
-	type Child
-} from '$lib/util/newDb';
+import { getAdmin, getChild, getParent, RecurringSessionRequest, type Child } from '$lib/util/db';
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 

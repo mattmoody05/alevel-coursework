@@ -1,4 +1,4 @@
-import { getAdmin } from '$lib/util/newDb';
+import { getAdmin } from '$lib/util/db';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
 export const load: PageServerLoad = async ({}: PageServerLoadEvent) => {

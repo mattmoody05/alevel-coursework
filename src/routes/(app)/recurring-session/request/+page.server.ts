@@ -1,4 +1,4 @@
-import { getChild, getParent } from '$lib/util/newDb';
+import { getChild, getParent } from '$lib/util/db';
 import type { LowercaseDay, RecurringSessionDayDetails } from '$lib/util/types';
 import { presenceCheck, validateTime } from '$lib/util/validation';
 import { error, invalid, redirect } from '@sveltejs/kit';
