@@ -30,7 +30,7 @@ import {
 	RECURRING_BOOKING_EXPIRY
 } from '$env/static/private';
 import { differenceBetweenTimes } from '$lib/util/date';
-import { getSessionsOnDate } from '../db';
+import { getExpensesInPeriod, getSessionsInPeriod, getSessionsOnDate } from '../db';
 import bcrypt from 'bcrypt';
 import { createSession } from './create';
 import { getAdmin, getParent } from './get';
@@ -903,6 +903,22 @@ export class Invoice {
 				`
 				});
 			}
+		}
+	}
+
+	async getSessions(): Promise<Session[]> {
+		return (await getSessionsInPeriod(this.childId, this.startDate, this.endDate)).map(
+			(session) => new Session(session)
+		);
+	}
+
+	async getExpenses(): Promise<Expense[]> {
+		if (this.includeExpenses) {
+			return (await getExpensesInPeriod(this.startDate, this.endDate)).map(
+				(expense) => new Expense(expense)
+			);
+		} else {
+			return [];
 		}
 	}
 
