@@ -1,4 +1,4 @@
-import { getAllChildren, getAllInvoices, getChildren, getInvoices } from '$lib/util/db';
+import { getAdmin, getParent } from '$lib/util/newDb';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
@@ -6,21 +6,30 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account, isAdmin } = locals;
 
 	if (isAdmin === true) {
+		const admin = getAdmin();
+
 		// Child and invoice data is fetched from the database
-		const invoices = await getAllInvoices();
-		const children = await getAllChildren();
+		const invoices = await admin.getInvoices();
+		const children = await admin.getChildren();
 
 		// Data is returned so that it can be used in the HTML template
-		return { invoices, children };
+		return {
+			invoices: invoices.map((invoice) => invoice.getData()),
+			children: children.map((child) => child.getData())
+		};
 	} else {
 		if (account !== undefined) {
-			if (account.parentId !== undefined) {
+			const parent = await getParent(account.accountId);
+			if (parent !== undefined) {
 				// Child and invoice data is fetched from the database for the current parent
-				const invoices = await getInvoices(account.parentId);
-				const children = await getChildren(account.parentId);
+				const invoices = await parent.getInvoices();
+				const children = await parent.getChildren();
 
 				// Data is returned so that it can be used in the HTML template
-				return { invoices, children };
+				return {
+					invoices: invoices.map((invoice) => invoice.getData()),
+					children: children.map((child) => child.getData())
+				};
 			} else {
 				// The parentId field of the account record is undefined - therefore the account is not linked to a parent
 				// 400: Bad request code

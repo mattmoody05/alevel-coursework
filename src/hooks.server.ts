@@ -1,5 +1,5 @@
 import { getAccountId } from '$lib/util/cookies';
-import { getAccount } from '$lib/util/db';
+import { getAccount } from '$lib/util/newDb';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {

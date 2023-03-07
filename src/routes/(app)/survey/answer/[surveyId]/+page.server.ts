@@ -1,4 +1,4 @@
-import { getExpandedSurvey, getExpandedSurveyQuestion } from '$lib/util/db';
+import { getExpandedSurvey, getExpandedSurveyQuestion } from '$lib/util/expandedSurveyUtil';
 import type { expandedSurvey } from '$lib/util/types';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';

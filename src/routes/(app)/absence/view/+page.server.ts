@@ -1,21 +1,23 @@
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-import type { child, session } from '$lib/util/types';
-import { getAllChildren, getChildren, getSessionsWithAbsence } from '$lib/util/db';
 import { error, redirect } from '@sveltejs/kit';
+import { getAdmin, getParent, type Child, type Session } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account, isAdmin } = locals;
 
 	if (account !== undefined) {
-		let children: child[] = [];
-		let absentSessions: session[] = [];
-		if (isAdmin) {
+		let children: Child[] = [];
+		let absentSessions: Session[] = [];
+		if (isAdmin === true) {
+			const admin = getAdmin();
+
 			// Fetches all children from the database if the current user is an admin
-			children = await getAllChildren();
+			children = await admin.getChildren();
 		} else {
-			if (account.parentId !== undefined) {
+			const parent = await getParent(account.accountId);
+			if (parent !== undefined) {
 				// Fetches the children belonging to the current parent who is logged in
-				children = await getChildren(account.parentId);
+				children = await parent.getChildren();
 			} else {
 				// The parentId field of the account record is undefined - therefore the account is not linked to a parent
 				// 500: Internal server error code
@@ -31,7 +33,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 			const currentChild = children[i];
 
 			// Fetches all absent sessions that belong to the current child from the database
-			const sessionsWithAbsence = await getSessionsWithAbsence(currentChild.childId);
+			const sessionsWithAbsence = await currentChild.getAbsentSessions();
 
 			// Looping through all the absent sessions tha the child has
 			for (let j = 0; j < sessionsWithAbsence.length; j++) {
@@ -43,7 +45,10 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		}
 
 		// Data is returned so that it can be used as part of the HTML template
-		return { absentSessions, children };
+		return {
+			absentSessions: absentSessions.map((session) => session.getData()),
+			children: children.map((child) => child.getData())
+		};
 	} else {
 		// No user is currently logged in
 		// User is redirected to the login page

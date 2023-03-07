@@ -1,8 +1,9 @@
-import { issueShortNoticeNotification, writeShortNoticeNoitification } from '$lib/util/db';
-import { getAdmin, ShortNoticeNotification, type ParentTable } from '$lib/util/newDb';
+import { getAdmin, type ParentTable } from '$lib/util/newDb';
 import { presenceCheck } from '$lib/util/validation';
 import { error, invalid } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
+import { createShortNoticeNotification } from '$lib/util/newDb';
+import { v4 as uuidv4 } from 'uuid';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin } = locals;
@@ -68,18 +69,32 @@ export const actions: Actions = {
 			}
 
 			// Creates and writes the notification data to the database
-			const notification = await writeShortNoticeNoitification(message);
+			const notification = await createShortNoticeNotification({
+				notificationId: uuidv4(),
+				dateCreated: new Date().toLocaleDateString('en-GB'),
+				message: message
+			});
 
-			const shortNoticeNotification = new ShortNoticeNotification(notification);
+			if (allParents === true) {
+				const admin = getAdmin();
+				const parents = await admin.getParents();
+				for (let i = 0; i < parents.length; i++) {
+					const currentParent = parents[i];
+					await notification.issue(allParents, currentParent.parentId);
+				}
+			} else {
+				for (let i = 0; i < selectedParents.length; i++) {
+					const currentParent = selectedParents[i];
+					await notification.issue(allParents, currentParent.parentId);
+				}
+			}
 
-			await shortNoticeNotification.sendConfirmationEmail();
-
-			// Issues the notification that has been created and written to the parents that have been specified
-			await issueShortNoticeNotification(notification.notificationId, allParents, selectedParents);
+			// Sends a confirmation email to each parent that has had a notification issued to them
+			await notification.sendConfirmationEmail();
 
 			// Data is returned so that it can be part of the HTML template
 			// The notification has been created and issued successfully
-			return { success: true, notification };
+			return { success: true, notification: notification.getData() };
 		} else {
 			// The current user is not an admin, they do not have the rights to create the notification
 			// 401: Forbidden code

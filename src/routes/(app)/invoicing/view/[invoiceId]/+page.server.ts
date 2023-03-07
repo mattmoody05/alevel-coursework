@@ -1,4 +1,4 @@
-import { getChildren, getInvoice, updateInvoicePaymentStatus } from '$lib/util/db';
+import { getParent, getInvoice } from '$lib/util/newDb';
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 
@@ -6,13 +6,17 @@ export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEve
 	const { account } = locals;
 	if (params.invoiceId !== '') {
 		if (account !== undefined) {
-			if (account.parentId !== undefined) {
+			const parent = await getParent(account.accountId);
+			if (parent !== undefined) {
 				// Child and invoice data is fetched from the database
-				const children = await getChildren(account.parentId);
-				const invoiceData = await getInvoice(params.invoiceId);
+				const children = await parent.getChildren();
+				const invoice = await getInvoice(params.invoiceId);
 
-				if (invoiceData !== undefined) {
-					return { invoiceData, children };
+				if (invoice !== undefined) {
+					return {
+						invoiceData: invoice.getData(),
+						children: children.map((child) => child.getData())
+					};
 				} else {
 					// No invoice was returned from the database with the specified invoiceId
 					// 404: Not found code
@@ -49,11 +53,20 @@ export const actions: Actions = {
 		const data = await request.formData();
 		const paymentStatus = data.get('paymentStatus') as string;
 
-		// Updating the payment status of the invoice in the database
-		await updateInvoicePaymentStatus(params.invoiceId, paymentStatus);
+		const invoice = await getInvoice(params.invoiceId);
 
-		// Data is returned so that it can be part of the HTML template
-		// The invoice payment status was updated successfully
-		return { success: true };
+		if (invoice !== undefined) {
+			// Updating the payment status of the invoice in the database
+			await invoice.updatePaymentStatus(paymentStatus);
+
+			// Data is returned so that it can be part of the HTML template
+			// The invoice payment status was updated successfully
+			return { success: true };
+		} else {
+			throw error(
+				404,
+				'An invoice with the invoiceId specified could not be found in the database, please ensure that you have input a valid invoiceId'
+			);
+		}
 	}
 };

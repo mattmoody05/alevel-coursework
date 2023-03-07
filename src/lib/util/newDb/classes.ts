@@ -14,6 +14,7 @@ import type {
 	SurveyIssueTable,
 	SurveyQuestionOptionTable,
 	SurveyQuestionTable,
+	SurveyResponseTable,
 	SurveyTable,
 	TimeOffPeriodTable,
 	TwoWayMessageTable
@@ -30,10 +31,9 @@ import {
 	RECURRING_BOOKING_EXPIRY
 } from '$env/static/private';
 import { differenceBetweenTimes } from '$lib/util/date';
-import { getExpensesInPeriod, getSessionsInPeriod, getSessionsOnDate } from '../db';
 import bcrypt from 'bcrypt';
 import { createSession } from './create';
-import { getAdmin, getParent } from './get';
+import { getAdmin, getParent, getExpensesInPeriod, getSessionsOnDate } from './get';
 
 export class Admin {
 	// Sets the admin's password
@@ -41,6 +41,12 @@ export class Admin {
 		const passwordHash: string = await bcrypt.hash(newPassword, 10);
 		const db = await openDb();
 		await db.run('UPDATE account SET password = ? WHERE isAdmin = ?', passwordHash, true);
+	}
+
+	async getExpenses(): Promise<Expense[]> {
+		const db = await openDb();
+		const expenses: ExpenseTable[] = await db.all('SELECT * FROM expense');
+		return expenses.map((expense) => new Expense(expense));
 	}
 
 	// Gets all child records from the database
@@ -110,6 +116,12 @@ export class Admin {
 		// Creates and returns an instance of the invoice class for each record from the database
 		return invoices.map((invoice) => new Invoice(invoice));
 	}
+
+	async getTimeOffPeriods() {
+		const db = await openDb();
+		const timeOffPeriods: TimeOffPeriodTable[] = await db.all('SELECT * FROM timeOffPeriod');
+		return timeOffPeriods.map((period) => new TimeOffPeriod(period));
+	}
 }
 
 export class Account {
@@ -172,6 +184,16 @@ export class Session {
 		this.isRecurring = sessionData.isRecurring;
 		this.childId = sessionData.childId;
 		this.invoiceId = sessionData.invoiceId;
+	}
+
+	async updateAbsenceStatus(chargeSession: boolean, keepSession: boolean) {
+		const db = await openDb();
+		await db.run(
+			'UPDATE session SET absenceCharge = ?, absenceKeepSession = ? WHERE sessionId = ?',
+			chargeSession,
+			keepSession,
+			this.sessionId
+		);
 	}
 
 	getData(): SessionTable {
@@ -364,6 +386,53 @@ export class Expense {
 		this.invoiceId = expenseData.invoiceId;
 	}
 
+	async setName(newName: string) {
+		this.name = newName;
+		const db = await openDb();
+		await db.run('UPDATE expense SET name = ? WHERE expenseId = ?', newName, this.expenseId);
+	}
+	async setDate(newDate: string) {
+		this.date = newDate;
+		const db = await openDb();
+		await db.run('UPDATE expense SET date = ? WHERE expenseId = ?', newDate, this.expenseId);
+	}
+	async setCost(newCost: number) {
+		this.cost = newCost;
+		const db = await openDb();
+		await db.run('UPDATE expense SET cost = ? WHERE expenseId = ?', newCost, this.expenseId);
+	}
+
+	async setType(newType: string) {
+		this.type = newType;
+		const db = await openDb();
+		await db.run('UPDATE expense SET type = ? WHERE expenseId = ?', newType, this.expenseId);
+	}
+
+	async setChargeStatus(newChargeStatus: boolean) {
+		this.chargeToParents = newChargeStatus;
+		const db = await openDb();
+		await db.run(
+			'UPDATE expense SET chargeToParents = ? WHERE expenseId = ?',
+			newChargeStatus,
+			this.expenseId
+		);
+	}
+
+	async setSupportingDocsPath(newSupportingDocsPath: string) {
+		this.supportingDocs = newSupportingDocsPath;
+		const db = await openDb();
+		await db.run(
+			'UPDATE expense SET supportingDocs = ? WHERE expenseId = ?',
+			newSupportingDocsPath,
+			this.expenseId
+		);
+	}
+
+	async deleteFromDatabase() {
+		const db = await openDb();
+		await db.run('DELETE FROM expense WHERE expenseId = ?', this.expenseId);
+	}
+
 	getData(): ExpenseTable {
 		return { ...this };
 	}
@@ -545,6 +614,34 @@ export class Child {
 		this.parentId = childData.parentId;
 	}
 
+	// Gets all the child's sessions within a specified period
+	async getSessionsInPeriod(startDate: string, endDate: string): Promise<Session[]> {
+		const formattedStartDate = getDateFromLocaleString(startDate);
+		const formattedEndDate = getDateFromLocaleString(endDate);
+
+		const db = await openDb();
+		const sessionData: SessionTable[] = await db.all(
+			'SELECT * FROM session WHERE childId = ?',
+			this.childId
+		);
+
+		const sessions: Session[] = sessionData.map((session) => new Session(session));
+
+		let inPeriodSessions: Session[] = [];
+
+		for (let index = 0; index < sessions.length; index++) {
+			const currentSession: Session = sessions[index];
+			const currentSessionDate = getDateFromLocaleString(currentSession.date);
+
+			// checks whether the session is the right date range
+			if (formattedStartDate <= currentSessionDate && currentSessionDate <= formattedEndDate) {
+				inPeriodSessions = [...inPeriodSessions, currentSession];
+			}
+		}
+
+		return inPeriodSessions;
+	}
+
 	// Gets all the sessions that the child has from the database
 	async getSessions(): Promise<Session[]> {
 		const db = await openDb();
@@ -555,6 +652,16 @@ export class Child {
 
 		// Returns an instance of the session class for each record returned from the database
 		return sessionData.map((session) => new Session(session));
+	}
+
+	async getAbsentSessions() {
+		const db = await openDb();
+		const sessionsWithAbsence: SessionTable[] = await db.all(
+			'SELECT * FROM session WHERE childId = ? AND absent = ?',
+			this.childId,
+			true
+		);
+		return sessionsWithAbsence.map((session) => new Session(session));
 	}
 
 	// Calculates the child's age
@@ -891,11 +998,24 @@ export class Invoice {
 		}
 	}
 
+	// Updates the payment status of the invoice in the database
+	async updatePaymentStatus(newPaymentStatus: string) {
+		const db = await openDb();
+		await db.run(
+			'UPDATE invoice SET paymentStatus = ? WHERE invoiceId = ?',
+			newPaymentStatus,
+			this.invoiceId
+		);
+	}
+
 	// Gets all sessions that are part of the invoice
 	async getSessions(): Promise<Session[]> {
-		return (await getSessionsInPeriod(this.childId, this.startDate, this.endDate)).map(
-			(session) => new Session(session)
-		);
+		const child = await this.getChild();
+		if (child !== undefined) {
+			return child.getSessionsInPeriod(this.startDate, this.endDate);
+		} else {
+			return [];
+		}
 	}
 
 	// Gets all expenses that are part of the invoice
@@ -954,6 +1074,11 @@ ${
 				`
 			});
 		}
+	}
+
+	async deleteFromDatabase() {
+		const db = await openDb();
+		await db.run('DELETE FROM timeOffPeriod WHERE timeOffPeriodId = ?', this.timeOffPeriodId);
 	}
 
 	getData(): TimeOffPeriodTable {
@@ -1051,6 +1176,15 @@ export class SurveyQuestion {
 		this.surveyId = surveyQuestionData.surveyId;
 	}
 
+	async getResponses(): Promise<SurveyResponseTable[]> {
+		const db = await openDb();
+		const responses: SurveyResponseTable[] = await db.all(
+			'SELECT * FROM surveyResponse WHERE surveyQuestionId = ?',
+			this.surveyQuestionId
+		);
+		return responses;
+	}
+
 	// Gets the survey which the question belongs to
 	async getSurvey(): Promise<Survey | undefined> {
 		const db = await openDb();
@@ -1085,6 +1219,15 @@ export class SurveyQuestion {
 		);
 
 		return surveyQuestionOption;
+	}
+
+	async getOptions(): Promise<SurveyQuestionOption[]> {
+		const db = await openDb();
+		const optionData: SurveyQuestionOptionTable[] = await db.all(
+			'SELECT * FROM surveyQuestionOption WHERE surveyQuestionId = ?',
+			this.surveyQuestionId
+		);
+		return optionData.map((option) => new SurveyQuestionOption(option));
 	}
 
 	getData(): SurveyQuestionTable {
@@ -1195,6 +1338,18 @@ export class ShortNoticeNotification {
 		}
 	}
 
+	async issue(allParents: boolean, parentId: string) {
+		const db = await openDb();
+		await db.run(
+			'INSERT INTO shortNoticeNotificationIssue VALUES (?, ?, ?, ?, ?)',
+			uuidv4(),
+			allParents,
+			new Date().toLocaleDateString('en-GB'),
+			parentId,
+			this.notificationId
+		);
+	}
+
 	getData(): ShortNoticeNotificationTable {
 		return { ...this };
 	}
@@ -1235,6 +1390,33 @@ export class Parent {
 		} else {
 			return undefined;
 		}
+	}
+
+	// Checks whether a parent has access to a certain session
+	// False = They do not have access to it
+	// True = They do have access to it
+	async hasAccessToSession(sessionId: string) {
+		const db = await openDb();
+		const sessionChildId: { childId: string } | undefined = await db.get(
+			'SELECT childId FROM session WHERE sessionId = ?',
+			sessionId
+		);
+
+		if (sessionChildId !== undefined) {
+			const parentChildrenId: { childId: string }[] = await db.all(
+				'SELECT childId FROM child WHERE parentId = ?',
+				this.parentId
+			);
+
+			for (let i = 0; i < parentChildrenId.length; i++) {
+				const currentChildId = parentChildrenId[i];
+				if (currentChildId.childId === sessionChildId.childId) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	// Gets all children that belong to the parent
@@ -1501,9 +1683,7 @@ export class AvailabilityChecker {
 	async checkChildcareLimits(): Promise<boolean> {
 		const sessionsOnDate = await getSessionsOnDate(this.session.date);
 
-		const existingSessions = this.getOverlappingSessions(
-			sessionsOnDate.map((session) => new Session(session))
-		);
+		const existingSessions = this.getOverlappingSessions(sessionsOnDate);
 
 		let underTwelveYears: number = 0;
 		let underEightYears: number = 0;

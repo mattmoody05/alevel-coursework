@@ -1,4 +1,4 @@
-import { generateInvoice } from '$lib/util/db';
+import { generateInvoice } from '$lib/util/generate';
 import { createInvoice, getAdmin } from '$lib/util/newDb';
 import { getParentName } from '$lib/util/ui';
 import { presenceCheck, validateDate } from '$lib/util/validation';
@@ -215,7 +215,7 @@ export const actions: Actions = {
 			});
 
 			// Writes the previously generated invoice to the database
-			const invoice = await createInvoice(generatedInvoice);
+			const invoice = await createInvoice(generatedInvoice.getData());
 
 			// Sends a confirmation email to the parent the invoice has been issued to prompting them to view the invoice
 			await invoice.sendConfirmationEmail();

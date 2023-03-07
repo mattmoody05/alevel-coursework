@@ -1,17 +1,15 @@
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-import { getSurveys } from '$lib/util/db';
 import { error } from '@sveltejs/kit';
+import { getParent } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { isAdmin, account } = locals;
-	if (!isAdmin) {
+	if (isAdmin === false) {
 		if (account !== undefined) {
-			if (account.parentId !== undefined) {
-				const surveys = await getSurveys(account.parentId);
-				if (surveys !== undefined) {
-					return { surveys };
-				}
-				throw error(500, 'surveys undefined');
+			const parent = await getParent(account.accountId);
+			if (parent !== undefined) {
+				const surveys = await parent.getSurveys();
+				return { surveys: surveys.map((survey) => survey.getData()) };
 			}
 			throw error(500, 'parent id undefined');
 		}

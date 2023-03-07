@@ -1,7 +1,8 @@
-import { getTimeOffPeriods } from '$lib/util/db';
+import { getAdmin } from '$lib/util/newDb';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
 export const load: PageServerLoad = async ({}: PageServerLoadEvent) => {
-	const periods = await getTimeOffPeriods();
-	return { timeOffPeriods: periods };
+	const admin = getAdmin();
+	const periods = await admin.getTimeOffPeriods();
+	return { timeOffPeriods: periods.map((period) => period.getData()) };
 };

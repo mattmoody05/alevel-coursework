@@ -1,8 +1,8 @@
-import { createTimeOffPeriod } from '$lib/util/db';
-import { TimeOffPeriod } from '$lib/util/newDb';
+import { createTimeOffPeriod } from '$lib/util/newDb';
 import { validateDate } from '$lib/util/validation';
 import { invalid } from '@sveltejs/kit';
 import type { Actions, RequestEvent } from './$types';
+import { v4 as uuidv4 } from 'uuid';
 
 export const actions: Actions = {
 	default: async ({ request }: RequestEvent) => {
@@ -34,9 +34,14 @@ export const actions: Actions = {
 			});
 		}
 
-		const timeOffPeriodData = await createTimeOffPeriod(startDate, endDate, cancelSessions);
-		const timeOffPeriod = new TimeOffPeriod(timeOffPeriodData.timeOffPeriodData);
-		await timeOffPeriod.sendConfirmationEmail();
+		const timeOffPeriodData = await createTimeOffPeriod({
+			cancelSessions: cancelSessions,
+			startDate: startDate,
+			endDate: endDate,
+			dateRecorded: new Date().toLocaleDateString('en-GB'),
+			timeOffPeriodId: uuidv4()
+		});
+		await timeOffPeriodData.timeOffPeriod.sendConfirmationEmail();
 
 		return {
 			success: true,

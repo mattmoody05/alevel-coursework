@@ -1,17 +1,17 @@
-import { deleteExpense, getExpense, updateExpense } from '$lib/util/db';
 import { presenceCheck, validateDate } from '$lib/util/validation';
 import { error, invalid, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
+import { getExpense } from '$lib/util/newDb';
 
 export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEvent) => {
 	const { isAdmin } = locals;
 	if (isAdmin === true) {
 		if (params.expenseId !== '') {
 			// Fetches the expence with the expenseId specified in the page's URL from the database
-			const expenseData = await getExpense(params.expenseId);
-			if (expenseData !== undefined) {
+			const expense = await getExpense(params.expenseId);
+			if (expense !== undefined) {
 				// Data is returned so that it can be part of the HTML template
-				return { expenseData };
+				return { expenseData: expense.getData() };
 			} else {
 				// No expense matching the provided expenseId was returned from the databse
 				// 404: Not found code
@@ -97,20 +97,25 @@ export const actions: Actions = {
 				});
 			}
 
-			// Updates the expense report in the database
-			await updateExpense(
-				expenseId,
-				expenseName,
-				date,
-				cost,
-				type,
-				chargeToParents,
-				supportingDocsPath
-			);
+			const expense = await getExpense(expenseId);
 
-			// Redirects the user to the page to view all expenses
-			// The redirect-from query parameter tells the new page what action has occured so the interface can reflect that
-			throw redirect(308, '/expenses/view?redirect-from=update-session');
+			if (expense !== undefined) {
+				await expense.setChargeStatus(chargeToParents);
+				await expense.setName(expenseName);
+				await expense.setDate(date);
+				await expense.setCost(cost);
+				await expense.setType(type);
+				await expense.setSupportingDocsPath(supportingDocsPath);
+
+				// Redirects the user to the page to view all expenses
+				// The redirect-from query parameter tells the new page what action has occured so the interface can reflect that
+				throw redirect(308, '/expenses/view?redirect-from=update-session');
+			} else {
+				throw error(
+					404,
+					'An expense with that expenseId could not be found. Please ensure that you have input a valid expenseId'
+				);
+			}
 		} else {
 			// The current user is not an admin, they do not have the rights to modify absence reports
 			// 401: Forbidden code
@@ -122,12 +127,19 @@ export const actions: Actions = {
 	deleteExpense: async ({ params, locals }: RequestEvent) => {
 		const { isAdmin } = locals;
 		if (isAdmin === true) {
-			// Deletes the expense report in the database
-			await deleteExpense(params.expenseId);
+			const expense = await getExpense(params.expenseId);
+			if (expense !== undefined) {
+				await expense.deleteFromDatabase();
 
-			// Redirects the user to the page to view all expenses
-			// The redirect-from query parameter tells the new page what action has occured so the interface can reflect that
-			throw redirect(300, '/expenses/view?redirect-from=delete-session');
+				// Redirects the user to the page to view all expenses
+				// The redirect-from query parameter tells the new page what action has occured so the interface can reflect that
+				throw redirect(300, '/expenses/view?redirect-from=delete-session');
+			} else {
+				throw error(
+					404,
+					'An expense with that expenseId could not be found. Please ensure that you have input a valid expenseId'
+				);
+			}
 		} else {
 			// The current user is not an admin, they do not have the rights to delete absence reports
 			// 401: Forbidden code

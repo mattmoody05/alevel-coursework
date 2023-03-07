@@ -1,4 +1,5 @@
 import { openDb } from '../../../db';
+import { getDateFromLocaleString } from '../date';
 import {
 	Account,
 	Admin,
@@ -226,4 +227,35 @@ export async function getAccountByUsername(username: string): Promise<Account | 
 	} else {
 		return undefined;
 	}
+}
+
+export async function getExpensesInPeriod(startDate: string, endDate: string): Promise<Expense[]> {
+	const db = await openDb();
+	const formattedStartDate = getDateFromLocaleString(startDate);
+	const formattedEndDate = getDateFromLocaleString(endDate);
+
+	const expenseData: ExpenseTable[] = await db.all('SELECT * FROM expense');
+	const expenses = expenseData.map((expense) => new Expense(expense));
+
+	let inPeriodExpenses: Expense[] = [];
+
+	if (expenses !== undefined) {
+		for (let index = 0; index < expenses.length; index++) {
+			const currentExpense: Expense = expenses[index];
+			const currentExpenseDate = getDateFromLocaleString(currentExpense.date);
+
+			// checks whether the expense is the right date range
+			if (formattedStartDate <= currentExpenseDate && currentExpenseDate <= formattedEndDate) {
+				inPeriodExpenses = [...inPeriodExpenses, currentExpense];
+			}
+		}
+	}
+
+	return inPeriodExpenses;
+}
+
+export async function getSessionsOnDate(date: string): Promise<Session[]> {
+	const db = await openDb();
+	const sessions: SessionTable[] = await db.all('SELECT * FROM session WHERE date = ?', date);
+	return sessions.map((session) => new Session(session));
 }

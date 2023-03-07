@@ -1,7 +1,8 @@
-import { createExpense } from '$lib/util/db';
+import { createExpense } from '$lib/util/newDb';
 import { presenceCheck, validateDate } from '$lib/util/validation';
 import { error, invalid, type Actions } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';
+import { v4 as uuidv4 } from 'uuid';
 
 export const actions: Actions = {
 	// Handles the user submitting the form to create an expense report
@@ -70,18 +71,20 @@ export const actions: Actions = {
 			}
 
 			// Creates the expense report in the database
-			const createdExpense = await createExpense(
-				expenseName,
-				date,
-				cost,
-				type,
-				chargeToParents,
-				supportingDocsPath
-			);
+			const createdExpense = await createExpense({
+				chargeToParents: chargeToParents,
+				cost: cost,
+				date: date,
+				dateRecorded: new Date().toLocaleDateString('en-GB'),
+				expenseId: uuidv4(),
+				name: expenseName,
+				supportingDocs: supportingDocsPath,
+				type: type
+			});
 
 			// Data is returned so that it can be part of the HTML template
 			// The expense report was created successfully
-			return { success: true, createdExpense };
+			return { success: true, createdExpense: createdExpense.getData() };
 		} else {
 			// The current user is not an admin, therefore they cannot report an absence
 			// 401: Forbidden code

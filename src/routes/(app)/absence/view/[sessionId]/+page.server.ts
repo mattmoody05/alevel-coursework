@@ -1,27 +1,19 @@
-import {
-	getChild,
-	getParent,
-	getSession,
-	parentHasAccessToSession,
-	updateAbsenceReport
-} from '$lib/util/db';
+import { getParent, getSession } from '$lib/util/newDb';
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEvent) => {
 	const { isAdmin, account } = locals;
+	const { sessionId } = params;
 
-	if (params.sessionId !== '') {
+	if (sessionId !== '') {
 		if (isAdmin === false) {
 			if (account !== undefined) {
 				// Parent data is fetched from the database using the current user's accountId
-				const parentData = await getParent(account.accountId, 'account');
-				if (parentData !== undefined) {
+				const parent = await getParent(account.accountId);
+				if (parent !== undefined) {
 					// Checks that the sessionId that the parent is requesting is a session that belongs to one of their children
-					const parentHasAccess = await parentHasAccessToSession(
-						parentData.parentId,
-						params.sessionId
-					);
+					const parentHasAccess = await parent.hasAccessToSession(sessionId);
 					if (parentHasAccess === false) {
 						// The session that they have request does not belong to one of their children
 						throw error(
@@ -50,9 +42,9 @@ export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEve
 		// Fetches the session from the databse
 		const absentSession = await getSession(params.sessionId);
 		if (absentSession !== undefined) {
-			const childData = await getChild(absentSession.childId);
+			const childData = await absentSession.getChild();
 			if (childData !== undefined) {
-				return { sessionData: absentSession, childData: childData };
+				return { sessionData: absentSession.getData(), childData: childData.getData() };
 			} else {
 				// No child was found with the specified childId
 				// 500: Internal server error code
@@ -83,19 +75,26 @@ export const actions: Actions = {
 	// Handles the user submitting the form to update an absence report
 	updateReport: async ({ request, locals, params }: RequestEvent) => {
 		const { isAdmin } = locals;
-		if (isAdmin) {
+		if (isAdmin === true) {
 			// Accessing the formdata that has been submitted by the user
 			const data = await request.formData();
 			const sessionId = params.sessionId;
 			const keepSession: boolean = (data.get('keepSessions') as string) === 'on';
 			const chargeSession: boolean = (data.get('chargeSessions') as string) === 'on';
 
-			// The absence report is updated in the database
-			await updateAbsenceReport(sessionId, chargeSession, keepSession);
+			const session = await getSession(sessionId);
+			if (session !== undefined) {
+				await session.updateAbsenceStatus(chargeSession, keepSession);
 
-			// Data is returned so that it can be part of the HTML template
-			// The session was updated successfully
-			return { success: true };
+				// Data is returned so that it can be part of the HTML template
+				// The session was updated successfully
+				return { success: true };
+			} else {
+				throw error(
+					404,
+					'The session for this absence report could not be found, please ensure that you have specified a valid sessionId'
+				);
+			}
 		} else {
 			// The current user is not an admin
 			// 403: Forbidden code

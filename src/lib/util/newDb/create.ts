@@ -1,6 +1,26 @@
 import { openDb } from '../../../db';
-import { Account, Invoice, Parent, Session, Survey } from './classes';
-import type { AccountTable, InvoiceTable, ParentTable, SessionTable, SurveyTable } from './tables';
+import { getDateFromLocaleString } from '../date';
+import { getSessionsOnDate } from '../newDb';
+import {
+	Account,
+	Expense,
+	Invoice,
+	Parent,
+	Session,
+	ShortNoticeNotification,
+	Survey,
+	TimeOffPeriod
+} from './classes';
+import type {
+	AccountTable,
+	ExpenseTable,
+	InvoiceTable,
+	ParentTable,
+	SessionTable,
+	ShortNoticeNotificationTable,
+	SurveyTable,
+	TimeOffPeriodTable
+} from './tables';
 
 export async function createParent(parentData: ParentTable): Promise<Parent> {
 	const parent = new Parent(parentData);
@@ -105,4 +125,78 @@ export async function createSurvey(surveyData: SurveyTable): Promise<Survey> {
 	);
 
 	return survey;
+}
+
+export async function createShortNoticeNotification(
+	notificationData: ShortNoticeNotificationTable
+): Promise<ShortNoticeNotification> {
+	const notification = new ShortNoticeNotification(notificationData);
+
+	const db = await openDb();
+	await db.run(
+		'INSERT INTO shortNoticeNotification VALUES (?, ?, ?)',
+		notification.notificationId,
+		notification.message,
+		notification.dateCreated
+	);
+
+	return notification;
+}
+
+export async function createExpense(expenseData: ExpenseTable): Promise<Expense> {
+	const expense = new Expense(expenseData);
+
+	const db = await openDb();
+	await db.run(
+		'INSERT INTO expense VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		expenseData.expenseId,
+		expenseData.name,
+		expenseData.cost,
+		expenseData.date,
+		expenseData.type,
+		expenseData.supportingDocs,
+		expenseData.chargeToParents,
+		expenseData.dateRecorded,
+		expenseData.invoiceId
+	);
+
+	return expense;
+}
+
+export async function createTimeOffPeriod(timeOffPeriodData: TimeOffPeriodTable) {
+	const timeOffPeriod = new TimeOffPeriod(timeOffPeriodData);
+
+	const db = await openDb();
+	await db.run(
+		'INSERT INTO timeOffPeriod VALUES (?, ?, ?, ?, ?)',
+		timeOffPeriod.timeOffPeriodId,
+		timeOffPeriod.dateRecorded,
+		timeOffPeriod.startDate,
+		timeOffPeriod.endDate,
+		timeOffPeriod.cancelSessions
+	);
+
+	let cancelledSessions: Session[] = [];
+
+	if (timeOffPeriodData.cancelSessions === true) {
+		const formattedStartDate = getDateFromLocaleString(timeOffPeriod.startDate);
+		const formattedEndDate = getDateFromLocaleString(timeOffPeriod.endDate);
+		let currentDate = formattedStartDate;
+		do {
+			const sessions = await getSessionsOnDate(currentDate.toLocaleDateString('en-GB'));
+			for (let i = 0; i < sessions.length; i++) {
+				const currentSession = sessions[i];
+
+				cancelledSessions = [...cancelledSessions, currentSession];
+
+				await currentSession.sendDeletionEmail();
+				await currentSession.deleteFromDatabase();
+			}
+
+			// Increment day by 1
+			currentDate = new Date(currentDate.getTime() + 86400000);
+		} while (currentDate <= formattedEndDate);
+	}
+
+	return { timeOffPeriod, cancelledSessions };
 }

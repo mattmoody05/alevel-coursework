@@ -5,7 +5,7 @@ import {
 	getSurveyResponse,
 	updateSurveyResponse,
 	writeSurveyResponse
-} from '$lib/util/db';
+} from '$lib/util/expandedSurveyUtil';
 import type { expandedSurvey, expandedSurveyQuestion } from '$lib/util/types';
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
