@@ -1,7 +1,12 @@
 <script lang="ts">
-	import type { sessionSummary } from '$lib/util/types';
 	import { stringToColour } from '$lib/util/ui';
 	import { CardWrapper } from '$lib/components/dashboard/cards';
+
+	type sessionSummary = {
+		childName: string;
+		time: string;
+		date: string;
+	};
 
 	export let recentSessions: sessionSummary[];
 	export let sessionsBooked: number;

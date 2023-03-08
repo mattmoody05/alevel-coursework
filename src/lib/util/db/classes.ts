@@ -546,7 +546,8 @@ export class RecurringSessionRequest {
 						htmlBody: `
 						Hi ${parent.firstName},
 						<br><br>
-						Your recurring session request has been approved by an admin and the sessions requested within it have been booked. Manage your recurring session <a href="http://localhost:5173/recurring-session/view">here</a>
+						Your recurring session request has been approved by an admin and the sessions requested within it have been booked. 
+						Manage your recurring session <a href="http://localhost:5173/recurring-session/view">here</a>
 						<br><br>
 						Thank you	
 					`
@@ -557,7 +558,8 @@ export class RecurringSessionRequest {
 						htmlBody: `
 						Hi ${parent.firstName},
 						<br><br>
-						Unfortunately your recurring session request has been declined by an admin. If you would like to request another click <a href="http://localhost:5173/recurring-session/request">here</a>
+						Unfortunately your recurring session request has been declined by an admin. 
+						If you would like to request another click <a href="http://localhost:5173/recurring-session/request">here</a>
 						<br><br>
 						Thank you	
 					`
@@ -568,7 +570,8 @@ export class RecurringSessionRequest {
 						htmlBody: `
 						Hi ${parent.firstName},
 						<br><br>
-						Your recurring session has been successfully cancelled. If you would like to request another click <a href="http://localhost:5173/recurring-session/request">here</a>
+						Your recurring session has been successfully cancelled. 
+						If you would like to request another click <a href="http://localhost:5173/recurring-session/request">here</a>
 						<br><br>
 						Thank you	
 					`

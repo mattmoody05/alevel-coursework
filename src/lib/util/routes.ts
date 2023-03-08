@@ -1,6 +1,4 @@
-import type { route } from '$lib/util/types';
-
-export const routes: route[] = [
+export const routes: { iconClass: string; name: string; url: string; adminOnly: boolean }[] = [
 	{
 		name: 'Dashboard',
 		iconClass: 'fa-solid fa-gauge',

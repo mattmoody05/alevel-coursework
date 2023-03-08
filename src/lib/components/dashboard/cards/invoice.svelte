@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { CardWrapper } from '$lib/components/dashboard/cards';
-	import type { invoiceSummary } from '$lib/util/types';
-	export let recentInvoices: invoiceSummary[];
+
+	export let recentInvoices: { amountDue: number; dueDate: string }[];
 	export let invoicesIssued: number;
 	export let invoicesDue: number;
 

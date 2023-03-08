@@ -2,11 +2,10 @@
 	import { LinkButton } from '$lib/components/button';
 	import { CardWrapper } from '$lib/components/dashboard/cards';
 	import { UrgentNotificationCardView } from '$lib/components/notifications';
-	import type { urgentNotificationSummary } from '$lib/util/types';
 
 	export let totalUrgentNotifications: number;
 	export let thisWeekNotifications: number;
-	export let recentNotification: urgentNotificationSummary | undefined;
+	export let recentNotification: { notificationName: string; content: string } | undefined;
 </script>
 
 <CardWrapper title="Urgent notifications">

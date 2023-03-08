@@ -1,13 +1,13 @@
-import type {
-	expandedSurvey,
-	expandedSurveyQuestion,
-	expandedSurveyWithResponses,
-	surveyQuestionOption,
-	surveyResponse
-} from './types';
+import type { expandedSurvey, expandedSurveyQuestion, expandedSurveyWithResponses } from './types';
 import { openDb } from '../../db/index';
 import { v4 as uuidv4 } from 'uuid';
-import { getSurvey, getSurveyQuestion, SurveyQuestion, type SurveyResponseTable } from './db';
+import {
+	getSurvey,
+	getSurveyQuestion,
+	SurveyQuestion,
+	type SurveyQuestionOptionTable,
+	type SurveyResponseTable
+} from './db';
 
 export async function getExpandedSurveyQuestion(
 	surveyQuestionId: string
@@ -77,9 +77,9 @@ export async function getExpandedSurvey(surveyId: string): Promise<expandedSurve
 export async function getSurveyResponse(
 	surveyQuestionId: string,
 	parentId: string
-): Promise<surveyResponse | undefined> {
+): Promise<SurveyResponseTable | undefined> {
 	const db = await openDb();
-	const response: surveyResponse | undefined = await db.get(
+	const response: SurveyResponseTable | undefined = await db.get(
 		'SELECT * FROM surveyResponse WHERE surveyQuestionId = ? AND parentId = ?',
 		surveyQuestionId,
 		parentId
@@ -92,10 +92,10 @@ export async function writeSurveyResponse(
 	surveyId: string,
 	surveyQuestionId: string,
 	surveyQuestionOptionId: string
-): Promise<surveyResponse> {
+): Promise<SurveyResponseTable> {
 	const date = new Date();
 
-	const surveyResponseData: surveyResponse = {
+	const surveyResponseData: SurveyResponseTable = {
 		surveyResponseId: uuidv4(),
 		dateRecorded: date.toLocaleDateString('en-GB'),
 		parentId: parentId,
@@ -177,7 +177,7 @@ export async function getExpandedSurveyWithResponses(surveyId: string) {
 			if (currentQuestionResponses !== undefined) {
 				for (let j = 0; j < currentQuestionResponses.length; j++) {
 					const currentResponse = currentQuestionResponses[j];
-					const optionData: surveyQuestionOption | undefined = await db.get(
+					const optionData: SurveyQuestionOptionTable | undefined = await db.get(
 						'SELECT * FROM surveyQuestionOption WHERE surveyQuestionOptionId = ?',
 						currentResponse.surveyQuestionOptionId
 					);

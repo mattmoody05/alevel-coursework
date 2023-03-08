@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { CardWrapper } from '$lib/components/dashboard/cards';
-	import type { surveySummary } from '$lib/util/types';
 
 	export let surveysIssued: number;
 	export let surveysPending: number;
-	export let recentSurveys: surveySummary[];
+	export let recentSurveys: { surveyName: string; dateCreated: string }[];
 </script>
 
 <CardWrapper title="Surveys and consent">

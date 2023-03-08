@@ -3,19 +3,19 @@
 	import { stringToColour } from '$lib/util/ui';
 	import type { ActionData, PageData } from './$types';
 
-	import type { parent } from '$lib/util/types';
 	import { Checkbox } from '$lib/components/checkbox';
 	import { Button } from '$lib/components/button';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { SmallAlert } from '$lib/components/alert';
+	import type { ParentTable } from '$lib/util/db';
 
 	export let data: PageData;
 	export let form: ActionData;
 
 	let showParentSelectPopup: boolean = false;
 
-	let addedParentList: parent[] = [];
+	let addedParentList: ParentTable[] = [];
 
 	function showParentPopup() {
 		showParentSelectPopup = true;
@@ -29,7 +29,7 @@
 		addedParentList = addedParentList.filter((item) => item.parentId !== parentId);
 	}
 
-	function addParent(parent: parent) {
+	function addParent(parent: ParentTable) {
 		addedParentList = [...addedParentList, parent];
 	}
 

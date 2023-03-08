@@ -3,11 +3,11 @@
 // currentPassword: string
 // newPassword: string
 
-import type { account } from '$lib/util/types';
 import { openDb } from '../../../db/index';
 import type { RequestEvent, RequestHandler } from './$types';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
+import type { AccountTable } from '$lib/util/db';
 dotenv.config();
 
 export const POST: RequestHandler = async ({ request }: RequestEvent) => {
@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ request }: RequestEvent) => {
 	const newPassword = body['newPassword'];
 	const db = await openDb();
 
-	const reqAccount: account | undefined = await db.get(
+	const reqAccount: AccountTable | undefined = await db.get(
 		`SELECT * FROM account WHERE username = ?`,
 		username
 	);
