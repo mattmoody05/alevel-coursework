@@ -6,6 +6,7 @@
 	export let type: string;
 	export let charge: boolean;
 
+	// Used to format currency in the appropriate way
 	const currencyFormatter: Intl.NumberFormat = new Intl.NumberFormat('en-GB', {
 		style: 'currency',
 		currency: 'GBP'

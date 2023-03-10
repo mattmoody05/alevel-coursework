@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 
-	type alertStyle = 'success' | 'standard' | 'warn' | 'error';
+	type AlertStyle = 'success' | 'standard' | 'warn' | 'error';
 
-	export let style: alertStyle = 'warn';
+	export let style: AlertStyle = 'warn';
 	export let title: string;
 	export let body: string;
 
 	let styleClasses: string = '';
 	let iconClass: string = '';
 
+	// Changing the styling of the alert based on the style type selected
 	if (style === 'success') {
 		styleClasses = 'bg-green-400 border-green-600';
 	} else if (style === 'standard') {
@@ -20,6 +21,7 @@
 		styleClasses = 'bg-red-400 border-red-500';
 	}
 
+	// Changing the icon of the alret based on the stype type selected
 	if (style === 'standard') {
 		iconClass = 'fa-note-sticky';
 	} else if (style === 'success') {

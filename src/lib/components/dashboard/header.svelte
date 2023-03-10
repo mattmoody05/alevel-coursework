@@ -6,11 +6,15 @@
 
 	let dateString = getCustomDateString();
 
+	// Will run when the component is rendered
 	onMount(() => {
+		// Updates the date shown in the interface
+		// Interval of a second
 		const interval = setInterval(() => {
 			dateString = getCustomDateString();
 		}, 1000);
 
+		// Clears the interval so it is not taking up resources when other pages are being shown
 		return () => {
 			clearInterval(interval);
 		};

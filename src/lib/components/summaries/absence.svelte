@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { stringToColour } from '$lib/util/ui';
-	import { LinkButton } from '../button';
 
 	export let childName: string;
 	export let date: string;

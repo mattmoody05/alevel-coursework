@@ -7,6 +7,12 @@
 	export let name: string = '';
 
 	const dispatch = createEventDispatcher();
+
+	// Dispatches a custom event
+	// Includes data regarding the checked status, label text and name of the checkbox
+	function onChangeDispatcher() {
+		dispatch('change', { isChecked, name, leftLabelText, rightLabelText });
+	}
 </script>
 
 <div class="flex">
@@ -18,7 +24,7 @@
 			id="componentToggle"
 			class="sr-only peer"
 			{name}
-			on:change={() => dispatch('change', { isChecked, name, leftLabelText, rightLabelText })}
+			on:change={onChangeDispatcher}
 		/>
 		<div
 			class="w-11 h-6 bg-gray-200 peer-focus:ring-none rounded-full peer

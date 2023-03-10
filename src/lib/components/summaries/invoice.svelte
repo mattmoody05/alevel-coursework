@@ -7,6 +7,12 @@
 	export let payable: number;
 	export let dateDue: string;
 	export let status: string;
+
+	// Used to format currency in the appropriate way
+	const currencyFormatter: Intl.NumberFormat = new Intl.NumberFormat('en-GB', {
+		style: 'currency',
+		currency: 'GBP'
+	});
 </script>
 
 <a href="/invoicing/view/{invoiceId}">
@@ -15,7 +21,7 @@
 			{childName}
 		</div>
 		<div class="hidden lg:flex items-center">{dateIssued}</div>
-		<div class="hidden lg:flex items-center">£{payable / 100}</div>
+		<div class="hidden lg:flex items-center">{currencyFormatter.format(payable / 100)}</div>
 		<div class="flex items-center">{dateDue}</div>
 		{#if status === 'Unpaid'}
 			<div class="px-2 py-1 bg-red-500 text-white rounded-lg max-w-max">Unpaid</div>

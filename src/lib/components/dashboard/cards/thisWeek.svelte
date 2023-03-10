@@ -15,6 +15,9 @@
 	let visibleRecentSessions: sessionSummary[] = [];
 	let sessionOverflowAmount: number = 0;
 
+	// Finds the most recent 4 sessions in recentSessions array
+	// Only these 4 sessions will be displayed
+	// The amount not shown is calculated so it can be shown in the interface
 	if (recentSessions.length > 4) {
 		for (let i = recentSessions.length - 1; i >= recentSessions.length - 4; i--) {
 			const currentSession = recentSessions[i];
