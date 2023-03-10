@@ -5,7 +5,7 @@
 	export let invoicesIssued: number;
 	export let invoicesDue: number;
 
-	// Formats the currency in the appropriate way
+	// Used to format currency in the appropriate way
 	const currencyFormatter: Intl.NumberFormat = new Intl.NumberFormat('en-GB', {
 		style: 'currency',
 		currency: 'GBP'
