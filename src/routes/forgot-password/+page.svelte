@@ -4,15 +4,15 @@
 	import { Textbox } from '$lib/components/input';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
 
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hides the success alert after 5 seconds
 		if (form?.success) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.success = false;
 			}, 5000);
 		}
@@ -21,6 +21,8 @@
 
 {#if form?.success}
 	<div transition:fade>
+		<!-- Will not say whether an account has been found or not - otherwise could be used to find what emails 
+		are reigstered to the system0 -->
 		<SmallAlert
 			style="success"
 			body="If an account is associated with that email address, a password reset email has been sent. Please check your inbox"
@@ -41,9 +43,9 @@
 				<Textbox name="emailAddress" labelText="Email address" />
 				<Button style="submit">Submit</Button>
 				<LinkButton style="secondary" href="/login">Remember your password? Go to login</LinkButton>
-				<LinkButton style="secondary" href="/admin-forgot-password"
-					>Admin? Reset your password here</LinkButton
-				>
+				<LinkButton style="secondary" href="/admin-forgot-password">
+					Admin? Reset your password here
+				</LinkButton>
 			</form>
 		</div>
 		<div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-200 hidden md:block" />

@@ -8,10 +8,10 @@
 
 <div class="flex flex-col gap-4">
 	<LinkButton href="/messaging/two-way" style="secondary">Two way messaging centre</LinkButton>
-	<LinkButton href="/messaging/short-notice/create" style="secondary"
-		>Create short notice notification</LinkButton
-	>
-	<LinkButton href="/messaging/short-notice/view" style="secondary"
-		>View short notice notification</LinkButton
-	>
+	<LinkButton href="/messaging/short-notice/create" style="secondary">
+		Create short notice notification
+	</LinkButton>
+	<LinkButton href="/messaging/short-notice/view" style="secondary">
+		View short notice notification
+	</LinkButton>
 </div>

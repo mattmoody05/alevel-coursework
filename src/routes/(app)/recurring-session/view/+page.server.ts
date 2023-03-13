@@ -55,6 +55,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		const parents = await admin.getParents();
 
 		// Returns data so that it can be used in the HTML template
+		// Classes cannot be returned to the template so the getData method is called to return JSON data
 		return {
 			children: children.map((child) => child.getData()),
 			recurringSessionRequests: requests.map((request) => request.getData()),
@@ -62,6 +63,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		};
 	} else {
 		// Returns data so that it can be used in the HTML template
+		// Classes cannot be returned to the template so the getData method is called to return JSON data
 		return {
 			children: children.map((child) => child.getData()),
 			recurringSessionRequests: requests.map((request) => request.getData())
@@ -117,16 +119,26 @@ export const actions: Actions = {
 					throw error(404, 'A recurring session for the child could not be found. ');
 				}
 
-				// Sets the recurring session request's status field
-
 				// Creates the sessions specified in the recurring session request
 				const recurringSessionBookingStatus = await child.createRecurringSession();
 				if (recurringSessionBookingStatus === undefined) {
-					throw error(500, 'there was an issue when booking the recurring session');
+					// There was an unexpected error while booking the recurring session
+					// 500: Internal server error code
+					throw error(
+						500,
+						'There was an unexpected error when booking the recurring session. Please try again later. '
+					);
 				} else if (recurringSessionBookingStatus.success === true) {
+					// The session was successfully booked
+
+					// Updating the recurring session status
 					await child.setRecurringSessionRequestStatus(true, reason);
+
+					// Data is returned so it can be used in the HTML template
 					return { success: true, action: 'adminApprove' };
 				} else if (recurringSessionBookingStatus.success === false) {
+					// The session was not successfully booked
+					// Data is returned so that it can be used in the HTML template
 					return {
 						action: 'adminApprove',
 						success: false,
@@ -198,17 +210,24 @@ export const actions: Actions = {
 			);
 		}
 	},
+
+	// Handles the user submitting the form to approve the request ignoring childcare regs
 	approveAnyway: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 
-		const childId = (await data.get('childId')) as string;
+		const childId = data.get('childId') as string;
 
 		const child = await getChild(childId);
 
 		if (child !== undefined) {
+			// Books the recurring session for the child - bypassing childcare regulations and other availability checks
 			await child.createRecurringSession(true);
+
+			// Updates the recurring session status for the child
 			await child.setRecurringSessionRequestStatus(true, '');
 		}
+
+		// Returns data so it can be used in the HTML template
 		return { success: true, action: 'approveAnyway' };
 	}
 };

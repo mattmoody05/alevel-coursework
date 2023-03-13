@@ -15,12 +15,14 @@
 	<p class="opacity-50 leading-5">{body}</p>
 	<div class="flex flex-col-reverse items-center gap-2 mt-4 md:flex-row md:justify-between">
 		{#if secondaryButtonText !== ''}
-			<Button on:click={() => dispatch('secondary-click')} style="secondary"
-				>{secondaryButtonText}</Button
-			>
+			<Button on:click={() => dispatch('secondary-click')} style="secondary">
+				{secondaryButtonText}
+			</Button>
 		{/if}
 		<div class="w-64">
-			<Button on:click={() => dispatch('primary-click')} style="primary">{buttonText}</Button>
+			<Button on:click={() => dispatch('primary-click')} style="primary">
+				{buttonText}
+			</Button>
 		</div>
 	</div>
 </div>

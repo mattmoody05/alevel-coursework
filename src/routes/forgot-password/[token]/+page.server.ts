@@ -17,23 +17,32 @@ export const load: PageServerLoad = async ({ params }) => {
 		if (decoded !== undefined) {
 			return;
 		} else {
+			// Token does not include the required fields
+			// The token provided is not valid so cannot be used to reset the password
+			// 400: Bad request code
 			throw error(
 				400,
 				'The token that you supplied is not a valid password reset token, please try again later. '
 			);
 		}
 	} catch {
+		// Token could not be decoded or has expired
+		// The token provided is not valid so cannot be used to reset the password
+		// 400: Bad request code
 		throw error(
 			400,
-			'The token that you supplied is not a valid password reset token, please try again later. '
+			'The token that you supplied is not a valid password reset token, please try again later or request another token. '
 		);
 	}
 };
 
 export const actions: Actions = {
+	// Handles the user submitting the form to enter their new password with the token
 	resetWithToken: async ({ request, params }) => {
-		const data = await request.formData();
 		const token = params.token as string;
+
+		// Extracts the submitted data from the HTML form
+		const data = await request.formData();
 		const password = data.get('password') as string;
 		const confirmPassword = data.get('confirmPassword') as string;
 
@@ -43,24 +52,38 @@ export const actions: Actions = {
 			});
 		}
 
-		const decoded = jwt.verify(token, JWT_SIGNING_SECRET_KEY) as
-			| {
-					accountId: string;
-					emailAddress: string;
-			  }
-			| undefined;
+		try {
+			const decoded = jwt.verify(token, JWT_SIGNING_SECRET_KEY) as
+				| {
+						accountId: string;
+						emailAddress: string;
+				  }
+				| undefined;
+			if (decoded !== undefined) {
+				const account = await getAccount(decoded.accountId);
 
-		if (decoded !== undefined) {
-			const account = await getAccount(decoded.accountId);
+				if (account !== undefined) {
+					await account.updatePassword(password);
 
-			if (account !== undefined) {
-				await account.updatePassword(password);
-				return { success: true };
+					// Returns data so it can be used in the HTML template
+					return { success: true };
+				}
+			} else {
+				// Token does not include the required fields
+				// The token provided is not valid so cannot be used to reset the password
+				// 400: Bad request code
+				throw error(
+					400,
+					'The token that you supplied is not a valid password reset token, please try again later. '
+				);
 			}
-		} else {
+		} catch {
+			// Token could not be decoded or has expired
+			// The token provided is not valid so cannot be used to reset the password
+			// 400: Bad request code
 			throw error(
 				400,
-				'The token that you supplied is not a valid password reset token, please try again later. '
+				'The token that you supplied is not a valid password reset token, please try again later or request another token. '
 			);
 		}
 	}

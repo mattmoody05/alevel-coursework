@@ -21,6 +21,7 @@ export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent)
 
 			if (parent !== undefined) {
 				// Returns data so that it can be used in the HTML template
+				// Classes cannot be returned to the template so the getData method is called to return JSON data
 				return {
 					messages: messages.map((message) => message.getData()),
 					isAdmin,
@@ -51,6 +52,7 @@ export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent)
 			const messages = await messageConversation.getMessages();
 
 			// Returns data so that it can be used in the HTML template
+			// Classes cannot be returned to the template so the getData method is called to return JSON data
 			return {
 				messages: messages.map((message) => message.getData()),
 				isAdmin,
@@ -104,6 +106,7 @@ export const actions: Actions = {
 				const message = await messageConversation.sendMessage(messageContent);
 
 				// Returns data so that it can be used in the HTML template
+				// Classes cannot be returned to the template so the getData method is called to return JSON data
 				return { message: message.getData() };
 			}
 		} else {
@@ -131,6 +134,7 @@ export const actions: Actions = {
 					const message = await messageConversation.sendMessage(messageContent);
 
 					// Returns data so that it can be used in the HTML template
+					// Classes cannot be returned to the template so the getData method is called to return JSON data
 					return { message: message.getData() };
 				} else {
 					// No parent was returned from the database with the specified accountId

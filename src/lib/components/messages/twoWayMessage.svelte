@@ -1,6 +1,5 @@
 <script lang="ts">
-	type twoWayMessageType = 'incoming' | 'outgoing';
-	export let messageStyle: twoWayMessageType;
+	export let messageStyle: 'incoming' | 'outgoing';
 </script>
 
 {#if messageStyle === 'incoming'}

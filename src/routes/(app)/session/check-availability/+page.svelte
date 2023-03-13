@@ -10,16 +10,17 @@
 	export let data: PageData;
 	export let form: ActionData;
 
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hides the session allowed alert after 10 seconds
 		if (form?.sessionAllowed !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.sessionAllowed = undefined;
 			}, 10000);
 		}
+		// Hides the validatione rror alert after 10 seconds
 		if (form?.message !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.message = undefined;
 			}, 10000);
 		}

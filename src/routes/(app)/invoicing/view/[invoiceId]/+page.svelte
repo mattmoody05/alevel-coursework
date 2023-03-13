@@ -11,10 +11,11 @@
 	export let data: PageData;
 	export let form: ActionData;
 
+	// Will be run when the page is rendered
 	onMount(() => {
+		// Hides the success alert after 5 seconds
 		if (form?.success) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.success = false;
 			}, 5000);
 		}
@@ -52,9 +53,9 @@
 	<div><span class="font-bold">Total payable: </span> £{data.invoiceData.total / 100}</div>
 	<div>
 		<span class="font-bold">Invoice sheet: </span>
-		<a class="underline" href="/invoicing/view/sheet/{data.invoiceData.invoiceId}"
-			>Click here to view</a
-		>
+		<a class="underline" href="/invoicing/view/sheet/{data.invoiceData.invoiceId}">
+			Click here to view
+		</a>
 	</div>
 	<div>
 		<span class="font-bold">Invoice message: </span>{data.invoiceData.message}

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { FilterButton, SortButton } from '$lib/components/filters';
 	import { SurveySummary } from '$lib/components/summaries';
 	import type { PageData } from './$types';
 
@@ -11,10 +10,6 @@
 </svelte:head>
 
 <h3 class="font-bold text-xl">View surveys</h3>
-<div class="flex gap-2 my-2">
-	<!-- <FilterButton /> -->
-	<!-- <SortButton /> -->
-</div>
 <div class="grid text-sm opacity-50 grid-cols-3 lg:grid-cols-5 my-2">
 	<div>Status</div>
 	<div>Name</div>

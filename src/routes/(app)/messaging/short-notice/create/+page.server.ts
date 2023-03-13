@@ -15,6 +15,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		const parents = await admin.getParents();
 
 		// Returns data so that it can be used in the HTML template
+		// Classes cannot be returned to the template so the getData method is called to return JSON data
 		return { parents: parents.map((parent) => parent.getData()) };
 	} else {
 		// The current user is not an admin, they do not have the rights to view the page
@@ -76,6 +77,7 @@ export const actions: Actions = {
 			});
 
 			if (allParents === true) {
+				// Loops through all parents in the system and issues the notfication to each of them
 				const admin = getAdmin();
 				const parents = await admin.getParents();
 				for (let i = 0; i < parents.length; i++) {
@@ -83,6 +85,7 @@ export const actions: Actions = {
 					await notification.issue(allParents, currentParent.parentId);
 				}
 			} else {
+				// Loops through all selected parents and issues the notification to each of them
 				for (let i = 0; i < selectedParents.length; i++) {
 					const currentParent = selectedParents[i];
 					await notification.issue(allParents, currentParent.parentId);
@@ -94,6 +97,7 @@ export const actions: Actions = {
 
 			// Data is returned so that it can be part of the HTML template
 			// The notification has been created and issued successfully
+			// Classes cannot be returned to the template so the getData method is called to return JSON data
 			return { success: true, notification: notification.getData() };
 		} else {
 			// The current user is not an admin, they do not have the rights to create the notification

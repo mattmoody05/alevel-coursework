@@ -6,22 +6,31 @@
 	import { SessionSummary } from '$lib/components/summaries';
 	import { getDateFromLocaleString } from '$lib/util/date';
 	import type { SessionTable } from '$lib/util/db';
+	import { getChildName } from '$lib/util/ui';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-	let visibleSessions: SessionTable[] = data.sessions;
 
-	function getChildName(childId: string): string {
-		for (let i = 0; i < data.children.length; i++) {
-			const currentChild = data.children[i];
-			if (currentChild.childId === childId) {
-				return currentChild.firstName;
-			}
+	let visibleSessions: SessionTable[] = data.sessions;
+	let filterDate: string = '';
+	let sortDate: boolean = false;
+	let filterChild: string = 'default';
+	let filterParent: string = 'default';
+
+	// Will run when the page is rendered
+	onMount(() => {
+		// Hides the redirect alert after 5 seconds
+		if (data.redirectFrom !== undefined) {
+			setTimeout(() => {
+				data.redirectFrom = undefined;
+			}, 5000);
 		}
-		return '';
-	}
+	});
+
+	// Gets the corresponding parentId given a childId
+	// Returns an empty string if the parent could not be found
 	function getParentId(childId: string): string {
 		for (let i = 0; i < data.children.length; i++) {
 			const currentChild = data.children[i];
@@ -31,29 +40,6 @@
 		}
 		return '';
 	}
-	function getParentName(parentId: string): string {
-		for (let i = 0; i < data.parents.length; i++) {
-			const currentParent = data.parents[i];
-			if (parentId === currentParent.parentId) {
-				return `${currentParent.firstName} ${currentParent.lastName}`;
-			}
-		}
-		return '';
-	}
-
-	onMount(() => {
-		if (data.redirectFrom !== undefined) {
-			setTimeout(() => {
-				// @ts-ignore
-				data.redirectFrom = undefined;
-			}, 5000);
-		}
-	});
-
-	let filterDate: string = '';
-	let sortDate: boolean = false;
-	let filterChild: string = 'default';
-	let filterParent: string = 'default';
 
 	function updateFilters() {
 		// Working variable is the sessions that the filters are currently working with
@@ -66,6 +52,8 @@
 		// At the end, visibleSessions is set to working as it will be the result of all the filters that are active
 
 		let working: SessionTable[] = data.sessions;
+
+		// If date sort is selected, a quicksort algorithm is used to sort by the date field of the sessions
 		if (sortDate === true) {
 			function quickSort(arr: SessionTable[]): SessionTable[] {
 				if (arr.length <= 1) {
@@ -105,6 +93,7 @@
 			working = quickSort(working);
 		}
 
+		// If a value is specified in the date filter text box, a linear search is used to filter by date
 		if (filterDate !== '') {
 			let innerWorking: SessionTable[] = [];
 			for (let i = 0; i < working.length; i++) {
@@ -116,6 +105,7 @@
 			working = innerWorking;
 		}
 
+		// If a child is selected in the filter child list box, a linear search is used to filter by child
 		if (filterChild !== 'default') {
 			let innerWorking: SessionTable[] = [];
 			for (let i = 0; i < working.length; i++) {
@@ -127,6 +117,7 @@
 			working = innerWorking;
 		}
 
+		// If a parent is selected in the filter parent list box, a linear search is used to filter by parent
 		if (filterParent !== 'default') {
 			let innerWorking: SessionTable[] = [];
 			for (let i = 0; i < working.length; i++) {
@@ -139,6 +130,8 @@
 			working = innerWorking;
 		}
 
+		// Visible sessions array is set to the working array
+		// The working array is the result of all the sorts and filters being carried out
 		visibleSessions = working;
 	}
 
@@ -203,7 +196,7 @@
 <div class="flex flex-col gap-2">
 	{#each visibleSessions as session}
 		<SessionSummary
-			childName={getChildName(session.childId)}
+			childName={getChildName(session.childId, data.children).firstName}
 			date={session.date}
 			length={session.length}
 			sessionId={session.sessionId}

@@ -5,22 +5,54 @@ import { getTimeOffPeriod } from '$lib/util/db';
 
 export const load: PageServerLoad = async ({ params, request }: PageServerLoadEvent) => {
 	const { timeOffPeriodId } = params;
-	const period = await getTimeOffPeriod(timeOffPeriodId);
-	if (period !== undefined) {
-		return { timeOffPeriod: period.getData() };
+	if (timeOffPeriodId !== '') {
+		const period = await getTimeOffPeriod(timeOffPeriodId);
+		if (period !== undefined) {
+			return { timeOffPeriod: period.getData() };
+		} else {
+			// Time off period with the specified ID was not found in the database
+			// 404: Not found code
+			throw error(
+				404,
+				'A time off period with the specified timeOffPeriodId could not be found. Please ensure that you have entered a valid one.'
+			);
+		}
+	} else {
+		// There has not been a timeOffPeriodId specified in the URL params
+		// 400: Bad request
+		throw error(
+			400,
+			'You have not specified a timeOffPeriodId to view, please ensure that you have specified one in the URL parameters.'
+		);
 	}
-	throw error(500, 'period is undefined');
 };
 
 export const actions: Actions = {
-	default: async ({ params }: RequestEvent) => {
+	// Handles the user submitting the HTML form to delete the time off period
+	delete: async ({ params }: RequestEvent) => {
 		const { timeOffPeriodId } = params;
-		const timeOffPeriod = await getTimeOffPeriod(timeOffPeriodId);
-		if (timeOffPeriod !== undefined) {
-			await timeOffPeriod.deleteFromDatabase();
-			throw redirect(307, '/time-off/view');
+		if (timeOffPeriodId !== '') {
+			const timeOffPeriod = await getTimeOffPeriod(timeOffPeriodId);
+			if (timeOffPeriod !== undefined) {
+				await timeOffPeriod.deleteFromDatabase();
+
+				// Redirects the user back to the main time off period view page
+				throw redirect(307, '/time-off/view');
+			} else {
+				// Time off period with the specified ID was not found in the database
+				// 404: Not found code
+				throw error(
+					404,
+					'A time off period with the specified timeOffPeriodId could not be found. Please ensure that you have entered a valid one.'
+				);
+			}
 		} else {
-			throw error(404, 'time off period not found');
+			// There has not been a timeOffPeriodId specified in the URL params
+			// 400: Bad request
+			throw error(
+				400,
+				'You have not specified a timeOffPeriodId to view, please ensure that you have specified one in the URL parameters.'
+			);
 		}
 	}
 };

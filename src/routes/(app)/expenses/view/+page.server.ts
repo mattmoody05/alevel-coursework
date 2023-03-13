@@ -18,6 +18,7 @@ export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent)
 		}
 
 		// Data is returned so that it can be part of the HTML template
+		// Classes cannot be returned to the template, so the getData method is called
 		return { expenses: expenses.map((expense) => expense.getData()), redirectFrom };
 	} else {
 		// The current user is not an admin, they do not have the rights to view the data

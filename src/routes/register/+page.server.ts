@@ -233,6 +233,7 @@ export const actions: Actions = {
 				});
 
 				// Returns data so that it can be used in the HTML template
+				// Classes cannot be used in the template so the getData method is called to return JSON data
 				return { success: true, parentData: parent.getData() };
 			}
 		}

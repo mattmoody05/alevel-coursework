@@ -10,10 +10,14 @@ export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent)
 		const children = await admin.getChildren();
 		const parents = await admin.getParents();
 
+		// If the redirect from URL parameter has been included, its value is extracted so it can be passed to the template
 		let redirectFrom;
 		if (url.searchParams.has('redirect-from')) {
 			redirectFrom = url.searchParams.get('redirect-from') as string;
 		}
+
+		// Data is returned so it can be used in the HTML template
+		// Classes cannot be used in the template, so the getData method is called to return JSON data
 		return {
 			sessions: sessions.map((session) => session.getData()),
 			children: children.map((child) => child.getData()),
@@ -24,16 +28,24 @@ export const load: PageServerLoad = async ({ locals, url }: PageServerLoadEvent)
 		const parent = await getParent(account.accountId);
 		if (parent !== undefined) {
 			const children = await parent.getChildren();
+
+			// Gets all sessions for each child that belong to the parent
+			// Adds them to the sessions array
 			let sessions: Session[] = [];
 			for (let i = 0; i < children.length; i++) {
 				const currentChild = children[i];
 				const currentChildSessions = await currentChild.getSessions();
 				sessions = [...sessions, ...currentChildSessions];
 			}
+
+			// If the redirect from URL parameter has been included, its value is extracted so it can be passed to the template
 			let redirectFrom;
 			if (url.searchParams.has('redirect-from')) {
 				redirectFrom = url.searchParams.get('redirect-from') as string;
 			}
+
+			// Data is returned so it can be used in the HTML template
+			// Classes cannot be used in the template, so the getData method is called to return JSON data
 			return {
 				sessions: sessions.map((session) => session.getData()),
 				children: children.map((child) => child.getData()),

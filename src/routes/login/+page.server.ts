@@ -8,7 +8,11 @@ import type { AccountTable } from '$lib/util/db';
 
 export const load: PageServerLoad = async ({ cookies, locals }: PageServerLoadEvent) => {
 	if (locals.account !== undefined) {
+		// The user is already logged in
+		// Redirects the user to the dashboard
 		throw redirect(300, '/');
+	} else {
+		return {};
 	}
 };
 

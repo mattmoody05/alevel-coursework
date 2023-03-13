@@ -16,6 +16,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 			const children = await parent.getChildren();
 
 			// Returns data so that it can be used in the HTML template
+			// Classes cannot be returned to the template so the getData method is called to return JSON data
 			return {
 				children: children.map((child) => child.getData())
 			};
@@ -82,6 +83,7 @@ export const actions: Actions = {
 				});
 			}
 
+			// Creates a dayDetails variable ready to be populated with the information input by the user
 			let dayDetails: RecurringSessionDayDetails = {
 				mondaySelected: false,
 				tuesdaySelected: false,
@@ -212,7 +214,10 @@ export const actions: Actions = {
 			} else {
 				// The user has not specified a daily or weekly recurring basis
 				// 400: Bad request code
-				throw error(400, 'must be daily or weekly recurring period');
+				return invalid(400, {
+					message: 'Please ensure that you have selected a recurring basis',
+					data: {}
+				});
 			}
 
 			// Creates the recurring session request in the database with the data input

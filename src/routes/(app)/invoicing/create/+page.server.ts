@@ -35,6 +35,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		});
 
 		// Data is returned so that it can be part of the HTML template
+		// Classes cannot be returned to the template so the getData method called to return JSON data
 		return { childrenSummary, parents: parents.map((parent) => parent.getData()) };
 	} else {
 		// The current user is not an admin, they do not have the rights to view the data

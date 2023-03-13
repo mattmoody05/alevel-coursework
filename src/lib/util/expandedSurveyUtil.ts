@@ -213,3 +213,23 @@ export async function getExpandedSurveyWithResponses(surveyId: string) {
 	}
 	return undefined;
 }
+
+// Returns the question number of a question with the provided questionId
+export async function getQuestionNumber(questionId: string) {
+	const question: expandedSurveyQuestion | undefined = await getExpandedSurveyQuestion(questionId);
+	if (question !== undefined) {
+		const surveyData: expandedSurvey | undefined = await getExpandedSurvey(question.surveyId);
+		if (surveyData !== undefined) {
+			let questionNumber: number = 0;
+			for (let i = 0; i < surveyData.questions.length; i++) {
+				const currentQuestion = surveyData.questions[i];
+				if (currentQuestion.surveyQuestionId === questionId) {
+					questionNumber = i + 1;
+				}
+			}
+			return questionNumber;
+		}
+		return undefined;
+	}
+	return undefined;
+}

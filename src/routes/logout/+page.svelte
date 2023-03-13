@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Textbox } from '$lib/components/input';
-	import { Button, LinkButton } from '$lib/components/button';
+	import { LinkButton } from '$lib/components/button';
 </script>
 
 <svelte:head>

@@ -1,35 +1,36 @@
 <script lang="ts">
 	import { Button } from '$lib/components/button';
 	import { Checkbox } from '$lib/components/checkbox';
-
 	import { Listbox, Textbox } from '$lib/components/input';
 	import type { ActionData, PageData } from './$types';
 	import { SmallAlert } from '$lib/components/alert';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 
+	export let data: PageData;
+	export let form: ActionData;
+
 	let recurringBasis: string = 'weekly';
 	let showDaySelection: boolean = true;
 
+	// Shows and gudes the day selection interface based on the recurring basis selected
 	$: if (recurringBasis === 'weekly') {
 		showDaySelection = true;
 	} else {
 		showDaySelection = false;
 	}
 
-	export let data: PageData;
-	export let form: ActionData;
-
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hides the success alert after 5 seconds
 		if (form?.success) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.success = false;
 			}, 5000);
 		}
+		// Hides the verification error alert after 10 seconds
 		if (form?.message !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.message = undefined;
 			}, 10000);
 		}
@@ -134,5 +135,5 @@
 			</div>
 		</div>
 	{/if}
-	<Button>Submit request</Button>
+	<Button style="submit">Submit request</Button>
 </form>

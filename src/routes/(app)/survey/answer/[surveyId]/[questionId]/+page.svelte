@@ -8,6 +8,7 @@
 
 	let selectedOptionId: string = data.selectedOptionId;
 
+	// Will run after a navigation event has been triggered
 	afterNavigate(() => {
 		selectedOptionId = data.selectedOptionId;
 	});
@@ -17,6 +18,7 @@
 	<title>Answer survey</title>
 </svelte:head>
 
+<!-- use:enhance modifier is used to prevent page reload between questions -->
 <form method="POST" class="flex flex-col justify-between h-full gap-2" use:enhance>
 	<div class="header">
 		<h3 class="font-bold text-xl">Answer survey</h3>
@@ -31,10 +33,9 @@
 		</div>
 		<div class="flex-col flex gap-2 m-2">
 			{#each data.question.options as questionOption}
-				<!-- 
-					this is not an accessibility issue because using a screenreader the radio buttons themselves would change what is selected
-					this is just to help maximise the area that can be clicked 
-				-->
+				<!-- on:click events on div elements would usually cause accessibility issues, but in this case it is only used to make touch targets larger, not taking away functionality -->
+				<!-- The radio buttons will still have full functionality without this on:click event -->
+
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<div
 					on:click={() => (selectedOptionId = questionOption.surveyQuestionOptionId)}
@@ -57,6 +58,7 @@
 
 	<div class="flex flex-col md:flex-row justify-between gap-2 items-center">
 		<div class="min-w-max w-full md:w-40">
+			<!-- Prev question button does not show if it is the first question in the survey -->
 			{#if data.previousQuestionId !== undefined}
 				<Button style="submit" formaction="?/previousQuestion">
 					<div class="flex gap-2 items-center justify-center">
@@ -67,6 +69,8 @@
 		</div>
 		<div class="opacity-50 text-center w-full py-2">Question {data.questionNumber}</div>
 		<div class="min-w-max w-full md:w-40">
+			<!-- Next question button will not show if it is the final question in the survey -->
+			<!-- Instead, a submit button is shown -->
 			{#if data.nextQuestionId !== undefined}
 				<Button style="submit" formaction="?/nextQuestion">
 					<div class="flex gap-2 items-center justify-center">

@@ -3,12 +3,14 @@
 
 	export let data: PageData;
 
+	// Calculating the total of all sessions
 	let sessionTotal = 0;
 	for (let i = 0; i < data.sessionData.length; i++) {
 		const currentSession = data.sessionData[i];
 		sessionTotal = sessionTotal + (currentSession.length / 60) * data.hourlyRate;
 	}
 
+	// Calculating the total of all expenses
 	let expenseTotal = 0;
 	for (let i = 0; i < data.expenseData.length; i++) {
 		const currentExpense = data.expenseData[i];

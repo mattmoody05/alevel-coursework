@@ -13,6 +13,8 @@ export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEve
 				const invoice = await getInvoice(params.invoiceId);
 
 				if (invoice !== undefined) {
+					// Data is returned to the HTML template
+					// Classes cannot be returned to the template so the getData method is called to return JSON data
 					return {
 						invoiceData: invoice.getData(),
 						children: children.map((child) => child.getData())
@@ -63,6 +65,8 @@ export const actions: Actions = {
 			// The invoice payment status was updated successfully
 			return { success: true };
 		} else {
+			// An invoice with the invoiceId specified could not be found
+			// 404: Not found code
 			throw error(
 				404,
 				'An invoice with the invoiceId specified could not be found in the database, please ensure that you have input a valid invoiceId'

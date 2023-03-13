@@ -4,9 +4,8 @@
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-	const surveyData = data.expandedSurveyDataWithResponses;
-	const parentData = data.parentData;
 
+	// Structure of a survey question option with responses included
 	type optionWithResponses = {
 		surveyQuestionOptionId: string;
 		prompt: string;
@@ -28,6 +27,7 @@
 		}[];
 	};
 
+	// Structure of a survey question response with parentData included
 	type adaptedResponse = {
 		surveyResponseId: string;
 		dateRecorded: string;
@@ -44,6 +44,7 @@
 		};
 	};
 
+	// Structure of a survey question with responses included
 	type adaptedQuestion = {
 		surveyQuestionId: string;
 		prompt: string;
@@ -53,38 +54,57 @@
 	};
 
 	let questions: adaptedQuestion[] = [];
+	let viewByParent: boolean = false;
+	let selectedParentId: string;
+	const surveyData = data.expandedSurveyDataWithResponses;
+	const parentData = data.parentData;
 
+	// Creates an exapanded question array with all the necessary data
+	// All extra data is related and used to help structure the interface
 	for (let i = 0; i < surveyData.questions.length; i++) {
-		const question = surveyData.questions[i];
+		const currentQuestion = surveyData.questions[i];
+
+		// Creates the outline of a question from the page data
 		let newQuestion: adaptedQuestion = {
-			dateCreated: question.dateCreated,
-			prompt: question.prompt,
-			surveyQuestionId: question.surveyQuestionId,
+			dateCreated: currentQuestion.dateCreated,
+			prompt: currentQuestion.prompt,
+			surveyQuestionId: currentQuestion.surveyQuestionId,
 			options: [],
 			numberOfResponses: 0
 		};
-		for (let j = 0; j < question.options.length; j++) {
-			const option = question.options[j];
+
+		// Loops through all the options for a question
+		for (let j = 0; j < currentQuestion.options.length; j++) {
+			const option = currentQuestion.options[j];
 			let responses: adaptedResponse[] = [];
-			for (let k = 0; k < question.responses.length; k++) {
-				const response = question.responses[k];
+			// Loops through all the responses to a question
+			for (let k = 0; k < currentQuestion.responses.length; k++) {
+				const currentResponse = currentQuestion.responses[k];
 				if (
-					response.surveyQuestionOption.surveyQuestionOptionId === option.surveyQuestionOptionId
+					currentResponse.surveyQuestionOption.surveyQuestionOptionId ===
+					option.surveyQuestionOptionId
 				) {
+					// Finds the parent that created the current response
 					const matchingParentData = parentData.filter(
-						(parent) => parent.parentId === response.parentId
-					);
+						(parent) => parent.parentId === currentResponse.parentId
+					)[0];
+
+					// Adds a new response to the responses array with the parent's data included
 					responses = [
 						...responses,
 						{
-							surveyResponseId: response.surveyResponseId,
-							dateRecorded: response.dateRecorded,
-							parent: matchingParentData[0]
+							surveyResponseId: currentResponse.surveyResponseId,
+							dateRecorded: currentResponse.dateRecorded,
+							parent: matchingParentData
 						}
 					];
+
 					newQuestion.numberOfResponses = newQuestion.numberOfResponses + 1;
 				}
 			}
+
+			// All of the responses to the current option have been looped through
+			// The response data can now be added to the current question's option array
 			newQuestion.options = [
 				...newQuestion.options,
 				{
@@ -95,9 +115,14 @@
 				}
 			];
 		}
+
+		// All of the options for the current question have been looped through
+		// The current question with all the added data can be added to the questions array
 		questions = [...questions, newQuestion];
 	}
 
+	// Gets a list of the names of the parents who have responded a certain way to a question
+	// Each name is seperated by a comma in the list
 	function getParentList(option: optionWithResponses) {
 		let parentList: string = '';
 		for (let i = 0; i < option.responses.length; i++) {
@@ -110,9 +135,6 @@
 		}
 		return parentList;
 	}
-
-	let viewByParent: boolean = false;
-	let selectedParentId: string;
 </script>
 
 <div class="flex flex-col gap-2">

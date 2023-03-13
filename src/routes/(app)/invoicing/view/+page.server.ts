@@ -13,6 +13,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		const children = await admin.getChildren();
 
 		// Data is returned so that it can be used in the HTML template
+		// Classes cannot be returned to the template so the getData method is called to return JSON data
 		return {
 			invoices: invoices.map((invoice) => invoice.getData()),
 			children: children.map((child) => child.getData())
@@ -26,6 +27,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 				const children = await parent.getChildren();
 
 				// Data is returned so that it can be used in the HTML template
+				// Classes cannot be returned to the template so the getData method is called to return JSON data
 				return {
 					invoices: invoices.map((invoice) => invoice.getData()),
 					children: children.map((child) => child.getData())

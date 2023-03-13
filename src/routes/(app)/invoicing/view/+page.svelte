@@ -25,8 +25,9 @@
 		// Innerworking is only necessary within filters, not sorts
 
 		// At the end, visibleInvoices is set to working as it will be the result of all the filters that are active
-
 		let working: InvoiceTable[] = data.invoices;
+
+		// If sort by date is selected, the quicksort algorithm is used to short invoices by date
 		if (sortDate === true) {
 			function quickSort(arr: InvoiceTable[]): InvoiceTable[] {
 				if (arr.length <= 1) {
@@ -66,6 +67,7 @@
 			working = quickSort(working);
 		}
 
+		// If a value is specified in the filter date text box, the date filter is applied using a linear search
 		if (filterDate !== '') {
 			let innerWorking: InvoiceTable[] = [];
 			for (let i = 0; i < working.length; i++) {
@@ -77,6 +79,7 @@
 			working = innerWorking;
 		}
 
+		// If a child is selected in the child filter list box, the child filter is applied using a linear search
 		if (filterChild !== 'default') {
 			let innerWorking: InvoiceTable[] = [];
 			for (let i = 0; i < working.length; i++) {
@@ -88,6 +91,7 @@
 			working = innerWorking;
 		}
 
+		// Visible invoice is set to the working array so the filtered data is reflected in the interface
 		visibleInvoices = working;
 	}
 

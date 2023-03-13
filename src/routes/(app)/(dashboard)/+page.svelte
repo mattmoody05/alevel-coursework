@@ -10,16 +10,21 @@
 	import { getDateFromLocaleString } from '$lib/util/date';
 	import type { SessionTable } from '$lib/util/db';
 	import type { PageData } from './$types';
+	import { getChildName } from '$lib/util/ui';
 
 	export let data: PageData;
 
 	let recentSessions: { childName: string; date: string; time: string }[] = [];
+	let childrenBooked: string[] = [];
+	let thisWeekNotifications = 0;
 
-	function getChildName(childId: string) {
-		const children = data.children.filter((child) => child.childId === childId);
-		return children[0].firstName;
-	}
+	// Creates an absence summary array with the data from all absence reports
+	const absenceSummaries: { childName: string; date: string }[] = data.absences.map((absence) => ({
+		childName: getChildName(absence.childId, data.children).firstName,
+		date: absence.date
+	}));
 
+	// Sorts sessions by date using the quicksort algorithm
 	function quickSortSessions(arr: SessionTable[]): SessionTable[] {
 		if (arr.length <= 1) {
 			return arr; // Base case: an array of length 1 is already sorted
@@ -57,9 +62,7 @@
 
 	data.sessions = quickSortSessions(data.sessions);
 
-	let childrenBooked: string[] = [];
-
-	// gets all the sessions in the next 7 days
+	// Filters the sessions so only those in the next 7 days are shown
 	for (let index = 0; index < data.sessions.length; index++) {
 		const currentSession: SessionTable = data.sessions[index];
 		let currentDate = new Date();
@@ -71,7 +74,7 @@
 				recentSessions = [
 					...recentSessions,
 					{
-						childName: getChildName(currentSession.childId),
+						childName: getChildName(currentSession.childId, data.children).firstName,
 						date: currentSession.date,
 						time: currentSession.startTime
 					}
@@ -81,7 +84,8 @@
 		}
 	}
 
-	let thisWeekNotifications = 0;
+	// Calculates how many notifications have been issued in the last week
+	// Sets thisWeekNotifications variable to this amount
 	for (let index = 0; index < data.notifications.length; index++) {
 		const currentNotification = data.notifications[index];
 		const notiDate = getDateFromLocaleString(currentNotification.dateCreated);
@@ -93,18 +97,6 @@
 		if (diffInHrs < 168) {
 			thisWeekNotifications = thisWeekNotifications + 1;
 		}
-	}
-
-	let absenceSummaries: { childName: string; date: string }[] = [];
-	for (let i = 0; i < data.absences.length; i++) {
-		const currentAbsence = data.absences[i];
-		absenceSummaries = [
-			...absenceSummaries,
-			{
-				childName: getChildName(currentAbsence.childId),
-				date: currentAbsence.date
-			}
-		];
 	}
 </script>
 

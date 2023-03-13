@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { stringToColour } from '$lib/util/ui';
 
-	export let childName: string = 'Matthew';
-	export let date: string = '10/11/12';
-	export let time: string = '11:00';
-	export let length: number = 120;
-	export let sessionId: string = 'idHere';
+	export let childName: string;
+	export let date: string;
+	export let time: string;
+	export let length: number;
+	export let sessionId: string;
 </script>
 
 <a href="/session/view/{sessionId}">

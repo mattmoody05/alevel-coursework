@@ -1,5 +1,5 @@
 import { getParent, getChild } from '$lib/util/db';
-import { error, invalid } from '@sveltejs/kit';
+import { error, invalid, redirect } from '@sveltejs/kit';
 import type { Actions, RequestEvent } from './$types';
 import { openDb } from '../../../db/index';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,11 +8,12 @@ import { presenceCheck, validateDate } from '$lib/util/validation';
 export const actions: Actions = {
 	// Handles the form being submitted to register a child
 	registerChild: async ({ request, locals }: RequestEvent) => {
-		const data = await request.formData();
 		const account = locals.account;
 		if (account !== undefined) {
 			const parent = await getParent(account.accountId);
 
+			// Extracts the data from the submitted HTML form
+			const data = await request.formData();
 			const firstName = data.get('firstName') as string;
 			const lastName = data.get('lastName') as string;
 			const dateOfBirth = data.get('dateOfBirth') as string;
@@ -119,10 +120,23 @@ export const actions: Actions = {
 					parent.parentId
 				);
 				const child = await getChild(childId);
+
+				// Data is returned so that it can be used in the HTML template
+				// Classes cannot be used in the template so the getData method is called to return JSON data
 				return { success: true, childData: child?.getData() };
+			} else {
+				// The parent for the current account could not be found
+				// 404: Not found code
+				throw error(
+					400,
+					'We could not find a parent associated with the current user. Please ensure that you are not using an admin account. '
+				);
 			}
-			throw error(400, 'Parent not associated with that account');
+		} else {
+			// No user is currently logged in
+			// User is redirected to the login page
+			// 308: Permanent redirect code
+			throw redirect(308, '/login');
 		}
-		throw error(400, 'Account undefined');
 	}
 };

@@ -1,16 +1,11 @@
 import type { Account } from '$lib/util/db';
 
-// See https://kit.svelte.dev/docs/types#app
-// for information about these interfaces
-// and what to do when importing types
 declare global {
 	declare namespace App {
+		// The structure of the "locals" variables used throughout the application
 		interface Locals {
 			account?: Account;
 			isAdmin: boolean;
 		}
-		// interface PageData {}
-		// interface Error {}
-		// interface Platform {}
 	}
 }

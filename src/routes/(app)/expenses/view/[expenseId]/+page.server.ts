@@ -11,6 +11,7 @@ export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEve
 			const expense = await getExpense(params.expenseId);
 			if (expense !== undefined) {
 				// Data is returned so that it can be part of the HTML template
+				// Classes cannot be returned to the template, the getData method is called to return JSON data
 				return { expenseData: expense.getData() };
 			} else {
 				// No expense matching the provided expenseId was returned from the databse

@@ -47,6 +47,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 				const latestMessage = await messageConversation.getLatestMessage();
 
 				// Returns data so that it can be used in the HTML template
+				// Classes cannot be returned to the template so the getData method is called to return JSON data
 				return { isAdmin, latestMessage: latestMessage?.getData() };
 			} else {
 				// No parent was returned from the database with the specified accountId

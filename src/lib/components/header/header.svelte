@@ -20,6 +20,8 @@
 		};
 	});
 
+	// Function to navigate up a level in the interface
+	// E.G /invoices/view to /invoices
 	function goBack() {
 		let url = $page.url;
 		let urlParts = url.pathname.split('/');

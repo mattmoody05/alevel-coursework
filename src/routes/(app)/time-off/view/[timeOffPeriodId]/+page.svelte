@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/button';
 	import type { PageData } from './$types';
+
 	export let data: PageData;
 </script>
 
@@ -21,5 +22,7 @@
 			>{data.timeOffPeriod.cancelSessions ? 'Yes' : 'No'}</span
 		>
 	</div>
-	<form method="POST"><Button style="danger">Remove time off period</Button></form>
+	<form method="POST" action="?/delete">
+		<Button style="danger">Remove time off period</Button>
+	</form>
 </div>

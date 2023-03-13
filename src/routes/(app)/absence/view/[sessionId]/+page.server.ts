@@ -16,6 +16,7 @@ export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEve
 					const parentHasAccess = await parent.hasAccessToSession(sessionId);
 					if (parentHasAccess === false) {
 						// The session that they have request does not belong to one of their children
+						// 403: Forbidden code
 						throw error(
 							403,
 							'The currently logged in parent does not have access to the session that is marked as absent as it belongs to another parent. Please ensure that you only specify a sessionId that belongs to you.'
@@ -44,6 +45,8 @@ export const load: PageServerLoad = async ({ params, locals }: PageServerLoadEve
 		if (absentSession !== undefined) {
 			const childData = await absentSession.getChild();
 			if (childData !== undefined) {
+				// Data is returned to be used in the HTML template
+				// Classes cannot be passed to the HTML template, so the getData method is called to return JSON data
 				return { sessionData: absentSession.getData(), childData: childData.getData() };
 			} else {
 				// No child was found with the specified childId
@@ -90,6 +93,8 @@ export const actions: Actions = {
 				// The session was updated successfully
 				return { success: true };
 			} else {
+				// The session could not be found which is marked as absent
+				// 404: Not found code
 				throw error(
 					404,
 					'The session for this absence report could not be found, please ensure that you have specified a valid sessionId'

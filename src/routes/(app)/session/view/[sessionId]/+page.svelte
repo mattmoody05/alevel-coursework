@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { SmallAlert } from '$lib/components/alert';
 	import { Button } from '$lib/components/button';
-
 	import { NumericUpDown, Textbox } from '$lib/components/input';
 	import { stringToColour } from '$lib/util/ui';
 	import { onMount } from 'svelte';
@@ -11,7 +10,9 @@
 	export let data: PageData;
 	export let form: ActionData;
 
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hides the validation error alert after 10 seconds
 		if (form?.message !== undefined) {
 			setTimeout(() => {
 				// @ts-ignore

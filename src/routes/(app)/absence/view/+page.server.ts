@@ -45,6 +45,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 		}
 
 		// Data is returned so that it can be used as part of the HTML template
+		// Classes cannot be returned, so the getData method is called to return JSON data
 		return {
 			absentSessions: absentSessions.map((session) => session.getData()),
 			children: children.map((child) => child.getData())

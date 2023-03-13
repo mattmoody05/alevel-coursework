@@ -12,10 +12,11 @@
 
 	export let data: PageData;
 
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hides the redirect alert after 5 seconds
 		if (data.redirectFrom !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				data.redirectFrom = undefined;
 			}, 5000);
 		}
@@ -29,7 +30,17 @@
 	let visibleExpenses = data.expenses;
 
 	function updateFilters() {
+		// Working variable is the invoices that the filters are currently working with
+		// Working is initially set to be all the invoices provided from the database
+		// Each time a sort is selected, working will be what is left in the array after the sort
+
+		// Innerworking starts with no elements in the array, and all matching elements within working array will be added to it
+		// Innerworking is only necessary within filters, not sorts
+
+		// At the end, visibleInvoices is set to working as it will be the result of all the filters that are active
 		let working: ExpenseTable[] = data.expenses;
+
+		// If sort by date is selected, a quicksort algorithm is performed on the date of the expenses
 		if (sortDate === true) {
 			function quickSort(arr: ExpenseTable[]): ExpenseTable[] {
 				if (arr.length <= 1) {
@@ -71,6 +82,7 @@
 			working = quickSort(working);
 		}
 
+		// If a value is specified in the date filter text box, a linear search is performed to find matching dates
 		if (filterDate !== '') {
 			let innerWorking: ExpenseTable[] = [];
 			for (let i = 0; i < working.length; i++) {
@@ -82,6 +94,7 @@
 			working = innerWorking;
 		}
 
+		// If a value is specified in the filter type listbox, a linear search is performed to find expenses with the matching type
 		if (filterType !== 'default') {
 			let innerWorking: ExpenseTable[] = [];
 			for (let i = 0; i < working.length; i++) {
@@ -93,6 +106,7 @@
 			working = innerWorking;
 		}
 
+		// If a value is specified in the charge status listbox, a linear search is performed to find expenses with the matching status
 		if (filterChargeStatus === 'charge') {
 			let innerWorking: ExpenseTable[] = [];
 			for (let i = 0; i < working.length; i++) {
@@ -112,6 +126,8 @@
 			}
 			working = innerWorking;
 		}
+
+		// Visible expenses is then updated to be the working array - if no filters have been applied then this will just be all the expenses
 		visibleExpenses = working;
 	}
 

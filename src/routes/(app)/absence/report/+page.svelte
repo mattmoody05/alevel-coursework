@@ -9,16 +9,17 @@
 	export let data: PageData;
 	export let form: ActionData;
 
+	// Will be run when the page is rendered
 	onMount(() => {
+		// Hides the success alert after 5 seconds
 		if (form?.success) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.success = false;
 			}, 5000);
 		}
+		// Hides the validation error alert after 10 seconds
 		if (form?.message !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.message = undefined;
 			}, 10000);
 		}
@@ -30,7 +31,7 @@
 </svelte:head>
 
 {#if form?.success}
-	<div out:fade>
+	<div transition:fade>
 		<SmallAlert
 			style="success"
 			body="Absense report successfully submitted. {form?.sessionsMarkedAsAbsent} sessions have been affected. "

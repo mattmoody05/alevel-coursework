@@ -10,6 +10,9 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	if (isAdmin === true) {
 		const admin = getAdmin();
 		const children = await admin.getChildren();
+
+		// Returns data so that it can be used in the HTML template
+		// Classes cannot be used in the template so the getData method is called to return JSON data
 		return { children: children.map((child) => child.getData()) };
 	} else if (account !== undefined) {
 		const parent = await getParent(account.accountId);
@@ -18,6 +21,7 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 			const children = await parent.getChildren();
 
 			// Returns data so that it can be used in the HTML template
+			// Classes cannot be used in the template so the getData method is called to return JSON data
 			return { children: children.map((child) => child.getData()) };
 		} else {
 			// No parent was found in the database with a matching parentId
@@ -38,8 +42,8 @@ export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 export const actions: Actions = {
 	// Handles the user submitting the form to book a session
 	book: async ({ request }: RequestEvent) => {
+		// Extracts the data submitted in the HTML form
 		const data = await request.formData();
-
 		const childId = data.get('childId') as string;
 		const startTime = data.get('startTime') as string;
 		const date = data.get('date') as string;
@@ -108,25 +112,28 @@ export const actions: Actions = {
 			invoiceId: undefined
 		});
 
+		// Checks whether the session is available
 		const availabilityChecker = session.getAvailabilityChecker();
-
 		const okayChildcareLimits = await availabilityChecker.checkChildcareLimits();
 		const okayTimeOff = await availabilityChecker.checkTimeOffPeriods();
-
 		const sessionAllowed = (okayTimeOff && okayChildcareLimits) || bypassRegs;
 
 		if (sessionAllowed === true) {
+			// Creates the session in the database and sends a confirmation email
 			await createSession(session.getData());
-
 			await session.sendConfirmationEmail();
 
 			const child = await session.getChild();
 
 			if (child !== undefined) {
+				// Data is returned so it can be used in the HTML template
+				// Classes cannot be used in the template so the getData method is called to return JSON data
 				return { success: true, createdSession: session.getData(), childData: child.getData() };
 			} else {
+				// Child for the session could not be found in the database
+				// 404: Not found code
 				throw error(
-					400,
+					404,
 					'There was an error in fetching the child assoiated with the current session. No child with the specified childId was found. '
 				);
 			}

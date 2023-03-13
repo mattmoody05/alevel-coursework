@@ -24,8 +24,16 @@
 		showParentSelectPopup = false;
 	}
 
+	// Searches the added parent array and removes the parent with the specified parentId if it exists
 	function removeParent(parentId: string) {
-		addedParentList = addedParentList.filter((item) => item.parentId !== parentId);
+		let newList: ParentTable[] = [];
+		for (let i = 0; i < addedParentList.length; i++) {
+			const currentParent = addedParentList[i];
+			if (parentId !== currentParent.parentId) {
+				newList = [...newList, currentParent];
+			}
+		}
+		addedParentList = newList;
 	}
 
 	function addParent(parent: ParentTable) {
@@ -36,16 +44,17 @@
 
 	$: addedParentListFormEntry = JSON.stringify(addedParentList);
 
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hides the success alert after 5 seconds
 		if (form?.success) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.success = false;
 			}, 5000);
 		}
+		// Hides the validation error alert after 10 seconds
 		if (form?.message !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.message = undefined;
 			}, 10000);
 		}
@@ -89,20 +98,24 @@
 						<div
 							class="{stringToColour(parent.firstName)} text-white rounded-lg px-2 py-1 flex gap-2"
 						>
-							<span>{parent.firstName.concat(' ', parent.lastName)}</span>
-							<!-- svelte-ignore a11y-click-events-have-key-events -->
-							<div class="hover:cursor-pointer" on:click={() => removeParent(parent.parentId)}>
+							<span>{parent.firstName} {parent.lastName}</span>
+
+							<!-- Prevent default used to prevent the form from being submitted -->
+							<button
+								class="hover:cursor-pointer"
+								on:click|preventDefault={() => removeParent(parent.parentId)}
+							>
 								<i class="fa-solid fa-multiply" />
-							</div>
+							</button>
 						</div>
 					{/each}
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<div
-						on:click={showParentPopup}
+					<!-- Prevent default used to prevent the form from being submitted -->
+					<button
+						on:click|preventDefault={showParentPopup}
 						class="bg-gray-900 hover:cursor-pointer hover:bg-gray-700 text-white rounded-lg px-2 py-1 max-w-max"
 					>
 						<i class="fa-solid fa-plus" />
-					</div>
+					</button>
 				</div>
 			</div>
 		{/if}
@@ -120,23 +133,24 @@
 </div>
 
 {#if showParentSelectPopup}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<div
+	<!-- Prevent default used to prevent the form from being submitted -->
+	<button
 		class="absolute h-screen w-screen top-0 left-0 bg-black bg-opacity-80 flex items-center justify-center"
-		on:click={hideParentPopup}
+		on:click|preventDefault={hideParentPopup}
 	>
 		<div class="rounded-xl bg-gray-100 border border-gray-300 p-2 flex flex-col gap-2 w-64">
 			<h3 class="font-bold text-xl">Select parent</h3>
 			{#each data.parents as parent}
-				<div
-					on:click={() => addParent(parent)}
+				<!-- Prevent default used to prevent the form from being submitted -->
+				<button
+					on:click|preventDefault={() => addParent(parent)}
 					class="{stringToColour(
 						parent.firstName
 					)} hover:cursor-pointer hover:opacity-80 text-white rounded-lg px-2 py-1 max-w-max"
 				>
 					{parent.firstName.concat(' ', parent.lastName)}
-				</div>
+				</button>
 			{/each}
 		</div>
-	</div>
+	</button>
 {/if}

@@ -11,16 +11,17 @@
 	export let data: PageData;
 	export let form: ActionData;
 
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hide the success alert after 5 seconds
 		if (form?.success) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.success = false;
 			}, 5000);
 		}
+		// Hides the validatione error message after 10 seconds
 		if (form?.message !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.message = undefined;
 			}, 10000);
 		}
@@ -68,8 +69,6 @@
 			/>
 		</div>
 		<div class="flex flex-col justify-end">
-			<!-- value "" used to show palceholder message -->
-			<!-- use svelte-ignore? -->
 			<NumericUpDown name="additionalChargeAmount" placeholderText="£" value="" />
 		</div>
 	</div>
@@ -78,8 +77,6 @@
 			<Textbox name="discountName" labelText="Discounts" placeholderText="Disount name" />
 		</div>
 		<div class="flex flex-col justify-end">
-			<!-- value "" used to show palceholder message -->
-			<!-- use svelte-ignore? -->
 			<NumericUpDown name="discountAmount" placeholderText="%" value="" />
 		</div>
 	</div>

@@ -16,16 +16,19 @@
 	let textboxContent: string = '';
 	let conversationViewElement: HTMLElement;
 
+	// Runs after there has been an update to the interface
+	// Will run every time a message is sent or received
 	afterUpdate(() => {
+		// Scrolls to the bottom of the element
+		// Will make sure that the most recent messages are shown in the interface
 		scrollToBottom(conversationViewElement);
 	});
 
+	// Will run when the page is rendered
 	onMount(() => {
 		// Polling the server every 10 seconds in order to keep the messages up to date
-		// Not an efficient way of doing this
-		// Possibly use websockets in future - come back to this
 		const getMessagesInterval = setInterval(async () => {
-			if (data.isAdmin) {
+			if (data.isAdmin === true) {
 				const request = await fetch(`/api/two-way-message/get?admin-parent-id=${data.parentId}`);
 				const messages: TwoWayMessageTable[] = await request.json();
 				data.messages = messages;
@@ -36,13 +39,14 @@
 			}
 		}, 10 * 1000);
 
+		// Hides the validation error message after 10 seconds
 		if (form?.validationMessage !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.message = undefined;
 			}, 10000);
 		}
 
+		// Clears the polling interval when the page is left so no unecessary resources are used
 		return () => {
 			clearInterval(getMessagesInterval);
 		};
@@ -71,6 +75,7 @@
 	>
 		<div class="h-full" />
 		{#each data.messages as message}
+			<!-- Changing the syle of the message in the interface depending on who the user is, and who the message is from -->
 			{#if data.isAdmin}
 				<TwoWayMessage messageStyle={message.fromOwner ? 'outgoing' : 'incoming'}>
 					{message.messageContent}

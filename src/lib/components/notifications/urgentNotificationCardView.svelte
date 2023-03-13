@@ -1,6 +1,6 @@
 <script lang="ts">
-	export let title: string = '';
-	export let content: string = '';
+	export let title: string;
+	export let content: string;
 </script>
 
 <div class="bg-red-300 p-2.5 rounded-xl flex flex-col">

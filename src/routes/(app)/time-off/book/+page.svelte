@@ -9,16 +9,17 @@
 
 	export let form: ActionData;
 
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hides the success alert after 5 seconds
 		if (form?.success) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.success = false;
 			}, 5000);
 		}
+		// Hides the validation error alert after 10 seconds
 		if (form?.message !== undefined) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.message = undefined;
 			}, 10000);
 		}
@@ -47,7 +48,7 @@
 {/if}
 
 <h3 class="font-bold text-xl">Book time off</h3>
-<form method="POST" class="flex flex-col gap-2 mt-2">
+<form method="POST" class="flex flex-col gap-2 mt-2" action="?/book">
 	<Textbox name="startDate" labelText="Start date" placeholderText="DD/MM/YYYY" />
 	<Textbox name="endDate" labelText="End date" placeholderText="DD/MM/YYYY" />
 	<div class="py-2">

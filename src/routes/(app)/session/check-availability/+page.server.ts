@@ -1,30 +1,41 @@
 import { getAdmin, getParent, Session } from '$lib/util/db';
-import { error, invalid } from '@sveltejs/kit';
+import { error, invalid, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 import { v4 as uuidv4 } from 'uuid';
 import { presenceCheck, validateDate, validateTime } from '$lib/util/validation';
 
-export const load: PageServerLoad = async ({ request, locals }: PageServerLoadEvent) => {
+export const load: PageServerLoad = async ({ locals }: PageServerLoadEvent) => {
 	const { account, isAdmin } = locals;
 
 	if (isAdmin === true) {
 		const admin = getAdmin();
 		const children = await admin.getChildren();
 
+		// Returns data so that it can be used in the HTML template
+		// Classes cannot be used in the template so the getData method is called to return JSON data
 		return { children: children.map((child) => child.getData()) };
 	} else {
 		if (account !== undefined) {
 			const parent = await getParent(account.accountId);
 			if (parent !== undefined) {
 				const children = await parent.getChildren();
+
+				// Returns data so that it can be used in the HTML template
+				// Classes cannot be used in the template so the getData method is called to return JSON data
 				return { children: children.map((child) => child.getData()) };
 			} else {
-				// parent not found
-				throw error(400, 'oarebt not found');
+				// No parent could be found for the currently logged in user
+				// 404: Not found code
+				throw error(
+					404,
+					'We could not find a parent associated with the current user. Please ensure that you are not using an admin account. '
+				);
 			}
 		} else {
-			// not logged in
-			throw error(400, 'not logged in');
+			// No user is currently logged in
+			// User is redirected to the login page
+			// 308: Permanent redirect code
+			throw redirect(308, '/login');
 		}
 	}
 };
@@ -32,6 +43,7 @@ export const load: PageServerLoad = async ({ request, locals }: PageServerLoadEv
 export const actions: Actions = {
 	// Handles the user submitting the form to check availability
 	checkAvailability: async ({ request }: RequestEvent) => {
+		// Extracts the data submitted in the HTML form
 		const data = await request.formData();
 		const childId = data.get('childId') as string;
 		const date = data.get('date') as string;
@@ -99,11 +111,12 @@ export const actions: Actions = {
 			startTime: startTime
 		});
 
+		// Checks the sessios's availability
 		const availabilityChecker = session.getAvailabilityChecker();
-
 		const okayChildcareLimits = await availabilityChecker.checkChildcareLimits();
 		const okayTimeOff = await availabilityChecker.checkTimeOffPeriods();
 
+		// Data is returned so that it can be used in the HTML template
 		return { sessionAllowed: okayTimeOff && okayChildcareLimits };
 	}
 };

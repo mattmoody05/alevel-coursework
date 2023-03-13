@@ -14,18 +14,29 @@
 
 	let selectedChildId = data.children[0].childId;
 
+	// Gets the recurring session for the specified childId
 	function getSelectedRecurringSession(childId: string) {
-		const requests = data.recurringSessionRequests.filter((req) => req.childId === childId);
-		if (requests.length !== 0) {
-			return requests[0];
+		for (let i = 0; i < data.recurringSessionRequests.length; i++) {
+			const currentRequest = data.recurringSessionRequests[i];
+			if (currentRequest.childId === childId) {
+				return currentRequest;
+			}
 		}
 	}
 
+	// Function should only be used when the current user is a parent
+	// Gets the parent for the specified parentId
 	function getChildParent(parentId: string) {
-		// parents is only provided when isAdmin is true, but this function will only be called then so should not be an issue
-		// @ts-ignore
-		const parents = data.parents.filter((parentData) => parentId === parentData.parentId);
-		return parents[0];
+		if (data.parents !== undefined) {
+			for (let i = 0; i < data.parents.length; i++) {
+				const currentParent = data.parents[i];
+				if (currentParent.parentId === parentId) {
+					return currentParent;
+				}
+			}
+		} else {
+			return undefined;
+		}
 	}
 </script>
 
@@ -66,24 +77,24 @@
 <h3 class="font-bold text-xl">View recurring session</h3>
 <form method="POST" class="flex flex-col gap-2 mt-2">
 	<Listbox bind:value={selectedChildId} name="childId" labelText="Select child">
+		<!-- Shows the parent name for the child, aswell as the child name depending on whether the current user is an admin or not -->
 		{#each data.children as child}
-			{#if data.isAdmin}
-				<option value={child.childId}
-					>{child.firstName}
-					{child.lastName} ({getChildParent(child.parentId).firstName}
-					{getChildParent(child.parentId).lastName})</option
-				>
+			{#if data.isAdmin === true}
+				<option value={child.childId}>
+					{child.firstName}
+					{child.lastName}
+					({getChildParent(child.parentId)?.firstName}
+					{getChildParent(child.parentId)?.lastName})
+				</option>
 			{:else}
-				<option value={child.childId}
-					>{child.firstName}
-					{child.lastName}</option
-				>
+				<option value={child.childId}>
+					{child.firstName}
+					{child.lastName}
+				</option>
 			{/if}
 		{/each}
 	</Listbox>
 	{#key selectedChildId}
-		<!-- lots of potential undefined errors here - cannot be undefined because there is a check with the if statement above - fix later  -->
-
 		{#if getSelectedRecurringSession(selectedChildId) !== undefined}
 			{@const currentRequest = getSelectedRecurringSession(selectedChildId)}
 			<div>
@@ -105,7 +116,6 @@
 			<span class="font-bold">Days in recurring session booking:</span>
 			{#each dayList as currentDayName}
 				{@const daySelected = currentRequest[`${currentDayName}Selected`]}
-				<!-- day selected coming from db as 1 or 0 instead of true / false, convert to strict equality later -->
 				{#if daySelected == true}
 					<div class="bg-gray-100 border border-gray-300 rounded-xl p-2 grid grid-cols-2">
 						<div><span class="font-bold">Day: </span> {capitaliseFirst(currentDayName)}</div>

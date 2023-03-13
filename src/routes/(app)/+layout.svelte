@@ -5,8 +5,12 @@
 	import { afterNavigate } from '$app/navigation';
 	import type { LayoutData } from './$types';
 
-	let selectedRouteUrl: string = $page.url.pathname;
 	export let data: LayoutData;
+
+	// The current route that the user is viewing
+	let selectedRouteUrl: string = $page.url.pathname;
+
+	// Will run after every navigation event
 	afterNavigate(() => {
 		selectedRouteUrl = `/${$page.url.pathname.split('/')[1]}`;
 	});
