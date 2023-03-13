@@ -3,15 +3,15 @@
 	import { Button, LinkButton } from '$lib/components/button';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
 
+	// Will run when the page is rendered
 	onMount(() => {
+		// Hides the success alert after 5 seconds
 		if (form?.success) {
 			setTimeout(() => {
-				// @ts-ignore
 				form.success = false;
 			}, 5000);
 		}

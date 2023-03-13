@@ -1,5 +1,8 @@
 import type { ChildTable, ParentTable } from './db';
 
+// Returns a tailwindcss colour code based off a string
+// Works from using the length of the string to calculate the colour
+// All colours have been selected to be compatible in the UI - otherwise contrast could be an issue
 export function stringToColour(str: string | undefined): string {
 	if (str === undefined) {
 		return 'bg-indigo-500';
@@ -24,10 +27,12 @@ export function stringToColour(str: string | undefined): string {
 	return colours[Math.floor(str.length / 2)];
 }
 
+// Capitalises the first letter of a string
 export function capitaliseFirst(text: string): string {
 	return `${text[0].toUpperCase()}${text.substring(1, text.length)}`;
 }
 
+// Gets the child's name given the childId and the array of child data
 export function getChildName(childId: string, children: ChildTable[]) {
 	for (let i = 0; i < children.length; i++) {
 		const currentChild = children[i];
@@ -48,6 +53,7 @@ export function getChildName(childId: string, children: ChildTable[]) {
 	};
 }
 
+// Gets the parent's name given the childId and the array of parent data
 export function getParentName(parentId: string, parents: ParentTable[]) {
 	for (let i = 0; i < parents.length; i++) {
 		const currentParent = parents[i];
@@ -68,6 +74,7 @@ export function getParentName(parentId: string, parents: ParentTable[]) {
 	};
 }
 
+// Scrolls to the bottom of the specified HTML element
 export function scrollToBottom(element: HTMLElement) {
 	element.scroll({ top: element.scrollHeight, behavior: 'smooth' });
 }

@@ -4,12 +4,15 @@ import { ADMIN_FORGOT_PASSWORD_EMAIL, JWT_SIGNING_SECRET_KEY } from '$env/static
 import { Mailer } from '$lib/util/email';
 
 export const actions: Actions = {
-	requestReset: async ({ request }: RequestEvent) => {
+	requestReset: async ({}: RequestEvent) => {
 		// The token expires in an hour
+		// Generates an admin only password reset token
 		const token = jwt.sign({ admin: true }, JWT_SIGNING_SECRET_KEY, { expiresIn: '1h' });
 
+		// Mailer object for the admin's email
 		const mailer = new Mailer(ADMIN_FORGOT_PASSWORD_EMAIL);
 
+		// Sends an email to the admin with the token
 		mailer.sendEmail({
 			subject: 'Admin password reset',
 			htmlBody: `
@@ -22,6 +25,8 @@ export const actions: Actions = {
 			Thank you
 			`
 		});
+
+		// Returns data so it can be used in the HTML template
 		return { success: true };
 	}
 };

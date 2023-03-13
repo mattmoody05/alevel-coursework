@@ -22,6 +22,12 @@ function isNumber(str: string): boolean {
 	return true;
 }
 
+// Uses regular expressions to check if a character is a letter or not
+// Allows for uppercase or lowercase letters
+function isLetter(character: string): boolean {
+	return /^[a-zA-Z]$/.test(character);
+}
+
 // A function used to check that an email address is valid
 // Takes one string argument - the email address to check
 // Returns a boolean value - true if the email address is valid, false if not
@@ -108,51 +114,83 @@ export function validateDate(date: string): boolean {
 	return true;
 }
 
-export function presenceCheck(str: string) {
-	if (str === '') {
-		return false;
-	} else {
-		return true;
-	}
+export function presenceCheck(str: string): boolean {
+	return str !== '';
 }
 
 export function validatePhoneNumber(phoneNumber: string): boolean {
-	if (phoneNumber.length !== 11) {
-		return false;
-	}
-
-	return true;
+	return phoneNumber.length === 11;
 }
 
 export function doubleKeyCheck(valueOne: string, valueTwo: string): boolean {
-	if (valueOne !== valueTwo) {
-		return false;
-	}
-
-	return true;
+	return valueOne === valueTwo;
 }
 
 export function validatePostcode(postcode: string): boolean {
+	const lastThreeChars = postcode.slice(-3);
+
+	// Check length of postcode
+	if (postcode.length < 5 || postcode.length > 7) {
+		return false;
+	}
+
+	// Check first character of postcode
+	// Q, V, X not allowed
+	else if (postcode[0] === 'Q' || postcode[0] === 'V' || postcode[0] === 'X') {
+		return false;
+	}
+
+	// Check second character of postcode
+	// I, J, Z not allowed
+	else if (postcode[1] === 'I' || postcode[1] === 'J' || postcode[1] === 'Z') {
+		return false;
+	}
+
+	// Checks that the last three characters of the postcode follow NumberLetterLetter format
+	else if (isNumber(lastThreeChars[0]) === false) {
+		return false;
+	} else if (isLetter(lastThreeChars[1]) === false) {
+		return false;
+	} else if (isLetter(lastThreeChars[2]) === false) {
+		return false;
+	}
+
+	// All checks have passed
 	return true;
 }
 
 export function validateTime(time: string) {
+	// Checks the string is the correct length
 	if (time.length !== 5) {
 		return false;
 	}
 
+	// Extracts the hours and minutes from the string
 	let hours = time.substring(0, 2);
 	let mins = time.substring(3, 5);
 
+	// Checks the hours and minutes are numbers
 	if ((isNumber(hours) === true && isNumber(mins) === true) === false) {
 		return false;
-	} else if (Number(hours) > 24 || Number(hours) < 0) {
+	}
+
+	// Checks that the hours is in the correct range
+	else if (Number(hours) > 24 || Number(hours) < 0) {
 		return false;
-	} else if (Number(mins) > 59 || Number(mins) < 0) {
+	}
+
+	// Checks that the minutes is in the correct range
+	else if (Number(mins) > 59 || Number(mins) < 0) {
 		return false;
-	} else if (time[2] !== ':') {
+	}
+
+	// Checks that the seperator is a colon
+	else if (time[2] !== ':') {
 		return false;
-	} else {
+	}
+
+	// All checks have passed
+	else {
 		return true;
 	}
 }

@@ -1,5 +1,5 @@
 import { JWT_SIGNING_SECRET_KEY } from '$env/static/private';
-import { getAccount, getAdmin } from '$lib/util/db';
+import { getAdmin } from '$lib/util/db';
 import { doubleKeyCheck } from '$lib/util/validation';
 import { error, invalid, type Actions } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
@@ -10,22 +10,27 @@ export const load: PageServerLoad = async ({ params }) => {
 	try {
 		const decoded = jwt.verify(token, JWT_SIGNING_SECRET_KEY) as
 			| {
-					accountId: string;
-					emailAddress: string;
+					admin: boolean;
 			  }
 			| undefined;
 		if (decoded !== undefined) {
 			return;
 		} else {
+			// Token does not include the required fields
+			// The token provided is not valid so cannot be used to reset the password
+			// 400: Bad request code
 			throw error(
 				400,
 				'The token that you supplied is not a valid password reset token, please try again later. '
 			);
 		}
 	} catch {
+		// Token could not be decoded or has expired
+		// The token provided is not valid so cannot be used to reset the password
+		// 400: Bad request code
 		throw error(
 			400,
-			'The token that you supplied is not a valid password reset token, please try again later. '
+			'The token that you supplied is not a valid password reset token, please try again later or request another token. '
 		);
 	}
 };
@@ -43,27 +48,39 @@ export const actions: Actions = {
 			});
 		}
 
-		const decoded = jwt.verify(token, JWT_SIGNING_SECRET_KEY) as
-			| {
-					admin: boolean;
-			  }
-			| undefined;
-
-		if (decoded !== undefined) {
-			if (decoded.admin === true) {
-				const admin = getAdmin();
-				await admin.setPassword(password);
-				return { success: true };
+		try {
+			const decoded = jwt.verify(token, JWT_SIGNING_SECRET_KEY) as
+				| {
+						admin: boolean;
+				  }
+				| undefined;
+			if (decoded !== undefined) {
+				if (decoded.admin === true) {
+					const admin = getAdmin();
+					await admin.setPassword(password);
+					return { success: true };
+				} else {
+					throw error(
+						400,
+						'The token that you supplied is not a valid password reset token, please try again later. '
+					);
+				}
 			} else {
+				// Token does not include the required fields
+				// The token provided is not valid so cannot be used to reset the password
+				// 400: Bad request code
 				throw error(
 					400,
 					'The token that you supplied is not a valid password reset token, please try again later. '
 				);
 			}
-		} else {
+		} catch {
+			// Token could not be decoded or has expired
+			// The token provided is not valid so cannot be used to reset the password
+			// 400: Bad request code
 			throw error(
 				400,
-				'The token that you supplied is not a valid password reset token, please try again later. '
+				'The token that you supplied is not a valid password reset token, please try again later or request another token. '
 			);
 		}
 	}

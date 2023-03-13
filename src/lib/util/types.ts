@@ -1,5 +1,3 @@
-export type buttonStyle = 'primary' | 'secondary' | 'danger' | 'submit';
-
 export type expandedSurvey = {
 	surveyId: string;
 	title: string;

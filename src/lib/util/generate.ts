@@ -2,6 +2,7 @@ import { HOURLY_RATE } from '$env/static/private';
 import { Expense, getChild, getExpensesInPeriod, Invoice, Session, type InvoiceTable } from './db';
 import { v4 as uuidv4 } from 'uuid';
 
+// Generates an invoice, returns an invoice object
 export async function generateInvoice(invoiceDetails: {
 	childId: string;
 	startDate: string;
@@ -16,7 +17,6 @@ export async function generateInvoice(invoiceDetails: {
 	parentId: string;
 }): Promise<Invoice> {
 	// Fetch all sessions in period
-
 	let sessionsInPeriod: Session[] = [];
 	const child = await getChild(invoiceDetails.childId);
 	if (child !== undefined) {
@@ -32,9 +32,8 @@ export async function generateInvoice(invoiceDetails: {
 		expensesInPeriod = await getExpensesInPeriod(invoiceDetails.startDate, invoiceDetails.endDate);
 	}
 
-	// Calc total
+	// Calc total of the invoice
 	let total = 0;
-
 	for (let index = 0; index < sessionsInPeriod.length; index++) {
 		const currentSession: Session = sessionsInPeriod[index];
 		if (currentSession.absent) {
@@ -47,24 +46,22 @@ export async function generateInvoice(invoiceDetails: {
 			total = total + sessionCost;
 		}
 	}
-
 	for (let index = 0; index < expensesInPeriod.length; index++) {
 		const currentExpense: Expense = expensesInPeriod[index];
 		if (currentExpense.chargeToParents) {
 			total = total + currentExpense.cost;
 		}
 	}
-
 	if (invoiceDetails.additionalChargeAmount !== undefined) {
 		total = total + invoiceDetails.additionalChargeAmount;
 	}
-
 	if (invoiceDetails.discountAmount !== undefined) {
 		total = total * ((100 - invoiceDetails.discountAmount) / 100);
 	}
 
 	const date = new Date();
 
+	// Put all data together
 	const generatedInvoice: InvoiceTable = {
 		childId: invoiceDetails.childId,
 		dateDue: invoiceDetails.dateDue,
@@ -84,5 +81,6 @@ export async function generateInvoice(invoiceDetails: {
 		paymentStatus: 'Unpaid'
 	};
 
+	// Create invoice object and return
 	return new Invoice(generatedInvoice);
 }

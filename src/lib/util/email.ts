@@ -13,6 +13,8 @@ export class Mailer {
 		this.#email = email;
 	}
 
+	// Used to send an email to the specified email address
+	// Uses NodeMailer to send the email
 	sendEmail(options: { subject: string; htmlBody: string }) {
 		const transporter = createTransport({
 			host: NODEMAILER_HOST,

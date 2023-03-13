@@ -1,3 +1,5 @@
+// An outline of all the top level routes within the app portion of the application
+// Used to render the menu
 export const routes: { iconClass: string; name: string; url: string; adminOnly: boolean }[] = [
 	{
 		name: 'Dashboard',

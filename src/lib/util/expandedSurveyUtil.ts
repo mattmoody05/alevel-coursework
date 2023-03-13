@@ -9,6 +9,7 @@ import {
 	type SurveyResponseTable
 } from './db';
 
+// Gets a survey question and the options within
 export async function getExpandedSurveyQuestion(
 	surveyQuestionId: string
 ): Promise<expandedSurveyQuestion | undefined> {
@@ -37,6 +38,7 @@ export async function getExpandedSurveyQuestion(
 	return undefined;
 }
 
+// Gets a survey, the questions within and the options within
 export async function getExpandedSurvey(surveyId: string): Promise<expandedSurvey | undefined> {
 	const surveyData = await getSurvey(surveyId);
 	if (surveyData !== undefined) {
@@ -74,6 +76,7 @@ export async function getExpandedSurvey(surveyId: string): Promise<expandedSurve
 	return undefined;
 }
 
+// Gets a surveyResponse for a parent
 export async function getSurveyResponse(
 	surveyQuestionId: string,
 	parentId: string
@@ -87,6 +90,7 @@ export async function getSurveyResponse(
 	return response;
 }
 
+// Writes a survey response for a parent
 export async function writeSurveyResponse(
 	parentId: string,
 	surveyId: string,
@@ -119,6 +123,7 @@ export async function writeSurveyResponse(
 	return surveyResponseData;
 }
 
+// Updates the survey response that a parent has previously submitted
 export async function updateSurveyResponse(
 	surveyResponseId: string,
 	newSurveyQuestionOptionId: string
@@ -131,6 +136,7 @@ export async function updateSurveyResponse(
 	);
 }
 
+// Checks whether or not a parent has submitted a response to a survey question previously
 export async function checkSurveyResponseExists(surveyQuestionId: string, parentId: string) {
 	const db = await openDb();
 	const response = await db.get(
@@ -144,6 +150,7 @@ export async function checkSurveyResponseExists(surveyQuestionId: string, parent
 	return true;
 }
 
+// Gets a survey, the questions within, the options within and the responses within
 export async function getExpandedSurveyWithResponses(surveyId: string) {
 	const db = await openDb();
 	const expandedSurveyData: expandedSurvey | undefined = await getExpandedSurvey(surveyId);
