@@ -74,8 +74,8 @@ export const actions: Actions = {
 				// The child already has a recurring session
 				// 400: Bad request code
 				throw invalid(400, {
-					message:
-						'The child that you have selelcted to request a reecurring session for already has a request in the system. Please remove the other recurring session before submitting a new one. ',
+					message: `The child that you have selelcted to request a reecurring session for already has a request in the system. 
+						Please remove the other recurring session before submitting a new one. `,
 					data: {
 						childId,
 						recurringBasis

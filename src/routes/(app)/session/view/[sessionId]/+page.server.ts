@@ -109,6 +109,7 @@ export const actions: Actions = {
 	cancelSession: async ({ params }: RequestEvent) => {
 		if (params.sessionId !== '') {
 			const session = await getSession(params.sessionId);
+			await session?.sendDeletionEmail();
 			await session?.deleteFromDatabase();
 
 			// Redirects the user back to the main session view page

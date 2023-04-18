@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Header from '$lib/components/header/header.svelte';
+	import { Header } from '$lib/components/header';
 	import { Menu } from '$lib/components/menu';
 	import { page } from '$app/stores';
 	import { afterNavigate } from '$app/navigation';

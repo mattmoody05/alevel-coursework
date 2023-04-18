@@ -134,16 +134,16 @@
 	{/if}
 	<AbsenceCard absenceReports={absenceSummaries} absencesReported={1} />
 	<SurveyCard
-		surveysIssued={10}
-		surveysPending={2}
+		surveysIssued={data.surveys.length}
+		surveysPending={data.surveys.length}
 		recentSurveys={data.surveys.map((survey) => ({
 			dateCreated: survey.dateCreated,
 			surveyName: survey.title
 		}))}
 	/>
 	<InvoiceCard
-		invoicesDue={1}
-		invoicesIssued={10}
+		invoicesDue={data.invoices.length}
+		invoicesIssued={data.invoices.length}
 		recentInvoices={data.invoices.map((invoice) => ({
 			amountDue: invoice.total,
 			dueDate: invoice.dateDue
