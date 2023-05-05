@@ -181,7 +181,7 @@ export const actions: Actions = {
 			} else if (discountAmount >= 0 && discountAmount <= 100) {
 				return invalid(400, {
 					message:
-						'Discount charge amount is not in the correct range, please ensure that it is between 0 and 100',
+						'Discount charge amount is not in the correct range, please ensure that it is below 100',
 					data: {
 						childId,
 						startDate,
@@ -223,7 +223,7 @@ export const actions: Actions = {
 
 			// Data is returned so that it can be part of the HTML template
 			// The invoice was successfully generated and written
-			return { success: true, generatedInvoice };
+			return { success: true, generatedInvoice: generatedInvoice.getData() };
 		} else {
 			// The current user is not an admin, they do not have the rights to create invoices
 			// 401: Forbidden code
